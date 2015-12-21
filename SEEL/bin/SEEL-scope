@@ -1,0 +1,753 @@
+#!/usr/bin/python
+'''
+oscilloscope for the vLabtool - version 0.
+Also includes control widgets, and a logic analyzer
+'''
+
+from argparse import ArgumentParser
+parser = ArgumentParser()
+# Add more options if you like
+parser.add_argument("-P", dest="PortName",
+                    help="If you have connected multiple devices, provide the port name . e.g /dev/ttyACM0", metavar="PORT_NAME")
+
+parser.add_argument("-H", dest="HostName",
+                    help="The IP Address of the wireless vLabtool you wish to connect to", metavar="HOST_NAME")
+
+
+args = parser.parse_args()
+
+import os
+os.environ['QT_API'] = 'pyqt'
+import sip
+sip.setapi("QString", 2)
+sip.setapi("QVariant", 2)
+
+
+import SEEL.interface as interface
+from PyQt4 import QtCore, QtGui
+import time,sys
+from SEEL.templates import template_scope
+from SEEL.customui_rc import *
+
+import sys,os,string
+import time
+import sys
+
+import pyqtgraph as pg
+import pyqtgraph.opengl as gl
+
+import numpy as np
+import scipy.optimize as optimize
+import scipy.fftpack as fftpack
+
+
+err_count=0
+trial = 0
+start_time = time.time()
+fps = None
+dacval=0
+from SEEL.commands_proto import *
+
+
+
+class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
+	def __init__(self, parent=None):
+		super(MyMainWindow, self).__init__(parent)
+		self.setupUi(self)
+
+		if  args.HostName:
+			import SEEL.interface_wifi as interface
+			self.I = interface.connect(host = args.HostName,data_splitting=300,timeout=1.0)
+		else:
+			import SEEL.interface as interface
+			if  args.PortName: self.I = interface.connect(port = args.PortName)
+			else: self.I = interface.connect()
+
+
+		if not self.I.connected:
+			print 'Exiting'
+			sys.exit(1)
+			if not self.I.connected:
+				print 'Exiting'
+				sys.exit(1)
+
+		self.setWindowTitle('vLabtool : '+self.I.H.version_string)
+		
+		self.dacval=0
+
+		#self.yaxis = pg.AxisItem('left',showValues=False,maxTickLength=-4000)
+		#self.yaxis.setPen((0,45,45))
+		#self.yaxis.setLabel(text='Voltage -->>', units='')
+		#self.yaxis.setTicks([[(a*5,'') for a in range(-6,6)],[(a,'') for a in range(-30,30)]])
+		self.plot=pg.PlotWidget()
+
+		#cross hair
+		self.vLine = pg.InfiniteLine(angle=90, movable=True)
+		#self.vLine.setPen(color=(135,44,64,150), width=3)
+		self.plot.addItem(self.vLine, ignoreBounds=False)
+
+		self.proxy = pg.SignalProxy(self.vLine.scene().sigMouseMoved, rateLimit=60, slot=self.readCursor)
+		
+		self.fps=0
+		self.max_samples_per_channel=[0,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4]
+		self.liss_win=None
+		self.liss_ready=False
+		self.liss_animate_arrow1=None
+		self.liss_animate_arrow2=None
+		self.liss_animate_arrow3=None
+		self.liss_anim1=None
+		self.liss_anim2=None
+		self.liss_anim3=None
+		self.samples=self.I.MAX_SAMPLES/4#self.sample_slider.value()
+		self.active_channels=1
+		self.active_dchannels=1
+		self.channel_states=np.array([1,0,0,0])
+		self.channels_in_buffer=1
+		self.chosa = 3
+		self.chan1remap='CH1'
+		self.ch123sa = 0
+		self.dtrig=0
+		self.dchan_modes=[1,1,1,1]
+		self.dtime=0.001
+		self.sqrDict={'SQ1':[0,0.5],'SQ2':[0,0.5],'OD1':[0,0.5],'OD2':[0,0.5]}
+		g=1.75
+		self.timebase = g
+		self.datx=[]
+		self.lastTime=time.time()
+
+		self.trace_colors=[(0,255,20),(255,255,0),(255,10,100),(10,255,255)]
+
+		self.plot.setLabel('bottom', 'Time -->>', units='S')
+		labelStyle = {'color': 'rgb%s'%(str(self.trace_colors[0])), 'font-size': '11pt'}
+		self.plot.setLabel('left','CH1', units='V',**labelStyle)
+		self.plot.addLegend(offset=(-10,30))
+
+		self.plot2 = pg.ViewBox()
+		self.ax2 = pg.AxisItem('right')
+		self.plot.plotItem.layout.addItem(self.ax2, 2, 3)
+		self.plot.plotItem.scene().addItem(self.plot2)
+		self.ax2.linkToView(self.plot2)
+		self.plot2.setXLink(self.plot.plotItem)
+		self.ax2.setZValue(-10000)
+		labelStyle = {'color': 'rgb%s'%(str(self.trace_colors[1])), 'font-size': '13pt'}
+		self.ax2.setLabel('CH2', units='V', **labelStyle)
+
+		self.plot2.setGeometry(self.plot.plotItem.vb.sceneBoundingRect())
+		self.plot2.linkedViewChanged(self.plot.plotItem.vb, self.plot2.XAxis)
+		## Handle view resizing 
+		self.plot.getViewBox().sigStateChanged.connect(self.updateViews)
+
+		self.curve1 = self.plot.plot(name='CH1'); self.curve1.setPen(color=self.trace_colors[0], width=1)
+		self.curve2 = self.plot.plot(name='CH2'); self.curve2.setPen(color=self.trace_colors[1], width=1)
+		self.curve3 = self.plot.plot(name='CH3'); self.curve3.setPen(color=self.trace_colors[2], width=1)
+		self.curve4 = self.plot.plot(name='CH4'); self.curve4.setPen(color=self.trace_colors[3], width=1)
+		self.curve_lis = self.plot.plot(); self.curve_lis.setPen(color=(255,255,255), width=1)
+
+		self.curve_fitL = self.plot.plot(); self.curve_fitL.setPen(color=(255,255,255), width=1)
+
+		self.curve_fitR = pg.PlotDataItem()
+		self.plot2.addItem(self.curve_fitR); self.curve_fitR.setPen(color=(255,255,255), width=1)
+
+		self.curveB = pg.PlotDataItem(name='CH2')
+		self.plot2.addItem(self.curveB)
+		self.curveB.setPen(color=self.trace_colors[1], width=1)
+		#self.plot.sigDeviceTransformChanged.connect(self.blah)
+		#self.plot.sigTransformChanged.connect(self.blah)
+		#self.plot.sigRangeChanged.connect(self.blah)
+
+		self.CH1_ENABLE.setStyleSheet('background-color:rgba'+str(self.trace_colors[0])[:-1]+',3);color:(0,0,0);')
+		self.trigger_select_box.setItemData(0, QtGui.QColor(*self.trace_colors[0]), QtCore.Qt.BackgroundRole);
+		self.CH2_ENABLE.setStyleSheet('background-color:rgba'+str(self.trace_colors[1])[:-1]+',3);color:(0,0,0);')
+		self.trigger_select_box.setItemData(1, QtGui.QColor(*self.trace_colors[1]), QtCore.Qt.BackgroundRole);
+		self.triggerChannelName='CH1'
+		self.arrow = pg.ArrowItem(pos=(0, 0), angle=0)
+		self.plot.addItem(self.arrow)
+		#markings every 5 Volts
+		self.voltsperdiv = ['5V/div','3V/div','2V/div','1V/div','500mV/div','400mV/div','300mV/div','100mV/div']
+		self.trigger_channel=0
+		self.trigger_level = 0
+		self.trigtext = pg.TextItem(html=self.trigger_text('CH1'), anchor=(1.2,0.5), border='w', fill=(0, 0, 255, 100),angle=0)
+		self.plot.addItem(self.trigtext)
+		self.plot.showGrid(True,False,0.4)
+		self.scope_type=0
+		self.plot_area.addWidget(self.plot)
+		self.CH1_REMAPS.addItems(self.I.allAnalogChannels)
+		self.showgrid()
+		self.trigtext.setParentItem(self.arrow)
+		self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,0)
+		
+		#fn = lambda x:abs(x-50)
+		#self.I.load_waveform(1,fn,[0,100])
+		#self.I.load_waveform(2,lambda x:x*x,[0,2*np.pi])
+
+		#self.sqr4_continuous(10000,.5,0.1,.5,0.3,.3,0.5,.1)
+		
+		self.autoRange()
+		#self.plot.setMouseEnabled(False,True)
+		self.timer = QtCore.QTimer()
+		#print 'capturing.',self.I.capture2(4000,3)
+		self.timer.singleShot(500,self.start_capture)
+
+	def updateViews(self):
+			self.plot2.setGeometry(self.plot.getViewBox().sceneBoundingRect())
+			self.plot2.linkedViewChanged(self.plot.plotItem.vb, self.plot2.XAxis)
+		
+	def trigger_text(self,c):
+		return '<div style="text-align: center"><span style="color: #FFF; font-size: 8pt;">'+c+'</span></div>'		
+
+
+	def blah(self,**args):
+		print args
+
+	def showgrid(self):
+		return
+
+
+	def set_scope_type(self,val):
+		self.scope_type=val
+
+		
+	def setPVS1(self,val):
+		val=self.I.DAC.__setRawVoltage__('PVS1',val)
+		self.PVS1_LABEL.setText('%.3f V'%(val))
+
+	def setPVS2(self,val):
+		val=self.I.DAC.__setRawVoltage__('PVS2',val)
+		self.PVS2_LABEL.setText('%.3f V'%(val))
+
+	def setPVS3(self,val):
+		val=self.I.DAC.__setRawVoltage__('PVS3',val)
+		self.PVS3_LABEL.setText('%.3f V'%(val))
+
+	def setPCS(self,val):
+		val=3.3-self.I.DAC.__setRawVoltage__('PCS',val)
+		self.PCS_LABEL.setText('%.3f mA'%(val))
+
+	def setSINE1(self,val):
+		f=self.I.set_sine1(val)
+		self.WAVE1_FREQ.setText('%.2f'%(f))
+
+	def setSINE2(self,val):
+		f=self.I.set_sine2(val)
+		self.WAVE2_FREQ.setText('%.2f'%(f))
+
+	def setSinePhase(self):
+		freq = self.sinePhase_freq.value()
+		phase = self.sinePhase_phase.value()
+		#print freq,phase
+		f=self.I.set_sine_phase(freq,phase)
+		self.WAVE1_FREQ.setText('%.2f'%(f))
+		self.WAVE2_FREQ.setText('%.2f'%(f))
+		
+	def start_capture(self):
+		if(self.freezeButton.isChecked()):
+			self.timer.singleShot(200,self.start_capture)
+			return
+
+		#print self.get_inductance()
+		temperature=self.I.get_temperature()
+		self.plot.setTitle('%0.2f fps, 	%0.1f ^C' % (self.fps,temperature ) )
+		self.channels_in_buffer=self.active_channels
+		#self.I.set_state(SQR1=0)
+		if not self.scope_type:
+			a = self.CH1_ENABLE.isChecked()
+			b = self.CH2_ENABLE.isChecked()
+			c = self.FOURCHAN_ENABLE.isChecked()
+			if c:
+				self.active_channels=4
+			elif b:
+				self.active_channels=2
+			elif a:
+				self.active_channels=1
+			else:
+				self.active_channels=0
+
+			self.channels_in_buffer=self.active_channels
+			self.channel_states[0]=a
+			self.channel_states[1]=b
+			self.channel_states[2]=c
+			self.channel_states[3]=c
+			
+			if self.active_channels:
+				self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10)
+				self.I.capture_traces(self.active_channels,self.samples,self.timebase,self.chan1remap,self.ch123sa)
+				#self.I.capture_highres_traces(self.chan1remap,self.samples,self.timebase)
+			
+		else:
+			if self.active_dchannels==4: self.I.start_four_channel_LA(1,self.dtime,self.dchan_modes,edge='rising',trigger_ID1=True)
+			elif self.active_dchannels==1:#self.start_one_channel_LA_backup(self.dtrig,'ID1',edge='falling')
+				aqchan = self.LA1_chan.currentText()
+				aqmode = self.LA1_chanmode.currentIndex()
+				trchan = self.LA1_trig.currentText()
+				trmode = self.LA1_trigmode.currentIndex()
+				if(trmode):trmode+=1
+				#print aqchan,aqmode,trchan,trmode
+				if trmode: self.I.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_channel=trchan,trigger_mode=trmode)
+				else : self.I.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_mode=0)
+			elif self.active_dchannels==3:
+				trchan = self.LA1_trig.currentText()
+				trmode = self.LA1_trigmode.currentIndex()
+				if(trmode):trmode+=1
+				if trmode: self.I.start_three_channel_LA(modes=self.dchan_modes,trigger_channel=trchan,trigger_mode=trmode)
+				else : self.I.start_three_channel_LA(modes=self.dchan_modes,trigger_channel=trchan,trigger_mode=0)
+			elif self.active_dchannels==2: self.I.start_two_channel_LA(1)
+		
+		#self.I.sqr1(1e5,80)
+
+		self.timebase_label.setValue(self.I.timebase)
+		if(self.scope_type):self.timer.singleShot(self.dtime*1e3+10,self.update)	#Logic analyzer mode
+		else: self.timer.singleShot(self.samples*self.I.timebase*1e-3+10,self.update)     #oscilloscope mode
+
+	def update(self):
+		n=0
+		while(not self.I.oscilloscope_progress()[0]):
+			time.sleep(0.001)
+			print self.timebase,'correction required',n
+			n+=1
+		if not self.scope_type:	#Analog mode
+			if(self.channels_in_buffer>=1):self.I.__fetch_channel__(1)
+			if(self.channels_in_buffer>=2):self.I.__fetch_channel__(2)
+			if(self.channels_in_buffer>=3):self.I.__fetch_channel__(3)
+			if(self.channels_in_buffer>=4):self.I.__fetch_channel__(4)
+		else:			#Logic analyzer mode [digital mode]
+			self.I.fetch_LA_channels()
+			if len(self.I.dchans[0].timestamps)>2:
+				offset = self.I.dchans[0].timestamps[0]
+				txt = 'CH1: Offset:\t%.3euS\ttimestamps(uS):\t'%(offset/64.)
+				txt += string.join(['%.2e'%(a/64.) for a in (self.I.dchans[0].timestamps[1:4]-offset)],'\t')
+				self.message_label.setText(txt+'...')
+			else:
+				self.message_label.setText('CH1: too few points to display')
+
+		self.curve1.clear()
+		self.curve2.clear()
+		self.curve3.clear()
+		self.curve4.clear()
+		self.curveB.clear()
+		self.curve_fitL.clear()
+		self.curve_fitR.clear()
+		if self.scope_type:
+			self.curve1.setData(self.I.dchans[0].get_xaxis(),self.I.dchans[0].get_yaxis() )
+			if(self.active_dchannels>1):
+				self.curve2.setData(self.I.dchans[1].get_xaxis(),self.I.dchans[1].get_yaxis() )
+			else:	self.curve2.clear()
+			
+			if(self.active_dchannels>2):
+				self.curve3.setData(self.I.dchans[2].get_xaxis(),self.I.dchans[2].get_yaxis() )
+			else:	self.curve3.clear()
+			
+			if(self.active_dchannels>3):
+				self.curve4.setData(self.I.dchans[3].get_xaxis(),self.I.dchans[3].get_yaxis() )
+			else:	self.curve4.clear()
+		else:
+			msg='';pos=0
+			plotnum=0
+			for fitsel in [self.fit_select_box.currentIndex(),self.fit_select_box_2.currentIndex()]:
+				plotnum+=1
+				if fitsel<4:
+					if len(msg)>0:
+						msg+='\n'
+					if self.channel_states[fitsel]:
+						msg+='FIT '+chr(pos+65)+': '+self.fitData(self.I.achans[fitsel].get_xaxis(),\
+						self.I.achans[fitsel].get_yaxis(),plotnum)
+					else:
+						msg+='FIT '+chr(pos+65)+': Channel Unavailable'
+
+				pos+=1
+			if len(msg):
+				self.message_label.setText(msg)
+			pos=0
+			for a in [self.curve1,self.curveB,self.curve3,self.curve4]:
+				if self.channel_states[pos]: a.setData(self.I.achans[pos].get_xaxis()*1e-6,self.I.achans[pos].get_yaxis(),connect='finite')
+				pos+=1
+
+		if(self.Liss_show.isChecked() and self.scope_type==0):
+			chans = ['CH1','CH2']
+			lissx = self.Liss_x.currentText()
+			lissy = self.Liss_y.currentText()
+			self.liss_x = chans.index(lissx)
+			self.liss_y = chans.index(lissy)
+			xscale=1e6*16.5*2/(self.samples*self.timebase)
+			xoffset=(self.samples*self.timebase)/2./1e6
+			la=self.I.achans[self.liss_x].get_yaxis()
+			lb=self.I.achans[self.liss_y].get_yaxis()
+			if(self.liss_x<self.active_channels and self.liss_y<self.active_channels and len(la)==len(lb)):
+				self.curve_lis.setData(self.I.achans[self.liss_x].get_yaxis()/xscale+xoffset,self.I.achans[self.liss_y].get_yaxis())
+				self.liss_ready=True
+			else:
+				self.curve_lis.clear()
+				self.liss_ready=False
+				#print self.fps,'not available',self.active_channels,self.liss_x,self.liss_y
+		else:
+			self.curve_lis.clear()
+			
+		self.readCursor()			
+
+
+		now = time.time()
+		dt = now - self.lastTime
+		self.lastTime = now
+		if self.fps is None:
+			self.fps = 1.0/dt
+		else:
+			s = np.clip(dt*3., 0, 1)
+			self.fps = self.fps * (1-s) + (1.0/dt) * s
+		
+		self.timer.singleShot(100,self.start_capture)
+
+	def readCursor(self):
+		pos=self.vLine.getPos()
+		index = int(pos[0]*1e6)/self.I.timebase
+		if index > 0 and index < self.I.samples:
+			coords="<span style='color: white'>%0.1f uS</span>: "%(self.I.achans[0].xaxis[index])
+			for a in range(4):
+				if self.channel_states[a]:
+					c=self.trace_colors[a]
+					coords+="<span style='color: rgb%s'>%0.3fV</span>," %(c, self.I.achans[a].yaxis[index])
+			self.coord_label.setText(coords)
+		else:
+			self.coord_label.setText("")
+
+
+	def fitData(self,xReal,yReal,plotnum):
+		def mysine(x, a1, a2, a3,a4):
+		    return a4 + a1*np.sin(abs(a2)*x + a3)
+		N=len(xReal)
+		OFFSET = (yReal.max()+yReal.min())/2.
+		yhat = fftpack.rfft(yReal-OFFSET)
+		idx = (yhat**2).argmax()
+		freqs = fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
+		frequency = freqs[idx]
+
+		amplitude = (yReal.max()-yReal.min())/2.0
+		phase=0#.5*np.pi*((yReal[0]-offset)/amplitude)
+		guess = [amplitude, frequency, phase,0]
+		try:
+			(amplitude, frequency, phase,offset), pcov = optimize.curve_fit(mysine, xReal, yReal-OFFSET, guess)
+			offset+=OFFSET
+			ph = ((phase)*180/(np.pi))
+			if(frequency<0):
+				#print 'negative frq'
+				return 'fit failed'
+
+			if(amplitude<0):
+				ph-=180
+
+			if(ph<0):ph = (ph+720)%360
+			freq=1e6*abs(frequency)/(2*np.pi)
+			amp=abs(amplitude)
+			if(frequency):	period = 2*np.pi/frequency
+			else: period = 0
+			pcov[0]*=1e6
+			#print pcov
+			#return amp,freq,ph,offset,pcov
+			if(abs(pcov[-1][0])>1e-6):
+				if plotnum==1:self.curve_fitL.clear()
+				elif plotnum==2:self.curve_fitR.clear()
+				return 'fit failed. Bad convergence'
+			#---collapsing plot based on time period. experimental
+			if(self.collapseButton.isChecked()):
+				self.collapseButton.setChecked(False)
+				self.collapse_win = pg.GraphicsWindow(title="Collapsing plot")
+				xNew=[]
+				yNew=[]
+				for a in range(len(xReal)):
+					x=(xReal[a]%(period*2))*1e-6
+					xNew.append(x)
+					yNew.append(yReal[a])
+				xNew=np.array(xNew)
+				yNew=np.array(yNew)
+				s=np.argsort(xNew)
+				self.p1 = self.collapse_win.addPlot(title="Collapsing plot: %.1f waveforms collapsed on top of each other"%(xReal[-1]/period), x=xNew[s],y=yNew[s])
+				if(self.collapse_win.windowState() & QtCore.Qt.WindowActive):
+					print 'opened'
+			#------------------------------------------------------
+			
+			if(self.overlay_fit_button.isChecked()):
+				x=np.linspace(0,xReal[-1],50000)
+				if plotnum==1:self.curve_fitL.setData(x*1e-6,mysine(x,amp,frequency,ph*np.pi/180,offset))
+				elif plotnum==2:self.curve_fitR.setData(x*1e-6,mysine(x,amp,frequency,ph*np.pi/180,offset))
+			return 'Amp = %0.3fV \tFreq=%0.2fHz \tOffset=%0.3fV \tPhase=%0.1f%c'%(amp, freq, offset,ph,176)
+		except:
+			return 'fit failed'
+
+	def setOffsetAndGainLabels(self):
+		self.CH1_LABEL.setText('CH1: ')
+		self.CH2_LABEL.setText('CH2: ')
+	
+	def setGainCH1(self,g):
+		self.I.set_gain(self.chan1remap,g)
+		chan = self.I.analogInputSources[self.chan1remap]
+		R = [chan.calPoly10(0),chan.calPoly10(1023)]
+		R[0]=R[0]*.9;R[1]=R[1]*.9
+		self.plot.setYRange(min(R),max(R))
+		self.CH1_LABEL.setText('CH1: ')
+		self.setOffsetAndGainLabels()
+		
+	def setGainCH2(self,g):
+		self.I.set_gain('CH2',g)
+		chan = self.I.analogInputSources['CH2']
+		R = [chan.calPoly10(0),chan.calPoly10(1023)]
+		R[0]=R[0]*.9;R[1]=R[1]*.9
+		self.plot2.setYRange(min(R),max(R))
+		self.CH2_LABEL.setText('CH2: ')
+		self.setOffsetAndGainLabels()
+
+	def setOffset(self,off):
+		chan = self.I.analogInputSources[self.chan1remap]
+		print 'no offset on ',chan
+
+	def setOffsetCH1(self,g):
+		cnum=0
+		self.setOffsetAndGainLabels()
+
+	def setOffsetCH2(self,g):
+		cnum=1
+		self.setOffsetAndGainLabels()
+
+
+	def setTimeBase(self,g):
+		timebases = [1.75,2,4,8,16,32,128,256,512,1024,1024]
+		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.1,0.1]
+		#print g,len(timebases),len(samplescaling)
+		self.timebase=timebases[g]
+		'''
+		if(self.active_channels==1 and self.timebase<1.0):
+			self.timebase=1.0
+		elif(self.active_channels==2 and self.timebase<1.25):
+			self.timebase=1.25
+		elif((self.active_channels==3 or self.active_channels==4) and self.timebase<1.75):
+			self.timebase=1.75
+		'''
+		self.timebase_label.setValue(self.timebase)
+		self.autoSetSamples()
+		self.samples = int(self.samples*samplescaling[g])
+		self.autoRange()
+		self.showgrid()
+
+	def autoset(self):
+		frq = 1./self.I.r2r_time('CH4',1.)
+		if(frq>100000):
+			self.timebase_dial.setValue(0)
+			self.setTimeBase(0)
+			if(frq>1e6):
+				print 'Frequency too high :',frq
+		elif frq>2:
+			max_s = self.max_samples_per_channel[self.active_channels]
+			expected_time = 4./frq	#accomodate four wavelengths
+			if expected_time>1.:
+				self.timebase = 1e6*expected_time/max_s
+				self.samples = int(max_s/expected_time)
+			else:
+				self.timebase = 1e6*expected_time/max_s
+				if self.timebase<1.75:self.timebase=1.75
+				self.samples = max_s
+			self.timebase_label.setValue(self.timebase)
+		else:
+			print 'frequency too low / autoset error'
+		self.autoRange()
+			
+		#print frq,self.timebase,self.samples
+
+	def autoSetSamples(self):
+		self.samples = self.max_samples_per_channel[self.active_channels]
+
+	def setTriggerLevel(self,val):
+		if self.trigger_channel==0:self.triggerChannelName=self.chan1remap
+		else:self.triggerChannelName='CH2'
+		
+		chan = self.I.analogInputSources[self.triggerChannelName]
+
+		if chan.inverted:val=1000-val
+		levelInVolts=chan.calPoly10(val*1023/1000.)
+		
+		self.trigger_level=levelInVolts
+		self.arrow.setPos(0,levelInVolts) #TODO
+		self.trigger_level_box.setValue(levelInVolts)
+
+	def setTriggerChannel(self,val):
+		self.trigtext.setHtml(self.trigger_text(self.I.achans[val].name))
+		self.triggerChannel=val
+		self.trigger_channel = val
+		c=self.trace_colors[val]
+		s='background-color:rgba'+str(c)[:-1]+',20);color:(0,0,0);'
+		self.sender().parentWidget().setStyleSheet(s)
+		self.arrow.setParentItem(None)
+		if val==0:
+			self.plot.addItem(self.arrow)
+		elif val==1:
+			self.plot2.addItem(self.arrow)
+
+
+
+	def setActiveChannels(self,val):
+		self.active_channels = int(val)
+		self.autoSetSamples()
+		
+
+	def setActiveDigitalChannels(self,val):
+		self.active_dchannels = int(val)
+		self.samples=800
+		self.autodRange()
+		
+
+	def remap_CH0(self,val):
+		val = str(val)
+		self.chosa = self.I.__calcCHOSA__(val)
+		self.chan1remap=val
+		chan = self.I.analogInputSources[self.chan1remap]
+		R = [chan.calPoly10(0),chan.calPoly10(1023)]
+		self.plot.setYRange(min(R),max(R))
+		
+	def autoRange(self):
+		chan = self.I.analogInputSources[self.chan1remap]
+		R = [chan.calPoly10(0),chan.calPoly10(1023)]
+		R[0]=R[0]*.9;R[1]=R[1]*.9
+		#print R
+		self.plot.setYRange(min(R),max(R))
+		chan = self.I.analogInputSources['CH2']
+		R = [chan.calPoly10(0),chan.calPoly10(1023)]
+		R[0]=R[0]*.9;R[1]=R[1]*.9
+		self.plot2.setYRange(min(R),max(R))
+		self.plot.setXRange(0,self.timebase*self.samples*1e-6)
+		#self.plot.setRange(QtCore.QRectF(0, -16.5, self.samples*self.timebase*1e-6, 2*16.5)) 
+
+	def autodRange(self):
+		self.plot.setRange(QtCore.QRectF(0, -2, self.dtime*1e6, 16)) 
+
+		
+	def sqr_phase(self,val):
+		self.sqrDict[str(self.SQR_NM.currentText())][0]=val/360.
+
+	def sqr_dc(self,val):
+		self.sqrDict[str(self.SQR_NM.currentText())][1]=val/100.
+
+	def sqr_update(self):
+		self.sqrDict[str(self.SQR_NM.currentText())][0]=self.SQR_PH.value()/360.
+		self.sqrDict[str(self.SQR_NM.currentText())][1]=self.SQR_DC.value()/100.
+		
+		self.I.sqr4_continuous(self.SQR_FREQ.value(),self.sqrDict['SQ1'][1],self.sqrDict['SQ2'][0],self.sqrDict['SQ2'][1],
+		self.sqrDict['OD1'][0],self.sqrDict['OD1'][1],self.sqrDict['OD2'][0],self.sqrDict['OD2'][1])
+
+	def set_digital_trigger(self,a):
+		self.dtrig = 1 if a else 0
+
+	def set_digital_scope_time(self,val):
+		scope_times=[0.001,0.005,0.01,0.05,.1,.2,.3,.4,.5,1]
+		self.dtime = scope_times[val]
+		self.digital_timescale.setValue(self.dtime*1000)
+		self.autodRange()
+
+	def set_dchan_mode_ch1(self,val):
+		self.dchan_modes[0] = val
+	def set_dchan_mode_ch2(self,val):
+		self.dchan_modes[1] = val
+	def set_dchan_mode_ch3(self,val):
+		self.dchan_modes[2] = val
+	def set_dchan_mode_ch4(self,val):
+		self.dchan_modes[3] = val
+
+	def change_scope_type(self,val):
+		if(val<2):
+			self.scope_type=val
+			self.coord_label.setText("")
+			if(val==0):
+				self.autoRange()
+				self.vLine.setX(0)
+			else:
+				self.autodRange()
+	
+	def plot_liss(self):
+		chans = ['CH1','CH2']
+		lissx = self.Liss_x.currentText()
+		lissy = self.Liss_y.currentText()
+		self.liss_x = chans.index(lissx)
+		self.liss_y = chans.index(lissy)
+		self.liss_win = pg.GraphicsWindow(title="Basic plotting examples")
+		self.liss_win.setWindowTitle('pyqtgraph example: Plotting')
+		self.p1 = self.liss_win.addPlot(title="Lissajous: x:%s , y:%s"%(lissx,lissy), x=self.I.achans[self.liss_x].get_yaxis(),y=self.I.achans[self.liss_y].get_yaxis())
+		if(self.liss_win.windowState() & QtCore.Qt.WindowActive):
+			print 'opened'
+
+	def liss_animate(self,val):
+		if val and self.liss_ready and self.Liss_show.isChecked():
+			self.freezeButton.setChecked(True)
+			self.liss_animate_arrow1=pg.CurveArrow(self.curve_lis)
+			if(self.liss_x==0):
+				self.liss_animate_arrow2=pg.CurveArrow(self.curve1)
+			elif(self.liss_x==1):
+				self.liss_animate_arrow2=pg.CurveArrow(self.curve2)
+			elif(self.liss_x==2):
+				self.liss_animate_arrow2=pg.CurveArrow(self.curve3)
+			elif(self.liss_x==3):
+				self.liss_animate_arrow2=pg.CurveArrow(self.curve4)
+			if(self.liss_y==0):
+				self.liss_animate_arrow3=pg.CurveArrow(self.curve1)
+			elif(self.liss_y==1):
+				self.liss_animate_arrow3=pg.CurveArrow(self.curve2)
+			elif(self.liss_y==2):
+				self.liss_animate_arrow3=pg.CurveArrow(self.curve3)
+			elif(self.liss_y==3):
+				self.liss_animate_arrow3=pg.CurveArrow(self.curve4)
+			self.plot.addItem(self.liss_animate_arrow1)
+			self.plot.addItem(self.liss_animate_arrow2)
+			self.plot.addItem(self.liss_animate_arrow3)
+			self.liss_anim1 = self.liss_animate_arrow1.makeAnimation(loop=-1)
+			self.liss_anim2 = self.liss_animate_arrow2.makeAnimation(loop=-1)
+			self.liss_anim3 = self.liss_animate_arrow3.makeAnimation(loop=-1)
+			self.liss_anim1.start();self.liss_anim2.start();self.liss_anim3.start()
+		else:
+			self.freezeButton.setChecked(False)
+			try:
+				self.liss_anim1.stop();self.liss_anim2.stop();self.liss_anim3.stop()
+				self.plot.removeItem(self.liss_animate_arrow1)
+				self.plot.removeItem(self.liss_animate_arrow2)
+				self.plot.removeItem(self.liss_animate_arrow3)
+			except:
+				pass
+
+
+
+	def measure_dcycle(self):
+		inp = self.timing_input.currentText()
+		v=self.I.DutyCycle(inp)
+		if(v[0]!=-1):p=100*v[1]
+		else: p=0
+		self.timing_results.setText('Duty Cycle: %f %%'%(p))
+
+	def measure_interval(self):
+		t = self.I.MeasureInterval(self.edge1chan.currentText(),self.edge2chan.currentText(),self.edge1edge.currentText(),self.edge2edge.currentText())
+		self.time_interval_label.setText('time: %.2e S'%(t))
+	def setOpacity(self,val):
+		self.setWindowOpacity(val/100.0)
+
+
+	def __del__(self):
+		try:
+			self.I.resetHardware()
+			self.I.H.fd.close()
+		except:
+			pass
+		print 'bye'
+        		
+if __name__ == "__main__":
+	app = QtGui.QApplication(sys.argv)
+
+	# Create and display the splash screen
+	#splash_pix = QtGui.QPixmap('cat.png')
+	#splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
+	#progressBar = QtGui.QProgressBar(splash)
+	#progressBar.setStyleSheet("""QProgressBar::chunk { width:100%;background: #112255; }""")
+	#splash.setMask(splash_pix.mask())
+	#splash.show()
+	#for i in range(0, 100):
+	#	progressBar.setValue(i)
+	#	t = time.time()
+	#	while time.time() < t + 0.001:
+	#		app.processEvents()
+	
+	myapp = MyMainWindow()
+	myapp.show()
+	app.processEvents()
+	#splash.finish(myapp)
+	sys.exit(app.exec_())
