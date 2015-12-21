@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python module for accessing the device &mdash; vLabtool Programer&#39;s Manual</title>
+    <title>Python module for accessing the device &mdash; SEELablet Programer&#39;s Manual</title>
     
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
-    <link rel="top" title="vLabtool Programer&#39;s Manual" href="index.html" />
+    <link rel="top" title="SEELablet Programer&#39;s Manual" href="index.html" />
     <link rel="next" title="SPI_class module" href="SPI_class.html" />
     <link rel="prev" title="General Purpose Applications for Real World interaction" href="experiments.html" /> 
   </head>
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="experiments.html" title="General Purpose Applications for Real World interaction"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">vLabtool Quick ref</a> &raquo;</li> 
+        <li><a href="manual.html">SEELablet Quick ref</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,7 +57,7 @@
 <h1>Python module for accessing the device<a class="headerlink" href="#python-module-for-accessing-the-device" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="connecting-to-the-device">
 <h2>Connecting to the device<a class="headerlink" href="#connecting-to-the-device" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">v0</span> <span class="kn">import</span> <span class="n">interface</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">I</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>     <span class="c">#Returns None if device isn&#39;t found</span>
 <span class="go"># An example function that measures voltage present at the specified analog input</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">I</span><span class="o">.</span><span class="n">get_average_voltage</span><span class="p">(</span><span class="s">&#39;CH1&#39;</span><span class="p">)</span>
@@ -134,7 +134,7 @@
 <dl class="function">
 <dt id="interface.connect">
 <tt class="descclassname">interface.</tt><tt class="descname">connect</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/interface.html#connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interface.connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>If vLabtool hardware is found, returns an instance of &#8216;Interface&#8217;, else returns None.</p>
+<dd><p>If hardware is found, returns an instance of &#8216;Interface&#8217;, else returns None.</p>
 </dd></dl>
 
 <dl class="class">
@@ -163,7 +163,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">v0</span> <span class="kn">import</span> <span class="n">interface</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">I</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">I</span>
 <span class="go">&lt;interface.Interface instance at 0xb6c0cac&gt;</span>
@@ -250,7 +250,7 @@ format: LTS-......</p>
 </div>
 <p>Example</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">v0</span> <span class="kn">import</span> <span class="n">interface</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">capture1</span><span class="p">(</span><span class="s">&#39;CH1&#39;</span><span class="p">,</span><span class="mi">3200</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
@@ -2427,7 +2427,7 @@ This effort was a waste.  There are better humidity and temperature sensors avai
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="manual.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Python module for accessing the device</a><ul>
 <li><a class="reference internal" href="#connecting-to-the-device">Connecting to the device</a></li>
@@ -2482,7 +2482,7 @@ This effort was a waste.  There are better humidity and temperature sensors avai
         <li class="right" >
           <a href="experiments.html" title="General Purpose Applications for Real World interaction"
              >previous</a> |</li>
-        <li><a href="index.html">vLabtool Quick ref</a> &raquo;</li> 
+        <li><a href="manual.html">SEELablet Quick ref</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

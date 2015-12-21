@@ -1,47 +1,40 @@
-.. Lab ToolSuite documentation master file, created by
-   sphinx-quickstart on Tue Apr 14 11:25:49 2015.
+.. SEELablet documentation master file, created by
+   sphinx-quickstart on Mon Dec 21 15:16:22 2015.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Documentation for vLabtool-v0
-============================================
+Welcome to SEELablet's documentation!
+=====================================
 
-Introduction
--------------
-A cost effective, multi-pronged data acquisition tool to turn your computer into a workbench for science and electronics experiments.
+Contents:
 
 .. toctree::
    :maxdepth: 4
 
-   introduction
-
-Graphical Apps
---------------
-
-.. toctree::
-   :maxdepth: 2
-
-   experiments
-
-Python Library
---------------
-.. toctree::
-   :maxdepth: 2
-
-   interface
-
-Advanced Modules
-----------------
-
-.. toctree::
-   :maxdepth: 2
-
-   SPI_class
+   Apps
    I2C_class
+   MCP4728_class
    NRF24L01_class
    NRF_NODE
+   SPI_class
+   achan
+   commands_proto
+   conf
+   custom_widgets
+   digital_channel
    experiment
-   Apps
+   experiments
+   interface
+   packet_handler
+   template_exp
+   templates
+   widgets
 
 
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 

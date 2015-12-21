@@ -5,7 +5,12 @@ Introduction
 What is the SEELablet?
 ----------------------
 
-It's a standalone computer whose built-in measurement equipment lets you study a wide range of phenomena. General applications include an oscilloscope, a frequency counter, and a logic analyzer among other things.  Also included are sine/triangle/square waveform generators, as well as several programmable voltage and current sources.
+It's a veritable array of control and measurement equipment that lets you study a wide range of phenomena from within a comfortable programming environment. 
+Equipped with an ARM-Cortex A7 Quad Core SoC and the Ubuntu Mate Operating System, an HDMI monitor, a mouse and a keyboard are all that's required to get started.
+
+General applications include a 4-channel oscilloscope, a frequency counter, a logic analyzer and more. 
+
+Also included are sine/triangle/square waveform generators, as well as several programmable voltage and current sources.
 
 Add-on boards, both wired as well as wireless(NRF+MCU), enable measurement of physical parameters ranging from acceleration and angular velocity, to luminous intensity and Passive Infrared.
 

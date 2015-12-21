@@ -1,4 +1,4 @@
-Applications
+Apps package
 ============
 
 Module contents

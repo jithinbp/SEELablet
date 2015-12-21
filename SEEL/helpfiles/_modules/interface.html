@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>interface &mdash; vLabtool Programer&#39;s Manual</title>
+    <title>interface &mdash; SEELablet Programer&#39;s Manual</title>
     
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
-    <link rel="top" title="vLabtool Programer&#39;s Manual" href="../index.html" />
+    <link rel="top" title="SEELablet Programer&#39;s Manual" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">vLabtool Quick ref</a> &raquo;</li>
+        <li><a href="../manual.html">SEELablet Quick ref</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -48,7 +48,7 @@
           <div class="body">
             
   <h1>Source code for interface</h1><div class="highlight"><pre>
-<span class="c"># interface - software stack to support the vLabtool-v0.</span>
+<span class="c"># interface - software stack to support the SEELablet.</span>
 <span class="c">#</span>
 <span class="c"># Copyright (C) 2015 by Jithin B.P. &lt;jithinbp@gmail.com&gt;</span>
 <span class="c">#</span>
@@ -86,7 +86,7 @@
 
 <div class="viewcode-block" id="connect"><a class="viewcode-back" href="../interface.html#interface.connect">[docs]</a><span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    If vLabtool hardware is found, returns an instance of &#39;Interface&#39;, else returns None.</span>
+<span class="sd">    If hardware is found, returns an instance of &#39;Interface&#39;, else returns None.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">obj</span> <span class="o">=</span> <span class="n">Interface</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">fd</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
@@ -116,7 +116,7 @@
 <span class="sd">    |timeout   | serial port read timeout. default = 1s                          |</span>
 <span class="sd">    +----------+-----------------------------------------------------------------+</span>
 
-<span class="sd">    &gt;&gt;&gt; from v0 import interface</span>
+<span class="sd">    &gt;&gt;&gt; from SEEL import interface</span>
 <span class="sd">    &gt;&gt;&gt; I = interface.connect()</span>
 <span class="sd">    &gt;&gt;&gt; print I</span>
 <span class="sd">    &lt;interface.Interface instance at 0xb6c0cac&gt;</span>
@@ -132,6 +132,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">timeout</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;verbose&#39;</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialArgs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_name</span> <span class="o">=</span> <span class="s">&#39;SEELablet&#39;</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">ADC_SHIFTS_LOCATION1</span><span class="o">=</span><span class="mi">11</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ADC_SHIFTS_LOCATION2</span><span class="o">=</span><span class="mi">12</span>
@@ -333,7 +334,7 @@
 <span class="sd">        Example</span>
 <span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; from pylab import *</span>
-<span class="sd">        &gt;&gt;&gt; from v0 import interface</span>
+<span class="sd">        &gt;&gt;&gt; from SEEL import interface</span>
 <span class="sd">        &gt;&gt;&gt; I=interface.connect()</span>
 <span class="sd">        &gt;&gt;&gt; x,y = I.capture1(&#39;CH1&#39;,3200,1)</span>
 <span class="sd">        &gt;&gt;&gt; plot(x,y)</span>
@@ -542,12 +543,21 @@
 <span class="sd">        :return: timestamp array ,voltage_value array</span>
 <span class="sd">    </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__capture_fullspeed__</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">tg</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span> <span class="s">&#39;wait&#39;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1e-6</span><span class="o">*</span><span class="n">samples</span><span class="o">*</span><span class="n">tg</span><span class="o">+.</span><span class="mo">01</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span> <span class="s">&#39;done&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__retrieveBufferData__</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">tg</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__capture_fullspeed__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chan</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">tg</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="n">tg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tg</span><span class="o">*</span><span class="mi">8</span><span class="p">)</span><span class="o">/</span><span class="mf">8.</span>  <span class="c"># Round off the timescale to 1/8uS units</span>
         <span class="k">if</span><span class="p">(</span><span class="n">tg</span><span class="o">&lt;</span><span class="mf">0.5</span><span class="p">):</span><span class="n">tg</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="mi">8</span><span class="p">)</span><span class="o">/</span><span class="mf">8.</span>
         <span class="k">if</span><span class="p">(</span><span class="n">samples</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SAMPLES</span><span class="p">):</span>
             <span class="k">print</span> <span class="s">&#39;Sample limit exceeded. 10,000 max&#39;</span>
             <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SAMPLES</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">timebase</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tg</span><span class="o">*</span><span class="mi">8</span><span class="p">)</span><span class="o">/</span><span class="mf">8.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span>
         <span class="n">CHOSA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">analogInputSources</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span><span class="o">.</span><span class="n">CHOSA</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__sendByte__</span><span class="p">(</span><span class="n">ADC</span><span class="p">)</span>
@@ -564,11 +574,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__sendInt__</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>         <span class="c">#total number of samples to record</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__sendInt__</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tg</span><span class="o">*</span><span class="mi">8</span><span class="p">))</span>       <span class="c">#Timegap between samples.  8MHz timer clock</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__get_ack__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span> <span class="s">&#39;wait&#39;</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1e-6</span><span class="o">*</span><span class="n">samples</span><span class="o">*</span><span class="n">tg</span><span class="o">+.</span><span class="mo">01</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__print__</span><span class="p">(</span> <span class="s">&#39;done&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__retrieveBufferData__</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">tg</span><span class="p">)</span>
-</div>
+
+
+
+
     <span class="k">def</span> <span class="nf">__retrieveBufferData__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chan</span><span class="p">,</span><span class="n">samples</span><span class="p">,</span><span class="n">tg</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        &#39;&#39;&#39;</span> 
@@ -3073,7 +3082,7 @@
 </div></div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="k">print</span> <span class="s">&quot;&quot;&quot;this is not an executable file</span>
-<span class="s">    from v0 import interface</span>
+<span class="s">    from SEEL import interface</span>
 <span class="s">    I=interface.connect()</span>
 <span class="s">    </span>
 <span class="s">    You&#39;re good to go.</span>
@@ -3115,7 +3124,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">vLabtool Quick ref</a> &raquo;</li>
+        <li><a href="../manual.html">SEELablet Quick ref</a> &raquo;</li>
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

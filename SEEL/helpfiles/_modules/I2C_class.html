@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>I2C_class &mdash; vLabtool Programer&#39;s Manual</title>
+    <title>I2C_class &mdash; SEELablet Programer&#39;s Manual</title>
     
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
-    <link rel="top" title="vLabtool Programer&#39;s Manual" href="../index.html" />
+    <link rel="top" title="SEELablet Programer&#39;s Manual" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">vLabtool Quick ref</a> &raquo;</li>
+        <li><a href="../manual.html">SEELablet Quick ref</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -77,7 +77,7 @@
 <span class="sd">        &gt;&gt;&gt; y=int16((vals[2]&lt;&lt;8)|vals[3])</span>
 <span class="sd">        &gt;&gt;&gt; z=int16((vals[4]&lt;&lt;8)|vals[5])</span>
 <span class="sd">        &gt;&gt;&gt; print x,y,z</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">H</span><span class="p">):</span>
@@ -101,11 +101,13 @@
 <span class="sd">        as MLX90316 PIR for initializing.</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        uS                  Time(in uS) to hold SCL output at 0 Volts</span>
 <span class="sd">        ================    ============================================================================================</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__sendByte__</span><span class="p">(</span><span class="n">I2C_HEADER</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">__sendByte__</span><span class="p">(</span><span class="n">I2C_PULLDOWN_SCL</span><span class="p">)</span>
@@ -118,6 +120,7 @@
 <span class="sd">        Sets frequency for I2C transactions</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -139,6 +142,7 @@
 <span class="sd">        Initiates I2C transfer to address via the I2C port</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -180,6 +184,7 @@
 <span class="sd">        Use I2C.start(address) for this.</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -201,6 +206,7 @@
 <span class="sd">        Use start(address) for this.</span>
 
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -219,6 +225,7 @@
 <span class="sd">        Initiates I2C transfer to address</span>
 
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -239,6 +246,7 @@
 <span class="sd">        Read bytes from I2C slave without first transmitting the read location.</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -256,6 +264,7 @@
 <span class="sd">        with Nack.</span>
 
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -316,6 +325,7 @@
 <span class="sd">        write bytes to I2C slave</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -336,6 +346,7 @@
 <span class="sd">        Scan I2C port for connected devices</span>
 <span class="sd">        </span>
 <span class="sd">        .. tabularcolumns:: |p{3cm}|p{11cm}|</span>
+<span class="sd">        </span>
 <span class="sd">        ================    ============================================================================================</span>
 <span class="sd">        **Arguments** </span>
 <span class="sd">        ================    ============================================================================================</span>
@@ -393,7 +404,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">vLabtool Quick ref</a> &raquo;</li>
+        <li><a href="../manual.html">SEELablet Quick ref</a> &raquo;</li>
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
