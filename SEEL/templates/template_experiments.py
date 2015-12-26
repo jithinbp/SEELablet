@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'template_experiments.ui'
 #
-# Created: Thu Dec 17 23:29:41 2015
+# Created: Sat Dec 26 16:56:51 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -211,7 +211,6 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.helpTitle.sizePolicy().hasHeightForWidth())
         self.helpTitle.setSizePolicy(sizePolicy)
-        self.helpTitle.setText(_fromUtf8(""))
         self.helpTitle.setObjectName(_fromUtf8("helpTitle"))
         self.verticalLayout_2.addWidget(self.helpTitle)
         self.helpLayout = QtGui.QVBoxLayout()
@@ -253,6 +252,7 @@ class Ui_MainWindow(object):
         self.SCF1.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.pushButton.setText(_translate("MainWindow", "SET", None))
         self.helpFrameOuter.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
+        self.helpTitle.setText(_translate("MainWindow", "Experiment Details", None))
         self.menuUtilities.setTitle(_translate("MainWindow", "Utilities", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
         self.actionIPython_Console.setText(_translate("MainWindow", "iPython Console", None))

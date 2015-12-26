@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'analogScope.ui'
 #
-# Created: Sun Nov  8 19:11:29 2015
+# Created: Sat Dec 26 16:56:51 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(867, 495)
+        MainWindow.resize(868, 502)
         MainWindow.setMinimumSize(QtCore.QSize(300, 0))
         MainWindow.setMouseTracking(False)
         icon = QtGui.QIcon()
@@ -35,13 +35,79 @@ class Ui_MainWindow(object):
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setToolTip(_fromUtf8(""))
         MainWindow.setAutoFillBackground(False)
-        MainWindow.setStyleSheet(_fromUtf8("QFrame{background-color: rgb(21, 107, 113);}\n"
+        MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 11px;\n"
+"padding: 5px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
 "\n"
-"QLabel,QRadioButton,QCheckBox {color: rgb(255, 255, 255);}\n"
-"QLabel,QRadioButton,QCheckBox{background-color: rgba(0,0,0, 0);color: rgb(0,0,0);}\n"
-"QComboBox{background-color: rgba(255,255,255, 200);color: rgb(0,0,0);}\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}\n"
 "\n"
-"border-color: rgb(29, 122, 162);\n"
+"QFrame.PeripheralCollection{\n"
+"border-top-left-radius: 5px;\n"
+"border-top-right-radius: 5px;\n"
+"border: 1px solid black;\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #6af, stop: 0.1 #689);\n"
+"}\n"
+"QFrame.PeripheralCollection QLabel {\n"
+"color: white;\n"
+"font-weight: bold;\n"
+"}\n"
+"\n"
+"\n"
+"QWidget.PeripheralCollection{\n"
+"border-top-left-radius: 5px;\n"
+"border-top-right-radius: 5px;\n"
+"border: 1px solid black;\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #6af, stop: 0.1 #689);\n"
+"}\n"
+"QWidget.PeripheralCollection QLabel {\n"
+"color: white;\n"
+"font-weight: bold;\n"
+"}\n"
+"\n"
+"\n"
+"QFrame.PeripheralCollectionInner {\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #abe, stop: 0.7 #aba);\n"
+"border: none;\n"
+"border-top: 1px solid black;\n"
+"}\n"
+"\n"
+"QFrame.PeripheralCollectionInner QLabel{\n"
+"color: black;\n"
+"}\n"
+"\n"
+"QWidget.PeripheralCollectionInner {\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #abe, stop: 0.7 #aba);\n"
+"border: none;\n"
+"border-top: 1px solid black;\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"QWidget.PeripheralCollectionInner {\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #abe, stop: 0.7 #aba);\n"
+"border: none;\n"
+"border-top: 1px solid black;\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"\n"
 ""))
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setTabShape(QtGui.QTabWidget.Rounded)
@@ -108,21 +174,17 @@ class Ui_MainWindow(object):
         self.CH1_REMAPS.setGeometry(QtCore.QRect(210, 10, 71, 21))
         self.CH1_REMAPS.setObjectName(_fromUtf8("CH1_REMAPS"))
         self.CH1_LABEL = QtGui.QLabel(self.frame_11)
-        self.CH1_LABEL.setGeometry(QtCore.QRect(20, 10, 31, 21))
+        self.CH1_LABEL.setGeometry(QtCore.QRect(20, 10, 51, 21))
         font = QtGui.QFont()
-        font.setPointSize(9)
-        font.setBold(False)
-        font.setItalic(True)
-        font.setWeight(50)
+        font.setBold(True)
+        font.setWeight(75)
         self.CH1_LABEL.setFont(font)
         self.CH1_LABEL.setObjectName(_fromUtf8("CH1_LABEL"))
         self.CH2_LABEL = QtGui.QLabel(self.frame_11)
-        self.CH2_LABEL.setGeometry(QtCore.QRect(20, 50, 41, 21))
+        self.CH2_LABEL.setGeometry(QtCore.QRect(20, 50, 51, 21))
         font = QtGui.QFont()
-        font.setPointSize(9)
-        font.setBold(False)
-        font.setItalic(True)
-        font.setWeight(50)
+        font.setBold(True)
+        font.setWeight(75)
         self.CH2_LABEL.setFont(font)
         self.CH2_LABEL.setObjectName(_fromUtf8("CH2_LABEL"))
         self.comboBox_6 = QtGui.QComboBox(self.frame_11)
@@ -162,23 +224,37 @@ class Ui_MainWindow(object):
         self.CH2_ENABLE.setGeometry(QtCore.QRect(0, 50, 21, 20))
         self.CH2_ENABLE.setText(_fromUtf8(""))
         self.CH2_ENABLE.setObjectName(_fromUtf8("CH2_ENABLE"))
-        self.offsetLabel = QtGui.QLabel(self.frame_11)
-        self.offsetLabel.setGeometry(QtCore.QRect(240, 30, 41, 31))
-        self.offsetLabel.setObjectName(_fromUtf8("offsetLabel"))
-        self.FOURCHAN_ENABLE = QtGui.QCheckBox(self.frame_11)
-        self.FOURCHAN_ENABLE.setGeometry(QtCore.QRect(0, 90, 21, 20))
-        self.FOURCHAN_ENABLE.setText(_fromUtf8(""))
-        self.FOURCHAN_ENABLE.setChecked(False)
-        self.FOURCHAN_ENABLE.setObjectName(_fromUtf8("FOURCHAN_ENABLE"))
+        self.CH3_ENABLE = QtGui.QCheckBox(self.frame_11)
+        self.CH3_ENABLE.setGeometry(QtCore.QRect(0, 90, 21, 20))
+        self.CH3_ENABLE.setText(_fromUtf8(""))
+        self.CH3_ENABLE.setChecked(False)
+        self.CH3_ENABLE.setObjectName(_fromUtf8("CH3_ENABLE"))
         self.CH2_LABEL_2 = QtGui.QLabel(self.frame_11)
-        self.CH2_LABEL_2.setGeometry(QtCore.QRect(20, 90, 101, 21))
+        self.CH2_LABEL_2.setGeometry(QtCore.QRect(20, 90, 31, 21))
         font = QtGui.QFont()
-        font.setPointSize(9)
-        font.setBold(False)
-        font.setItalic(True)
-        font.setWeight(50)
+        font.setBold(True)
+        font.setWeight(75)
         self.CH2_LABEL_2.setFont(font)
         self.CH2_LABEL_2.setObjectName(_fromUtf8("CH2_LABEL_2"))
+        self.MIC_ENABLE = QtGui.QCheckBox(self.frame_11)
+        self.MIC_ENABLE.setGeometry(QtCore.QRect(80, 90, 21, 20))
+        self.MIC_ENABLE.setText(_fromUtf8(""))
+        self.MIC_ENABLE.setChecked(False)
+        self.MIC_ENABLE.setObjectName(_fromUtf8("MIC_ENABLE"))
+        self.CH2_LABEL_3 = QtGui.QLabel(self.frame_11)
+        self.CH2_LABEL_3.setGeometry(QtCore.QRect(110, 90, 31, 21))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.CH2_LABEL_3.setFont(font)
+        self.CH2_LABEL_3.setObjectName(_fromUtf8("CH2_LABEL_3"))
+        self.CH2_LABEL_4 = QtGui.QLabel(self.frame_11)
+        self.CH2_LABEL_4.setGeometry(QtCore.QRect(220, 50, 51, 21))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.CH2_LABEL_4.setFont(font)
+        self.CH2_LABEL_4.setObjectName(_fromUtf8("CH2_LABEL_4"))
         self.verticalLayout_2.addWidget(self.frame_11)
         self.frame_2 = QtGui.QFrame(self.frame_4)
         self.frame_2.setMinimumSize(QtCore.QSize(0, 40))
@@ -258,14 +334,14 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.verticalLayout_2.addWidget(self.label_2)
         self.frame_6 = QtGui.QFrame(self.frame_4)
-        self.frame_6.setMinimumSize(QtCore.QSize(0, 65))
+        self.frame_6.setMinimumSize(QtCore.QSize(0, 70))
         self.frame_6.setMaximumSize(QtCore.QSize(16777215, 65))
         self.frame_6.setStyleSheet(_fromUtf8("QCheckBox{background-color: rgba(255, 33, 0,0);}"))
         self.frame_6.setFrameShape(QtGui.QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QtGui.QFrame.Raised)
         self.frame_6.setObjectName(_fromUtf8("frame_6"))
         self.fit_select_box = QtGui.QComboBox(self.frame_6)
-        self.fit_select_box.setGeometry(QtCore.QRect(10, 30, 71, 21))
+        self.fit_select_box.setGeometry(QtCore.QRect(10, 40, 71, 21))
         self.fit_select_box.setObjectName(_fromUtf8("fit_select_box"))
         self.fit_select_box.addItem(_fromUtf8(""))
         self.fit_select_box.addItem(_fromUtf8(""))
@@ -273,10 +349,10 @@ class Ui_MainWindow(object):
         self.fit_select_box.addItem(_fromUtf8(""))
         self.fit_select_box.addItem(_fromUtf8(""))
         self.overlay_fit_button = QtGui.QCheckBox(self.frame_6)
-        self.overlay_fit_button.setGeometry(QtCore.QRect(190, 0, 91, 21))
+        self.overlay_fit_button.setGeometry(QtCore.QRect(190, 10, 91, 21))
         self.overlay_fit_button.setObjectName(_fromUtf8("overlay_fit_button"))
         self.fit_select_box_2 = QtGui.QComboBox(self.frame_6)
-        self.fit_select_box_2.setGeometry(QtCore.QRect(90, 30, 71, 21))
+        self.fit_select_box_2.setGeometry(QtCore.QRect(90, 40, 71, 21))
         self.fit_select_box_2.setObjectName(_fromUtf8("fit_select_box_2"))
         self.fit_select_box_2.addItem(_fromUtf8(""))
         self.fit_select_box_2.addItem(_fromUtf8(""))
@@ -284,7 +360,7 @@ class Ui_MainWindow(object):
         self.fit_select_box_2.addItem(_fromUtf8(""))
         self.fit_select_box_2.addItem(_fromUtf8(""))
         self.fit_type_box = QtGui.QComboBox(self.frame_6)
-        self.fit_type_box.setGeometry(QtCore.QRect(10, 3, 151, 20))
+        self.fit_type_box.setGeometry(QtCore.QRect(10, 10, 151, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -405,7 +481,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.verticalLayout_3, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 867, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 868, 25))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         MainWindow.setMenuBar(self.menubar)
         self.actionSave_as = QtGui.QAction(MainWindow)
@@ -427,10 +503,12 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Test and Measurement Suite", None))
-        self.label_3.setText(_translate("MainWindow", "Oscilloscope Parameters", None))
-        self.CH1_LABEL.setText(_translate("MainWindow", "CH1", None))
-        self.CH2_LABEL.setText(_translate("MainWindow", "CH2", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Oscilloscope", None))
+        self.frame_4.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
+        self.label_3.setText(_translate("MainWindow", "Channel Parameters", None))
+        self.frame_11.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
+        self.CH1_LABEL.setText(_translate("MainWindow", "Chan 1", None))
+        self.CH2_LABEL.setText(_translate("MainWindow", "Chan 2", None))
         self.comboBox_6.setItemText(0, _translate("MainWindow", "1x", None))
         self.comboBox_6.setItemText(1, _translate("MainWindow", "2x", None))
         self.comboBox_6.setItemText(2, _translate("MainWindow", "4x", None))
@@ -449,9 +527,12 @@ class Ui_MainWindow(object):
         self.comboBox_7.setItemText(7, _translate("MainWindow", "32x", None))
         self.label_30.setText(_translate("MainWindow", "gain", None))
         self.label_31.setText(_translate("MainWindow", "gain", None))
-        self.offsetLabel.setText(_translate("MainWindow", ".", None))
-        self.CH2_LABEL_2.setText(_translate("MainWindow", "CH3 , MIC", None))
+        self.CH2_LABEL_2.setText(_translate("MainWindow", "CH3", None))
+        self.CH2_LABEL_3.setText(_translate("MainWindow", "MIC", None))
+        self.CH2_LABEL_4.setText(_translate("MainWindow", "CH2", None))
+        self.frame_2.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.label_49.setText(_translate("MainWindow", "TIME(mS/Div)", None))
+        self.frame.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.trigger_level_box.setSuffix(_translate("MainWindow", " V", None))
         self.trigger_select_box.setItemText(0, _translate("MainWindow", "CH1", None))
         self.trigger_select_box.setItemText(1, _translate("MainWindow", "CH2", None))
@@ -459,6 +540,7 @@ class Ui_MainWindow(object):
         self.trigger_select_box.setItemText(3, _translate("MainWindow", "MIC", None))
         self.label_48.setText(_translate("MainWindow", "TRIGGER", None))
         self.label_2.setText(_translate("MainWindow", "Data Analysis", None))
+        self.frame_6.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.fit_select_box.setItemText(0, _translate("MainWindow", "CH1", None))
         self.fit_select_box.setItemText(1, _translate("MainWindow", "CH2", None))
         self.fit_select_box.setItemText(2, _translate("MainWindow", "CH3", None))
@@ -473,6 +555,7 @@ class Ui_MainWindow(object):
         self.fit_type_box.setItemText(0, _translate("MainWindow", "SINE FIT", None))
         self.fit_type_box.setItemText(1, _translate("MainWindow", "SQUARE FIT", None))
         self.collapseButton.setText(_translate("MainWindow", ".", None))
+        self.frame_3.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.label.setText(_translate("MainWindow", "X-Y Mode", None))
         self.pushButton.setText(_translate("MainWindow", "View", None))
         self.Liss_show.setText(_translate("MainWindow", "Enable XY plot", None))
@@ -481,7 +564,7 @@ class Ui_MainWindow(object):
         self.Liss_y.setItemText(0, _translate("MainWindow", "CH1", None))
         self.Liss_y.setItemText(1, _translate("MainWindow", "CH2", None))
         self.message_label.setText(_translate("MainWindow", "Msg:", None))
-        self.coord_label.setText(_translate("MainWindow", "TextLabel", None))
+        self.coord_label.setText(_translate("MainWindow", ".", None))
         self.freezeButton.setText(_translate("MainWindow", "FREEZE", None))
         self.actionSave_as.setText(_translate("MainWindow", "Save as", None))
 

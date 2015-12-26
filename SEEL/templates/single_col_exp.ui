@@ -113,11 +113,20 @@ stop: 0 #abe, stop: 0.7 #aba);
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>370</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <widget class="QWidget" name="SCF1">
        <property name="geometry">
@@ -337,8 +346,8 @@ stop: 0 #abe, stop: 0.7 #aba);
    <slot>selectDevice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>558</y>
+     <x>90</x>
+     <y>592</y>
     </hint>
     <hint type="destinationlabel">
      <x>294</x>

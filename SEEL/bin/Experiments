@@ -60,6 +60,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		controls = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(CONTROLS.__file__)])]
 		print apps,controls
 		row=0;col=0;colLimit=3
+		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
 
 
 		for app in controls:
@@ -80,65 +81,10 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 				col=0;row+=1
 
 
-		'''
-		row+=1;col=0;
-		self.updateSplash(30,'Loading Widgets...')
-		
-		autogenControls=[]
-		if self.I:
-			if self.I.connected:
-				autogenControls.append(self.autogenControl(TITLE='sine 1',MIN=10,MAX=5000,FUNC=self.I.set_sine1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #1'))
-				autogenControls.append(self.autogenControl(TITLE='sine 2',MIN=10,MAX=5000,FUNC=self.I.set_sine2,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #2'))
-				autogenControls.append(self.autogenControl(TITLE='square 1',MIN=10,MAX=50000,FUNC=self.I.sqr1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of square wave generator #1'))
-
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS1')
-				autogenControls.append(self.autogenControl(TITLE='PVS1',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source '))
-
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS2')
-				autogenControls.append(self.autogenControl(TITLE='PVS2',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source '))
-
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS3')
-				autogenControls.append(self.autogenControl(TITLE='PVS3',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source '))
-
-				tmpfunc = lambda x: self.I.DAC.__setRawVoltage__('PCS',4095-x)
-				autogenControls.append(self.autogenControl(TITLE='PCS',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='mA',TOOLTIP='Programmable Current Source ',SCALE_FACTOR = 1e3))
-
-				autogenControls.append(self.autogenControl(TITLE='CAPACITANCE',FUNC=self.I.get_capacitance,TYPE='button',UNITS='F',TOOLTIP='Read Capacitance connected to CAP input '))
-
-				tmpfunc = functools.partial(self.I.get_average_voltage,samples=100)
-				autogenControls.append(self.autogenControl(TITLE='VOLTMETER',FUNC=tmpfunc,TYPE='selectButton',UNITS='V',TOOLTIP='Voltmeter',OPTIONS=self.I.allAnalogChannels))
-				autogenControls.append(self.autogenControl(TITLE='Low Frequency',FUNC=self.I.get_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequency. Minimum 40Hz',OPTIONS=self.I.allDigitalChannels))
-				autogenControls.append(self.autogenControl(TITLE='High Frequency',FUNC=self.I.get_high_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequencies over 1MHz with 10Hz resolution',OPTIONS=self.I.allDigitalChannels))
-				self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string)
-				for C in autogenControls:
-					if C.TYPE=='dial':
-						self.funcs.append(C.FUNC)
-						self.ExperimentLayout.addWidget(self.dialIcon(C),row,col)
-					elif C.TYPE=='button':
-						self.funcs.append(C.FUNC)
-						self.ExperimentLayout.addWidget(self.buttonIcon(C),row,col)
-					elif C.TYPE=='selectButton':
-						self.funcs.append(C.FUNC)
-						self.ExperimentLayout.addWidget(self.selectAndButtonIcon(C),row,col)
-
-					col+=1
-					if(col==colLimit):
-						col=0;row+=1
-
-				for app in controls:
-					fn = functools.partial(self.launchFunc,'SEEL.controls.'+app)
-					self.funcs.append(fn)
-					self.ExperimentLayout.addWidget(self.controlIcon(app,fn),row,col)
-					col+=1
-					if(col==colLimit):
-						col=0;row+=1
-
-
-			else:
-				self.setWindowTitle(self.I.generic_name + ' : Not Connected')
-		else:
-			self.setWindowTitle('Not Connected!')
-		'''
+		if not self.I:
+			self.setWindowTitle(' : Not Connected')
+		elif not self.I.connected:
+			self.setWindowTitle(' : Not Connected')
 				
 
 		self.menu_entries=[]

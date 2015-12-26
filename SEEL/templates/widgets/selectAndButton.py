@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'selectAndButton.ui'
 #
-# Created: Thu Dec 17 23:29:41 2015
+# Created: Sat Dec 26 16:56:52 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,7 +33,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
         Form.setMinimumSize(QtCore.QSize(100, 105))
-        Form.setMaximumSize(QtCore.QSize(150, 147))
+        Form.setMaximumSize(QtCore.QSize(104, 105))
         Form.setStyleSheet(_fromUtf8("QFrame.PeripheralCollection{\n"
 "border-top-left-radius: 10px;\n"
 "border-top-right-radius: 10px;\n"

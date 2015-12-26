@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Fri Dec 18 10:38:14 2015
+# Created: Sat Dec 26 16:40:02 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,8 +111,10 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollArea_4.sizePolicy().hasHeightForWidth())
         self.scrollArea_4.setSizePolicy(sizePolicy)
+        self.scrollArea_4.setMaximumSize(QtCore.QSize(370, 16777215))
         self.scrollArea_4.setStyleSheet(_fromUtf8(""))
         self.scrollArea_4.setWidgetResizable(True)
+        self.scrollArea_4.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.SCF1 = QtGui.QWidget()
         self.SCF1.setGeometry(QtCore.QRect(0, 0, 368, 533))

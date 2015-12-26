@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dial.ui'
 #
-# Created: Thu Dec 17 23:29:41 2015
+# Created: Sat Dec 26 16:56:52 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,7 +33,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
         Form.setMinimumSize(QtCore.QSize(100, 105))
-        Form.setMaximumSize(QtCore.QSize(150, 147))
+        Form.setMaximumSize(QtCore.QSize(104, 105))
         Form.setStyleSheet(_fromUtf8("QFrame.PeripheralCollection{\n"
 "border-top-left-radius: 10px;\n"
 "border-top-right-radius: 10px;\n"
@@ -56,7 +56,7 @@ class Ui_Form(object):
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.widgetFrameOuter = QtGui.QFrame(Form)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widgetFrameOuter.sizePolicy().hasHeightForWidth())
@@ -99,6 +99,11 @@ class Ui_Form(object):
         self.gridLayout_3.setVerticalSpacing(2)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
         self.dial = QtGui.QDial(self.ImageFrame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.dial.sizePolicy().hasHeightForWidth())
+        self.dial.setSizePolicy(sizePolicy)
         self.dial.setMinimum(10)
         self.dial.setMaximum(5000)
         self.dial.setInvertedControls(False)

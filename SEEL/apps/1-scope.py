@@ -83,8 +83,8 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.trace_colors=[(0,255,20),(255,255,0),(255,10,100),(10,255,255)]
 
 		self.plot.setLabel('bottom', 'Time -->>', units='S')
-		labelStyle = {'color': 'rgb%s'%(str(self.trace_colors[0])), 'font-size': '11pt'}
-		self.plot.setLabel('left','CH1', units='V',**labelStyle)
+		self.LlabelStyle = {'color': 'rgb%s'%(str(self.trace_colors[0])), 'font-size': '11pt'}
+		self.plot.setLabel('left','CH1', units='V',**self.LlabelStyle)
 		self.plot.addLegend(offset=(-10,30))
 
 		self.plot2 = pg.ViewBox()
@@ -94,6 +94,9 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.ax2.linkToView(self.plot2)
 		self.plot2.setXLink(self.plot.plotItem)
 		self.ax2.setZValue(-10000)
+		
+		self.ax2.setWidth(40)
+		
 		labelStyle = {'color': 'rgb%s'%(str(self.trace_colors[1])), 'font-size': '13pt'}
 		self.ax2.setLabel('CH2', units='V', **labelStyle)
 
@@ -122,6 +125,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 		self.CH1_ENABLE.setStyleSheet('background-color:rgba'+str(self.trace_colors[0])[:-1]+',3);color:(0,0,0);')
 		self.CH2_ENABLE.setStyleSheet('background-color:rgba'+str(self.trace_colors[1])[:-1]+',3);color:(0,0,0);')
+
 		for a in range(4):
 			self.trigger_select_box.setItemData(a, QtGui.QColor(*self.trace_colors[a]), QtCore.Qt.BackgroundRole);
 
@@ -170,8 +174,9 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 		a = self.CH1_ENABLE.isChecked()
 		b = self.CH2_ENABLE.isChecked()
-		c = self.FOURCHAN_ENABLE.isChecked()
-		if c:
+		c = self.CH3_ENABLE.isChecked()
+		d = self.MIC_ENABLE.isChecked()
+		if c or d:
 			self.active_channels=4
 		elif b:
 			self.active_channels=2
@@ -184,7 +189,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.channel_states[0]=a
 		self.channel_states[1]=b
 		self.channel_states[2]=c
-		self.channel_states[3]=c
+		self.channel_states[3]=d
 		
 		if self.active_channels:
 			self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10)
@@ -460,6 +465,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 	def remap_CH0(self,val):
 		val = str(val)
+		self.plot.setLabel('left',val, units='V',**self.LlabelStyle)
 		self.chosa = self.I.__calcCHOSA__(val)
 		self.chan1remap=val
 		chan = self.I.analogInputSources[self.chan1remap]

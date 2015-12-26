@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
-    <height>495</height>
+    <width>868</width>
+    <height>502</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -20,7 +20,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>Test and Measurement Suite</string>
+   <string>Oscilloscope</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -36,13 +36,79 @@
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame{background-color: rgb(21, 107, 113);}
+   <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
 
-QLabel,QRadioButton,QCheckBox {color: rgb(255, 255, 255);}
-QLabel,QRadioButton,QCheckBox{background-color: rgba(0,0,0, 0);color: rgb(0,0,0);}
-QComboBox{background-color: rgba(255,255,255, 200);color: rgb(0,0,0);}
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}
 
-border-color: rgb(29, 122, 162);
+QFrame.PeripheralCollection{
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+border: 1px solid black;
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #6af, stop: 0.1 #689);
+}
+QFrame.PeripheralCollection QLabel {
+color: white;
+font-weight: bold;
+}
+
+
+QWidget.PeripheralCollection{
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+border: 1px solid black;
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #6af, stop: 0.1 #689);
+}
+QWidget.PeripheralCollection QLabel {
+color: white;
+font-weight: bold;
+}
+
+
+QFrame.PeripheralCollectionInner {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #abe, stop: 0.7 #aba);
+border: none;
+border-top: 1px solid black;
+}
+
+QFrame.PeripheralCollectionInner QLabel{
+color: black;
+}
+
+QWidget.PeripheralCollectionInner {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #abe, stop: 0.7 #aba);
+border: none;
+border-top: 1px solid black;
+}
+
+
+
+QWidget.PeripheralCollectionInner {
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #abe, stop: 0.7 #aba);
+border: none;
+border-top: 1px solid black;
+}
+
+
+
+
 </string>
   </property>
   <property name="toolButtonStyle">
@@ -122,6 +188,9 @@ border-color: rgb(29, 122, 162);
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+         <property name="class" stdset="0">
+          <string>PeripheralCollection</string>
+         </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
            <number>3</number>
@@ -160,7 +229,7 @@ border-color: rgb(29, 122, 162);
              </font>
             </property>
             <property name="text">
-             <string>Oscilloscope Parameters</string>
+             <string>Channel Parameters</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -190,6 +259,9 @@ border-color: rgb(29, 122, 162);
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
+            <property name="class" stdset="0">
+             <string>PeripheralCollectionInner</string>
+            </property>
             <widget class="QComboBox" name="CH1_REMAPS">
              <property name="geometry">
               <rect>
@@ -205,20 +277,18 @@ border-color: rgb(29, 122, 162);
               <rect>
                <x>20</x>
                <y>10</y>
-               <width>31</width>
+               <width>51</width>
                <height>21</height>
               </rect>
              </property>
              <property name="font">
               <font>
-               <pointsize>9</pointsize>
-               <weight>50</weight>
-               <italic>true</italic>
-               <bold>false</bold>
+               <weight>75</weight>
+               <bold>true</bold>
               </font>
              </property>
              <property name="text">
-              <string>CH1</string>
+              <string>Chan 1</string>
              </property>
             </widget>
             <widget class="QLabel" name="CH2_LABEL">
@@ -226,20 +296,18 @@ border-color: rgb(29, 122, 162);
               <rect>
                <x>20</x>
                <y>50</y>
-               <width>41</width>
+               <width>51</width>
                <height>21</height>
               </rect>
              </property>
              <property name="font">
               <font>
-               <pointsize>9</pointsize>
-               <weight>50</weight>
-               <italic>true</italic>
-               <bold>false</bold>
+               <weight>75</weight>
+               <bold>true</bold>
               </font>
              </property>
              <property name="text">
-              <string>CH2</string>
+              <string>Chan 2</string>
              </property>
             </widget>
             <widget class="QComboBox" name="comboBox_6">
@@ -397,20 +465,7 @@ border-color: rgb(29, 122, 162);
               <string/>
              </property>
             </widget>
-            <widget class="QLabel" name="offsetLabel">
-             <property name="geometry">
-              <rect>
-               <x>240</x>
-               <y>30</y>
-               <width>41</width>
-               <height>31</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>.</string>
-             </property>
-            </widget>
-            <widget class="QCheckBox" name="FOURCHAN_ENABLE">
+            <widget class="QCheckBox" name="CH3_ENABLE">
              <property name="geometry">
               <rect>
                <x>0</x>
@@ -431,20 +486,72 @@ border-color: rgb(29, 122, 162);
               <rect>
                <x>20</x>
                <y>90</y>
-               <width>101</width>
+               <width>31</width>
                <height>21</height>
               </rect>
              </property>
              <property name="font">
               <font>
-               <pointsize>9</pointsize>
-               <weight>50</weight>
-               <italic>true</italic>
-               <bold>false</bold>
+               <weight>75</weight>
+               <bold>true</bold>
               </font>
              </property>
              <property name="text">
-              <string>CH3 , MIC</string>
+              <string>CH3</string>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="MIC_ENABLE">
+             <property name="geometry">
+              <rect>
+               <x>80</x>
+               <y>90</y>
+               <width>21</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+            <widget class="QLabel" name="CH2_LABEL_3">
+             <property name="geometry">
+              <rect>
+               <x>110</x>
+               <y>90</y>
+               <width>31</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>MIC</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="CH2_LABEL_4">
+             <property name="geometry">
+              <rect>
+               <x>220</x>
+               <y>50</y>
+               <width>51</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>CH2</string>
              </property>
             </widget>
            </widget>
@@ -468,6 +575,9 @@ border-color: rgb(29, 122, 162);
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
+            </property>
+            <property name="class" stdset="0">
+             <string>PeripheralCollectionInner</string>
             </property>
             <widget class="QLabel" name="label_49">
              <property name="geometry">
@@ -542,6 +652,9 @@ border-color: rgb(29, 122, 162);
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
+            </property>
+            <property name="class" stdset="0">
+             <string>PeripheralCollectionInner</string>
             </property>
             <widget class="QDial" name="dial_11">
              <property name="geometry">
@@ -673,7 +786,7 @@ border-color: rgb(29, 122, 162);
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>65</height>
+              <height>70</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -691,11 +804,14 @@ border-color: rgb(29, 122, 162);
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
+            <property name="class" stdset="0">
+             <string>PeripheralCollectionInner</string>
+            </property>
             <widget class="QComboBox" name="fit_select_box">
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>30</y>
+               <y>40</y>
                <width>71</width>
                <height>21</height>
               </rect>
@@ -733,7 +849,7 @@ border-color: rgb(29, 122, 162);
              <property name="geometry">
               <rect>
                <x>190</x>
-               <y>0</y>
+               <y>10</y>
                <width>91</width>
                <height>21</height>
               </rect>
@@ -746,7 +862,7 @@ border-color: rgb(29, 122, 162);
              <property name="geometry">
               <rect>
                <x>90</x>
-               <y>30</y>
+               <y>40</y>
                <width>71</width>
                <height>21</height>
               </rect>
@@ -784,7 +900,7 @@ border-color: rgb(29, 122, 162);
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>3</y>
+               <y>10</y>
                <width>151</width>
                <height>20</height>
               </rect>
@@ -848,6 +964,9 @@ border-color: rgb(29, 122, 162);
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
+            </property>
+            <property name="class" stdset="0">
+             <string>PeripheralCollectionInner</string>
             </property>
             <widget class="QLabel" name="label">
              <property name="geometry">
@@ -1072,7 +1191,7 @@ border-color: rgb(29, 122, 162);
               </font>
              </property>
              <property name="text">
-              <string>TextLabel</string>
+              <string>.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1112,7 +1231,7 @@ border-color: rgb(29, 122, 162);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>867</width>
+     <width>868</width>
      <height>25</height>
     </rect>
    </property>
