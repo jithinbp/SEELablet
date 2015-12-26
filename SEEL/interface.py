@@ -106,21 +106,21 @@ class Interface():
         self.channels_in_buffer=0
         self.digital_channels_in_buffer=0
         self.data_splitting = kwargs.get('data_splitting',500)
+        self.allAnalogChannels=allAnalogChannels
+        self.analogInputSources={}
+        for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
 
 
         #--------------------------Initialize communication handler, and subclasses-----------------
+        self.H = packet_handler.Handler(**kwargs)
         self.__runInitSequence__(**kwargs)
     
     def __runInitSequence__(self,**kwargs):
-        self.H = packet_handler.Handler(**kwargs)
         self.connected = self.H.connected
         if not self.H.connected:
             print 'Check hardware connections. Not connected'
             return          
         self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
-        self.analogInputSources={}
-        self.allAnalogChannels=allAnalogChannels
-        for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
         
 
         #-------Check for calibration data. And process them if found---------------
@@ -258,6 +258,7 @@ class Interface():
         
         '''
         self.H.reconnect(**kwargs)
+        self.__runInitSequence__(**kwargs)
         
     def capture1(self,ch,ns,tg,*args):
         """
