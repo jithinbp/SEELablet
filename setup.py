@@ -48,14 +48,17 @@ def subdirs(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
-directories=subdirs('SEEL/helpfiles/')
-directories.append('')
-for directory in directories:
-	directory = 'SEEL/helpfiles/'+directory
-	files = os.listdir(directory)
-	files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
-	files = [os.path.join(directory,a) for a in files]
-	data_files.append((directory,files))
+try:
+    directories=subdirs('docs/_build/html/')
+    directories.append('')
+    for directory in directories:
+        directory = 'docs/_build/html/'+directory
+        files = os.listdir(directory)
+        files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
+        files = [os.path.join(directory,a) for a in files]
+        data_files.append((directory,files))
+except:
+    pass
 
 #print (data_files)
 
