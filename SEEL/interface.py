@@ -249,7 +249,7 @@ class Interface():
 
     #|================================================ANALOG SECTION====================================================|
     #|This section has commands related to analog measurement and control. These include the oscilloscope routines,     |
-    #|voltmeters, ammeters, and Programmable voltage sources.                               |
+    #|voltmeters, ammeters, and Programmable voltage sources.                                                           |
     #-------------------------------------------------------------------------------------------------------------------#
 
     def reconnect(self,**kwargs):

@@ -11,9 +11,10 @@ pyuic4 wirelessTemplate.ui -o wirelessTemplate.py
 #pyuic4 arbitStream.ui -o arbitStream.py
 pyuic4 single_col_exp.ui -o single_col_exp.py
 #pyuic4 controlWidgets.ui -o controlWidgets.py
-
+pyuic4 sensorGrid.ui -o sensorGrid.py
 cd widgets/
 pyuic4 dial.ui -o dial.py 
 pyuic4 button.ui -o button.py
+pyuic4 sensorWidget.ui -o sensorWidget.py
 pyuic4 selectAndButton.ui -o selectAndButton.py
 cd ..

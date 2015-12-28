@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Mon Dec 28 16:38:57 2015
+# Created: Tue Dec 29 00:57:25 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -191,7 +191,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "vLabtool: Control Panel", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "SEELablet: Control Panel", None))
         self.SCF1.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.pushButton.setText(_translate("MainWindow", "SET", None))
         self.menuUtilities.setTitle(_translate("MainWindow", "Utilities", None))

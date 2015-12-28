@@ -36,7 +36,8 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 		print self.I.readLog()	
 		self.plot=self.add2DPlot(self.plot_area)
 		self.plot.setLabel('bottom', 'Datapoints -->>')
-		self.plot.setYRange(-35000,35000)
+		self.plot.enableAutoRange(True,True)
+		self.plot.setXRange(0,1000)
 		self.curves=[]
 		self.nodeWidgets=[]
 		self.nodeList=[]
@@ -204,7 +205,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 				if self.updatepos%20==0:
 					for a in range(len(item.curves)):
 						if item.curves[a].checked:item.curves[a].setData(self.xdata,item.ydata[a])
-		#N2.readADC(10)
+
 		if len(self.acquireList):
 			self.updatepos+=1
 			if self.updatepos>=self.POINTS:self.updatepos=0
@@ -228,10 +229,12 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 			self.I.NRF.stop_token_manager()
 			self.refreshTimer.stop()
 
-	def __exit__(self):
-		print 'CYA'
-		self.I.NRF.stop_token_manager()
-		self.I.restoreStandalone()		
+	def __del__(self):
+		self.refreshTimer.stop()
+		print 'bye'
+
+	def closeEvent(self, event):
+		self.refreshTimer.stop()
 
 
 if __name__ == "__main__":

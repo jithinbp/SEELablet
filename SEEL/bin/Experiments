@@ -65,9 +65,9 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		apps = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(APPS.__file__)])]
 		controls = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(CONTROLS.__file__)])]
 		print apps,controls
+
 		row=0;col=0;colLimit=3
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
-
 
 		for app in apps:
 			if(col==colLimit):

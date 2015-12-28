@@ -119,6 +119,9 @@ stop: 0 #abe, stop: 0.7 #aba);
           <property name="text">
            <string>Auto Listen</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wirelessTemplate.ui'
 #
-# Created: Mon Dec 28 16:38:57 2015
+# Created: Tue Dec 29 00:57:25 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -100,6 +100,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.checkBox = QtGui.QCheckBox(self.frame)
+        self.checkBox.setChecked(True)
         self.checkBox.setObjectName(_fromUtf8("checkBox"))
         self.verticalLayout.addWidget(self.checkBox)
         self.logs = QtWebKit.QWebView(self.frame)
