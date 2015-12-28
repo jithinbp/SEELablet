@@ -150,6 +150,16 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.timer = QtCore.QTimer()
 		self.finished=False
 		self.timer.singleShot(500,self.start_capture)
+		self.thread = QtCore.QThread()
+		self.thread.start()
+
+	class AThread(QtCore.QThread):
+		def run(self):
+			while 1:
+				print 'ha'
+				time.sleep(0.2)
+
+
 
 	def updateViews(self):
 			self.plot2.setGeometry(self.plot.getViewBox().sceneBoundingRect())
@@ -372,12 +382,10 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 
 	def setOffsetAndGainLabels(self):
-		self.CH1_LABEL.setText('CH1: ')
-		self.CH2_LABEL.setText('CH2: ')
+		pass
 	
 	def setGainCH1(self,g):
 		self.I.set_gain(self.chan1remap,g)
-		self.CH1_LABEL.setText('CH1: ')
 		if not self.Liss_show.isChecked():
 			chan = self.I.analogInputSources[self.chan1remap]
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
@@ -387,7 +395,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		
 	def setGainCH2(self,g):
 		self.I.set_gain('CH2',g)
-		self.CH2_LABEL.setText('CH2: ')
 		if not self.Liss_show.isChecked():
 			chan = self.I.analogInputSources['CH2']
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
@@ -561,3 +568,10 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		print 'bye'
 
 		
+if __name__ == "__main__":
+	from SEEL import interface
+	app = QtGui.QApplication(sys.argv)
+	myapp = AppWindow(I=interface.connect())
+	myapp.show()
+	sys.exit(app.exec_())
+

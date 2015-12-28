@@ -58,53 +58,40 @@ border-top-left-radius: 5px;
 border-top-right-radius: 5px;
 border: 1px solid black;
 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #6af, stop: 0.1 #689);
+stop: 0 #ebc, stop: 0.1 #689);
 }
+
 QFrame.PeripheralCollection QLabel {
 color: white;
 font-weight: bold;
 }
 
-
-QWidget.PeripheralCollection{
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-border: 1px solid black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #6af, stop: 0.1 #689);
-}
-QWidget.PeripheralCollection QLabel {
-color: white;
-font-weight: bold;
-}
-
-
 QFrame.PeripheralCollectionInner {
 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 stop: 0 #abe, stop: 0.7 #aba);
 border: none;
-border-top: 1px solid black;
+border-top: 3px solid black;
 }
 
 QFrame.PeripheralCollectionInner QLabel{
 color: black;
 }
 
-QWidget.PeripheralCollectionInner {
+
+#centralwidget{
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+border: 1px solid black;
 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-border: none;
-border-top: 1px solid black;
+stop: 0 #6af, stop: 0.1 #689);
+}
+#centralwidget QLabel {
+color: black;
+font-weight: bold;
 }
 
 
 
-QWidget.PeripheralCollectionInner {
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-border: none;
-border-top: 1px solid black;
-}
 
 
 
@@ -120,6 +107,9 @@ border-top: 1px solid black;
   <widget class="QWidget" name="centralwidget">
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="class" stdset="0">
+    <string>PeripheralCollection</string>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
@@ -191,12 +181,15 @@ border-top: 1px solid black;
          <property name="class" stdset="0">
           <string>PeripheralCollection</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1,2,1,1,1,1,2">
           <property name="spacing">
            <number>3</number>
           </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
           <property name="leftMargin">
-           <number>3</number>
+           <number>2</number>
           </property>
           <property name="topMargin">
            <number>2</number>
@@ -635,13 +628,13 @@ border-top: 1px solid black;
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>77</height>
+              <height>83</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>77</height>
+              <height>83</height>
              </size>
             </property>
             <property name="styleSheet">
@@ -660,7 +653,7 @@ border-top: 1px solid black;
              <property name="geometry">
               <rect>
                <x>160</x>
-               <y>0</y>
+               <y>10</y>
                <width>111</width>
                <height>71</height>
               </rect>
@@ -685,7 +678,7 @@ border-top: 1px solid black;
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>50</y>
+               <y>60</y>
                <width>141</width>
                <height>21</height>
               </rect>
@@ -709,7 +702,7 @@ border-top: 1px solid black;
                <x>10</x>
                <y>30</y>
                <width>141</width>
-               <height>16</height>
+               <height>21</height>
               </rect>
              </property>
              <property name="styleSheet">
@@ -743,7 +736,7 @@ border-top: 1px solid black;
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>0</y>
+               <y>10</y>
                <width>141</width>
                <height>21</height>
               </rect>

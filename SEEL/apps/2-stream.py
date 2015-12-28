@@ -133,3 +133,10 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 		self.looptimer.stop()
 		self.finished=True
 
+
+if __name__ == "__main__":
+	from SEEL import interface
+	app = QtGui.QApplication(sys.argv)
+	myapp = AppWindow(I=interface.connect())
+	myapp.show()
+	sys.exit(app.exec_())

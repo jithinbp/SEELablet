@@ -5,23 +5,23 @@ sensors connected to each. It can then be used to plot data acquired from sensor
 on the various nodes.
 
 '''
-from SEEL.experiment import *
-if __name__ == "__main__":
-	Exp=Experiment(parent=None,showresult=False)
 
+from PyQt4 import QtCore, QtGui
 
 from SEEL.widgets.nodeList import Ui_Form as nodeWidget
 from SEEL.templates import wirelessTemplate
 from SEEL.SENSORS import HMC5883L,MPU6050,MLX90614,BMP180,TSL2561,SHT21
+from SEEL.SENSORS.supported import supported
 from SEEL.sensorlist import sensors as sensorHints
 from SEEL.utilitiesClass import utilitiesClass
 import pyqtgraph as pg
+import numpy as np
 
-import time
+import time,sys,functools
 
 params = {
 'image' : 'stream.png',
-'helpfile': 'https://hackaday.io/project/6490-a-versatile-labtool/log/20189-nrf24l01-based-wireless-nodes',
+'helpfile': 'http://seelablet.jithinbp.in',
 'name':'wireless\nsensors'
 }
 
@@ -49,13 +49,12 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 		self.loopTask(2,self.updatePlots)
 		self.updatepos=0
 		self.refreshTimer = self.loopTask(200,self.updateLogWindow)
-		self.delayedTask(0,self.logs.setMaximumWidth,1900)
 		self.deviceMenus=[]
-		menu = self.PermanentMenu()
-		self.curveMenu = QtGui.QMenu('Active Traces')
-		menu.addMenu(self.curveMenu)
-		self.paramMenus.insertWidget(0,menu)
-		self.deviceMenus.append(menu)
+		self.actionWidgets=[]
+
+		self.sensorWidgets=[]
+		self.availableClasses=[0x68,0x1E,0x5A,0x77,0x39,0x40]
+
 
 	class plotItem:
 		def __init__(self,handle,ydata,curves):
@@ -63,59 +62,49 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 			self.ydata = ydata
 			self.curves=curves
 
+
 	def addPlot(self,addr,param):
 		newNode = self.I.newRadioLink(address=addr)
 		self.nodeList.append(newNode)
 		print 'made link',addr,param
-		#newNode.write_register(self.I.NRF.RF_SETUP,0x0E)
-		#self.I.NRF.write_register(self.I.NRF.RF_SETUP,0x0E) #Change to 2MBPS
 		cls=False
-		if(param==0x68):
-			cls=MPU6050.MPU6050(newNode)
-			numplots=7;
-		elif(param==0x1E):
-			cls=HMC5883L.HMC5883L(newNode)
-			numplots=3
-		elif(param==0x5A):
-			cls=MLX90614.MLX90614(newNode)
-			numplots=1
-		elif(param==0x77):
-			cls=BMP180.BMP180(newNode)
-			numplots=3
-		elif(param==0x39):
-			cls=TSL2561.TSL2561(newNode)
-			numplots=3
-		elif(param==0x40):
-			cls=SHT21.SHT21(newNode)
-			numplots=1
+		cls_module = supported.get(param,None)
+		if cls_module:
+			cls = cls_module.connect(newNode)
+		else:
+			cls=None
 
 		if cls:
 			if hasattr(cls,'name'):	label = cls.name
 			else: label =''
+			cols=[self.random_color() for a in cls.PLOTNAMES]
 			if not self.active_device_counter:
 				if len(label):self.plot.setLabel('left', label)
-				curves=[self.addCurve(self.plot ,'%s:%s[%d]'%(hex(addr),label[:10],a),self.random_color()) for a in range(numplots)]
+				curves=[self.addCurve(self.plot,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(cls.NUMPLOTS)]
 			else:
-				cols=[self.random_color() for a in range(numplots)]
 				if label:
 					colStr = lambda col: hex(col[0])[2:]+hex(col[1])[2:]+hex(col[2])[2:]
 					newplt = self.addAxis(self.plot,label=label,color='#'+colStr(cols[0].getRgb()))
 				else: newplt = self.addAxis(self.plot)
 				self.right_axes.append(newplt)
-				curves=[self.addCurve(newplt ,'%s:%s[%d]'%(hex(addr),label[:10],a),cols[a]) for a in range(numplots)]
-				for a in range(len(curves)):
-					self.plotLegend.addItem(curves[a],'%s:%s[%d]'%(hex(addr),label[:10],a))
+				curves=[self.addCurve(newplt ,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(cls.NUMPLOTS)]
+				for a in range(cls.NUMPLOTS):
+					self.plotLegend.addItem(curves[a],'%s[%s]'%(label[:10],cls.PLOTNAMES[a]))
 			
-			for a in range(len(curves)):
+			self.createMenu(cls,param)
+			for a in range(cls.NUMPLOTS):
 				curves[a].checked=True
 				Callback = functools.partial(self.setTraceVisibility,curves[a])		
-				action=self.curveMenu.addAction('%s:%s[%d]'%(hex(addr),label[:12],a)) 
-				action.triggered[bool].connect(Callback)
-				action.setCheckable(True);action.setChecked(True)
-				#self.curves.append(a)
-			self.acquireList.append(self.plotItem(cls,np.zeros((numplots,self.POINTS)), curves)) 
+				action=QtGui.QCheckBox('%s'%(cls.PLOTNAMES[a])) #self.curveMenu.addAction('%s[%d]'%(label[:12],a)) 
+				action.toggled[bool].connect(Callback)
+				action.setChecked(True)
+				action.setStyleSheet("background-color:rgb%s;"%(str(cols[a].getRgb())))
+				self.paramMenus.insertWidget(1,action)
+				self.actionWidgets.append(action)
+			self.acquireList.append(self.plotItem(cls,np.zeros((cls.NUMPLOTS,self.POINTS)), curves)) 
 			self.active_device_counter+=1
-			self.createMenu(cls,addr)
+
+
 
 	def setTraceVisibility(self,curve,status):
 		curve.clear()
@@ -142,7 +131,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 	
 	class nodeHandler(QtGui.QFrame,nodeWidget):
 		def __init__(self,addr,I2Cs,evaluator):
-			super(Handler.nodeHandler, self).__init__()
+			super(AppWindow.nodeHandler, self).__init__()
 			self.setupUi(self)
 			#self.cmd = getattr(self.I,cmd)
 			#self.cmdname=cmd
@@ -154,7 +143,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 
 		def clicked(self):
 			val = self.items.currentText()
-			self.cmd(self.addr,int(val,0))
+			self.cmd(self.addr,int(str(val),0))
 			
 
 	def updateLogWindow(self):
@@ -245,3 +234,9 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 		self.I.restoreStandalone()		
 
 
+if __name__ == "__main__":
+	from SEEL import interface
+	app = QtGui.QApplication(sys.argv)
+	myapp = AppWindow(I=interface.connect(port = '/dev/ttyACM7'))
+	myapp.show()
+	sys.exit(app.exec_())

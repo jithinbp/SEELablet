@@ -18,8 +18,8 @@ import sys,os,string
 import time
 
 params = {
-'image' : 'dials.png',
-'name' :u'iPython\nConsole'
+'image' : 'ipython.jpg',
+'name' :''
 }
 
 class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):

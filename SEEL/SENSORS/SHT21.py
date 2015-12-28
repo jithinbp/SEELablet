@@ -11,7 +11,7 @@ class SHT21():
 	HUMIDITY_ADDRESS = 0xF5	
 	selected=0xF3
 	NUMPLOTS=1
-	PLOTNAMES = ['Humidity']
+	PLOTNAMES = ['Data']
 	def __init__(self,I2C,**args):
 		self.I2C=I2C
 		self.ADDRESS = args.get('address',0x40)

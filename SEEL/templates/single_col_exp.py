@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Sat Dec 26 16:40:02 2015
+# Created: Mon Dec 28 16:38:57 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,7 +89,7 @@ class Ui_MainWindow(object):
 "color: black;\n"
 "}\n"
 "\n"
-"#SCF2,#SCF1\n"
+"#SCF1\n"
 "{\n"
 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
 "stop: 0 #abe, stop: 0.7 #aba);\n"
@@ -178,7 +178,6 @@ class Ui_MainWindow(object):
         self.actionIPython.setObjectName(_fromUtf8("actionIPython"))
         self.actionReset_Device = QtGui.QAction(MainWindow)
         self.actionReset_Device.setObjectName(_fromUtf8("actionReset_Device"))
-        self.menuUtilities.addAction(self.actionIPython_Console)
         self.menuUtilities.addAction(self.actionReset_Device)
         self.menuHelp.addAction(self.actionIPython)
         self.menubar.addAction(self.menuUtilities.menuAction())

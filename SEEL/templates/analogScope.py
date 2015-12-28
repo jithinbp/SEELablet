@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'analogScope.ui'
 #
-# Created: Sat Dec 26 16:56:51 2015
+# Created: Mon Dec 28 16:29:28 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,53 +57,40 @@ class Ui_MainWindow(object):
 "border-top-right-radius: 5px;\n"
 "border: 1px solid black;\n"
 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
+"stop: 0 #ebc, stop: 0.1 #689);\n"
 "}\n"
+"\n"
 "QFrame.PeripheralCollection QLabel {\n"
 "color: white;\n"
 "font-weight: bold;\n"
 "}\n"
 "\n"
-"\n"
-"QWidget.PeripheralCollection{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
-"}\n"
-"QWidget.PeripheralCollection QLabel {\n"
-"color: white;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"\n"
 "QFrame.PeripheralCollectionInner {\n"
 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
 "stop: 0 #abe, stop: 0.7 #aba);\n"
 "border: none;\n"
-"border-top: 1px solid black;\n"
+"border-top: 3px solid black;\n"
 "}\n"
 "\n"
 "QFrame.PeripheralCollectionInner QLabel{\n"
 "color: black;\n"
 "}\n"
 "\n"
-"QWidget.PeripheralCollectionInner {\n"
+"\n"
+"#centralwidget{\n"
+"border-top-left-radius: 5px;\n"
+"border-top-right-radius: 5px;\n"
+"border: 1px solid black;\n"
 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
+"stop: 0 #6af, stop: 0.1 #689);\n"
+"}\n"
+"#centralwidget QLabel {\n"
+"color: black;\n"
+"font-weight: bold;\n"
 "}\n"
 "\n"
 "\n"
 "\n"
-"QWidget.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
-"}\n"
 "\n"
 "\n"
 "\n"
@@ -151,7 +138,8 @@ class Ui_MainWindow(object):
         self.frame_4.setObjectName(_fromUtf8("frame_4"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.frame_4)
         self.verticalLayout_2.setSpacing(3)
-        self.verticalLayout_2.setContentsMargins(3, 2, 3, 2)
+        self.verticalLayout_2.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
+        self.verticalLayout_2.setContentsMargins(2, 2, 3, 2)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         spacerItem = QtGui.QSpacerItem(20, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem)
@@ -285,14 +273,14 @@ class Ui_MainWindow(object):
         self.horizontalSlider.setObjectName(_fromUtf8("horizontalSlider"))
         self.verticalLayout_2.addWidget(self.frame_2)
         self.frame = QtGui.QFrame(self.frame_4)
-        self.frame.setMinimumSize(QtCore.QSize(0, 77))
-        self.frame.setMaximumSize(QtCore.QSize(16777215, 77))
+        self.frame.setMinimumSize(QtCore.QSize(0, 83))
+        self.frame.setMaximumSize(QtCore.QSize(16777215, 83))
         self.frame.setStyleSheet(_fromUtf8("QFrame{background-color: rgba(255, 0, 0, 50);}"))
         self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtGui.QFrame.Raised)
         self.frame.setObjectName(_fromUtf8("frame"))
         self.dial_11 = QtGui.QDial(self.frame)
-        self.dial_11.setGeometry(QtCore.QRect(160, 0, 111, 71))
+        self.dial_11.setGeometry(QtCore.QRect(160, 10, 111, 71))
         self.dial_11.setMinimum(0)
         self.dial_11.setMaximum(1000)
         self.dial_11.setProperty("value", 500)
@@ -300,13 +288,13 @@ class Ui_MainWindow(object):
         self.dial_11.setNotchesVisible(True)
         self.dial_11.setObjectName(_fromUtf8("dial_11"))
         self.trigger_level_box = QtGui.QDoubleSpinBox(self.frame)
-        self.trigger_level_box.setGeometry(QtCore.QRect(10, 50, 141, 21))
+        self.trigger_level_box.setGeometry(QtCore.QRect(10, 60, 141, 21))
         self.trigger_level_box.setReadOnly(True)
         self.trigger_level_box.setMinimum(-20.0)
         self.trigger_level_box.setMaximum(20.0)
         self.trigger_level_box.setObjectName(_fromUtf8("trigger_level_box"))
         self.trigger_select_box = QtGui.QComboBox(self.frame)
-        self.trigger_select_box.setGeometry(QtCore.QRect(10, 30, 141, 16))
+        self.trigger_select_box.setGeometry(QtCore.QRect(10, 30, 141, 21))
         self.trigger_select_box.setStyleSheet(_fromUtf8(""))
         self.trigger_select_box.setFrame(False)
         self.trigger_select_box.setObjectName(_fromUtf8("trigger_select_box"))
@@ -315,7 +303,7 @@ class Ui_MainWindow(object):
         self.trigger_select_box.addItem(_fromUtf8(""))
         self.trigger_select_box.addItem(_fromUtf8(""))
         self.label_48 = QtGui.QLabel(self.frame)
-        self.label_48.setGeometry(QtCore.QRect(10, 0, 141, 21))
+        self.label_48.setGeometry(QtCore.QRect(10, 10, 141, 21))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -419,6 +407,15 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.frame_3)
         spacerItem1 = QtGui.QSpacerItem(20, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem1)
+        self.verticalLayout_2.setStretch(0, 1)
+        self.verticalLayout_2.setStretch(1, 1)
+        self.verticalLayout_2.setStretch(2, 1)
+        self.verticalLayout_2.setStretch(3, 2)
+        self.verticalLayout_2.setStretch(4, 1)
+        self.verticalLayout_2.setStretch(5, 1)
+        self.verticalLayout_2.setStretch(6, 1)
+        self.verticalLayout_2.setStretch(7, 1)
+        self.verticalLayout_2.setStretch(8, 2)
         self.verticalLayout_3.addWidget(self.splitter)
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setSpacing(0)
@@ -504,6 +501,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "Oscilloscope", None))
+        self.centralwidget.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
         self.frame_4.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
         self.label_3.setText(_translate("MainWindow", "Channel Parameters", None))
         self.frame_11.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
