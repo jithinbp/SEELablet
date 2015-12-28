@@ -17,7 +17,7 @@ def udev_trigger():
 
 def install_udev_rules(raise_exception):
 	if check_root():
-		shutil.copy('SEEL/calib_data/proto.rules', '/etc/udev/rules.d')
+		shutil.copy('proto.rules', '/etc/udev/rules.d')
 		execute(udev_reload_rules, [], "Reloading udev rules")
 		execute(udev_trigger, [], "Triggering udev rules")
 	else:
