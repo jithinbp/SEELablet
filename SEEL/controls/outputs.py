@@ -3,6 +3,7 @@
 Output Peripheral control for the vLabtool - version 0.
 '''
 
+from __future__ import print_function
 import os
 os.environ['QT_API'] = 'pyqt'
 import sip
@@ -60,7 +61,7 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
 				autogenControls.append(self.autogenControl(TITLE='VOLTMETER',FUNC=tmpfunc,TYPE='selectButton',UNITS='V',TOOLTIP='Voltmeter',OPTIONS=self.I.allAnalogChannels))
 				autogenControls.append(self.autogenControl(TITLE='Low Frequency',FUNC=self.I.get_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequency. Minimum 40Hz',OPTIONS=self.I.allDigitalChannels))
 				autogenControls.append(self.autogenControl(TITLE='High Frequency',FUNC=self.I.get_high_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequencies over 1MHz with 10Hz resolution',OPTIONS=self.I.allDigitalChannels))
-				self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string)
+				self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
 				for C in autogenControls:
 					if C.TYPE=='dial':
 						self.funcs.append(C.FUNC)
@@ -82,7 +83,7 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
 			self.setWindowTitle('Not Connected!')
 
 
-		self.setWindowTitle('vLabtool output Peripherals : '+self.I.H.version_string)
+		self.setWindowTitle('vLabtool output Peripherals : '+self.I.H.version_string.decode("utf-8"))
 
 
 
@@ -209,7 +210,7 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
 
 
 	def __del__(self):
-		print 'bye'
+		print ('bye')
         		
 if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)

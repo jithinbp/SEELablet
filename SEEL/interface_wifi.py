@@ -125,7 +125,7 @@ class Interface(object):
                                 self.__print__('ADC calibration found...')
                                 import struct
                                 adc_shifts = self.read_bulk_flash(self.ADC_SHIFTS_LOCATION1,2048)+self.read_bulk_flash(self.ADC_SHIFTS_LOCATION2,2048)
-                                adc_shifts = [ord(a) for a in adc_shifts]
+                                adc_shifts = [Byte.unpack(a)[0] for a in adc_shifts]
                                 self.__print__('ADC INL correction table loaded.')
                                 inl_slope_intercept = polynomials.split('STOP')[2]
                                 dac_slope_intercept = polynomials.split('STOP')[1]
@@ -135,7 +135,7 @@ class Interface(object):
                                         self.__print__( '>>>>>>',S[0])
                                         cals=S[1]
                                         polyDict[S[0]]=[]
-                                        for b in range(len(cals)/16):
+                                        for b in range(len(cals)//16):
                                                 poly=struct.unpack('4f',cals[b*16:(b+1)*16])
                                                 self.__print__( b,poly)
                                                 polyDict[S[0]].append(poly)
@@ -153,7 +153,7 @@ class Interface(object):
                                                 elif NAME=='PVS2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS2B,2048)
                                                 elif NAME=='PVS3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS3B,2048)
 
-                                                OFF = np.array([ord(data) for data in OFF])
+                                                OFF = np.array([Byte.unpack(data)[0] for data in OFF])
                                                 fitfn = np.poly1d(fitvals)
                                                 YDATA = fitfn(DACX) - (OFF*slope+intercept)
                                                 LOOKBEHIND = 100;LOOKAHEAD=100						
@@ -459,9 +459,9 @@ class Interface(object):
 		self.__print__( 'wait')
 		time.sleep(1e-6*total_samples*tg+.01)
 		self.__print__( 'done')
-		data=''
+		data=b''
 
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -497,10 +497,10 @@ class Interface(object):
 				time.sleep(0.01)
 			data=data[:-1]
 
-		for a in range(total_samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(total_samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		yield np.linspace(0,tg*(samples-1),samples)
-		for a in range(total_chans):
+		for a in range(int(total_chans)):
 			yield self.buff[a:total_samples][::total_chans]
 
 
@@ -538,10 +538,10 @@ class Interface(object):
 	def __retrieveBufferData__(self,chan,samples,tg):
 		'''
 		'''	
-		data=''
+		data=b''
 
 
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -577,7 +577,7 @@ class Interface(object):
 				time.sleep(0.01)
 			data=data[:-1]
 
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return np.linspace(0,tg*(samples-1),samples),self.analogInputSources[chan].calPoly10(self.buff[:samples])
 
@@ -807,7 +807,7 @@ class Interface(object):
 		if(channel_number>self.channels_in_buffer):
 			print ('Channel unavailable')
 			return False
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -847,7 +847,7 @@ class Interface(object):
 
 
 		print ('\ndata:',len(data))
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return True
 
@@ -876,7 +876,7 @@ class Interface(object):
 		self.H.__sendInt__(offset)
 		data = self.H.fd.recv(samples*2)		#reading int by int sometimes causes a communication error. this works better.
 		self.H.__get_ack__()
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return True
 
@@ -1018,7 +1018,7 @@ class Interface(object):
 		
 		"""
 		poly = self.analogInputSources[channel_name].calPoly12
-		val = np.average([poly(self.__get_raw_average_voltage__(channel_name,**kwargs)) for a in range(kwargs.get('samples',1))])		
+		val = np.average([poly(self.__get_raw_average_voltage__(channel_name,**kwargs)) for a in range(int(kwargs.get('samples',1)))])		
 		return  val
 
 
@@ -1844,8 +1844,8 @@ class Interface(object):
 
 		ss = self.H.fd.recv(bytes*2)
 		t = np.zeros(bytes*2)
-		for a in range(bytes):
-			t[a] = ord(ss[0+a*2]) |(ord(ss[1+a*2])<<8)
+		for a in range(int(bytes)):
+			t[a] = ShortInt.unpack(ss[a*2:a*2+2])[0]
 
 		self.H.__get_ack__()
 		t=np.trim_zeros(t)
@@ -1874,8 +1874,8 @@ class Interface(object):
 		self.H.__sendByte__(chan-1)
 		ss = self.H.fd.recv(bytes*4)
 		tmp = np.zeros(bytes)
-		for a in range(bytes):
-			tmp[a] = ord(ss[0+a*4])|(ord(ss[1+a*4])<<8)|(ord(ss[2+a*4])<<16)|(ord(ss[3+a*4])<<24)
+		for a in range(int(bytes)):
+			tmp[a] = Integer.unpack(ss[a*4:a*4+4])[0]
 		self.H.__get_ack__()
 		tmp = np.trim_zeros(tmp) 
 		return tmp
@@ -1975,17 +1975,17 @@ class Interface(object):
 
 		"""
 		data=0
-		if kwargs.has_key('OD1'):
+		if 'OD1' in kwargs:
 			data|= 0x40|(kwargs.get('OD1')<<2)
-		if kwargs.has_key('OD2'):
+		if 'OD2' in kwargs:
 			data|= 0x80|(kwargs.get('OD2')<<3)
-		if kwargs.has_key('SQR1'):
+		if 'SQR1' in kwargs:
 			data|= 0x10|(kwargs.get('SQR1'))
-		if kwargs.has_key('SQR2'):
+		if 'SQR2' in kwargs:
 			data|= 0x20|(kwargs.get('SQR2')<<1)
-		if kwargs.has_key('SQR3'):
+		if 'SQR3' in kwargs:
 			data|= 0x40|(kwargs.get('SQR3')<<2)
-		if kwargs.has_key('SQR4'):
+		if 'SQR4' in kwargs:
 			data|= 0x80|(kwargs.get('SQR4')<<3)
 		self.H.__sendByte__(DOUT)
 		self.H.__sendByte__(SET_STATE)
@@ -2166,7 +2166,7 @@ class Interface(object):
 		self.H.__sendInt__(bytes) 	#send the location
 		self.H.__sendByte__(page)
 
-		data=''
+		data=b''
 		rem = bytes+1
 		for a in range(200):
 			partial = self.H.fd.recv(rem)
@@ -2426,7 +2426,7 @@ class Interface(object):
 			self.H.__sendInt__(a)
 			time.sleep(0.001)
 		for a in y2:
-			self.H.__sendByte__(chr(a))
+			self.H.__sendByte__(Byte.pack(a))
 			time.sleep(0.001)
 		time.sleep(0.1)
 		self.H.__get_ack__()
@@ -2546,7 +2546,7 @@ class Interface(object):
 		self.H.__sendByte__(RETRIEVE_BUFFER)
 		self.H.__sendInt__(starting_position)
 		self.H.__sendInt__(total_points)
-		for a in range(total_points): self.buff[a]=self.H.__getInt__()
+		for a in range(int(total_points)): self.buff[a]=self.H.__getInt__()
 		self.H.__get_ack__()
 
 	def clear_buffer(self,starting_position,total_points):

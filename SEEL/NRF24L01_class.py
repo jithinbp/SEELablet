@@ -267,7 +267,7 @@ class NRF24L01():
 		self.H.__sendByte__(NRFL01)
 		self.H.__sendByte__(NRF_TRANSACTION)
 		self.H.__sendByte__(len(data)) #total Data bytes coming through
-		if not args.has_key('listen'):args['listen']=True
+		if 'listen' not in args:args['listen']=True
 		if args.get('listen',False):data[0]|=0x80  # You need this if hardware must wait for a reply
 		timeout = args.get('timeout',200)
 		verbose = args.get('verbose',False)
@@ -437,9 +437,9 @@ class NRF24L01():
 		Dynamic Payload with auto acknowledge is enabled.
 		'''
 		self.PAYLOAD_SIZE=args.get('PAYLOAD_SIZE',self.PAYLOAD_SIZE)
-		if not args.has_key('myaddr0'):
+		if 'myaddr0' not in args:
 			args['myaddr0']=0xA523B5
-		#if not args.has_key('sendaddr'):
+		#if 'sendaddr' non in args:
 		#	args['sendaddr']=0xA523B5
 		print (args)
 		self.init()

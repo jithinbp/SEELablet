@@ -31,6 +31,9 @@ GET_VOLTAGE_SUMMED  = Byte.pack(10)
 START_ADC_STREAMING = Byte.pack(11)
 SELECT_PGA_CHANNEL  = Byte.pack(12)
 CAPTURE_12BIT       = Byte.pack(13)
+CAPTURE_MULTIPLE    = Byte.pack(14)
+SET_HI_CAPTURE      = Byte.pack(15)
+SET_LO_CAPTURE      = Byte.pack(16)
 
 #/*-----SPI--------*/
 SPI_HEADER         = Byte.pack(3)
@@ -58,6 +61,7 @@ I2C_WRITE_BULK   = Byte.pack(12)
 I2C_ENABLE_SMBUS = Byte.pack(13)
 I2C_INIT         = Byte.pack(14)
 I2C_PULLDOWN_SCL = Byte.pack(15)
+
 #/*------UART2--------*/
 UART_2       = Byte.pack(5)
 SEND_CHAR    = Byte.pack(1)
@@ -85,10 +89,12 @@ SET_BOTH_WG          = Byte.pack(9)
 SET_WAVEFORM_TYPE    = Byte.pack(10)
 SELECT_FREQ_REGISTER = Byte.pack(11)
 DELAY_GENERATOR      = Byte.pack(12)
+SET_SINE1            = Byte.pack(13)
+SET_SINE2            = Byte.pack(14)
 
-LOAD_WAVEFORM1 = Byte.pack(15)
-LOAD_WAVEFORM2 = Byte.pack(16)
-
+LOAD_WAVEFORM1       = Byte.pack(15)
+LOAD_WAVEFORM2       = Byte.pack(16)
+ 
 #/*-----digital outputs----*/
 DOUT      = Byte.pack(8)
 SET_STATE = Byte.pack(1)

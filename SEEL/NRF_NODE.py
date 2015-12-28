@@ -19,7 +19,7 @@ class RadioLink():
 
 	def __init__(self,NRF,**args):
 		self.NRF = NRF
-		if args.has_key('address'):
+		if 'address' in args:
 			self.ADDRESS = args.get('address',False)
 		else:
 			print ('Address not specified. Add "address=0x....." argument while instantiating')

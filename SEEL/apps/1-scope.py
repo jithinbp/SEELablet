@@ -5,6 +5,7 @@ oscilloscope for the vLabtool - version 0. \n
 Also Includes XY plotting mode, and fitting against standard Sine/Square functions\n
 '''
 
+from __future__ import print_function
 import os
 os.environ['QT_API'] = 'pyqt'
 import sip
@@ -50,7 +51,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.I=kwargs.get('I',None)
 		self.math = analyticsClass()
 
-		self.setWindowTitle(self.I.generic_name + ' : ' +self.I.H.version_string)
+		self.setWindowTitle(self.I.generic_name + ' : ' +self.I.H.version_string.decode("utf-8"))
 		self.plot=pg.PlotWidget()
 
 		#cross hair
@@ -201,7 +202,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		n=0
 		while(not self.I.oscilloscope_progress()[0]):
 			time.sleep(0.1)
-			print self.timebase,'correction required',n
+			print (self.timebase,'correction required',n)
 			n+=1
 			if n>10:
 				self.timer.singleShot(100,self.start_capture)
@@ -257,7 +258,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 				self.curve_lis.clear()
 				self.liss_ready=False
 				self.message_label.setText('Channels for XY display not selected')
-				#print self.fps,'not available',self.active_channels,self.liss_x,self.liss_y
+				#print (self.fps,'not available',self.active_channels,self.liss_x,self.liss_y)
 
 		else:
 			self.curve_lis.clear()
@@ -322,7 +323,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 					s=np.argsort(xNew)
 					self.p1 = self.collapse_win.addPlot(title="Collapsing plot: %.1f waveforms collapsed on top of each other"%(xReal[-1]/period), x=xNew[s],y=yNew[s])
 					if(self.collapse_win.windowState() & QtCore.Qt.WindowActive):
-						print 'opened'
+						print ('opened')
 				#------------------------------------------------------
 			
 				if(self.overlay_fit_button.isChecked()):
@@ -358,7 +359,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 					s=np.argsort(xNew)
 					self.p1 = self.collapse_win.addPlot(title="Collapsing plot: %.1f waveforms collapsed on top of each other"%(xReal[-1]/period), x=xNew[s],y=yNew[s])
 					if(self.collapse_win.windowState() & QtCore.Qt.WindowActive):
-						print 'opened'
+						print ('opened')
 				#------------------------------------------------------
 			
 				if(self.overlay_fit_button.isChecked()):
@@ -397,7 +398,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 	def setOffset(self,off):
 		chan = self.I.analogInputSources[self.chan1remap]
-		print 'no offset on ',chan
+		print ('no offset on ',chan)
 
 	def setOffsetCH1(self,g):
 		cnum=0
@@ -411,7 +412,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 	def setTimeBase(self,g):
 		timebases = [1.75,2,4,8,16,32,128,256,512,1024,1024]
 		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.1,0.1]
-		#print g,len(timebases),len(samplescaling)
+		#print (g,len(timebases),len(samplescaling))
 		self.timebase=timebases[g]
 		'''
 		if(self.active_channels==1 and self.timebase<1.0):
@@ -489,7 +490,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 			chan = self.I.analogInputSources[self.chan1remap]
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
 			R[0]=R[0]*.9;R[1]=R[1]*.9
-			#print R
+			#print (R)
 			self.plot.setYRange(min(R),max(R))
 			chan = self.I.analogInputSources['CH2']
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
@@ -511,7 +512,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.liss_win.setWindowTitle('pyqtgraph example: Plotting')
 		self.p1 = self.liss_win.addPlot(title="Lissajous: x:%s , y:%s"%(lissx,lissy), x=self.I.achans[self.liss_x].get_yaxis(),y=self.I.achans[self.liss_y].get_yaxis())
 		if(self.liss_win.windowState() & QtCore.Qt.WindowActive):
-			print 'opened'
+			print ('opened')
 
 	def liss_animate(self,val):
 		if val and self.liss_ready and self.Liss_show.isChecked():
@@ -558,6 +559,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 	def __del__(self):
 		self.timer.stop()
-		print 'bye'
+		print ('bye')
 
 		

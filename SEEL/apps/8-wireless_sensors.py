@@ -5,6 +5,8 @@ sensors connected to each. It can then be used to plot data acquired from sensor
 on the various nodes.
 
 '''
+
+from __future__ import print_function
 from SEEL.experiment import *
 if __name__ == "__main__":
 	Exp=Experiment(parent=None,showresult=False)
@@ -33,7 +35,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 		self.I=kwargs.get('I',None)
 
 		self.I.NRF.start_token_manager()
-		print self.I.readLog()	
+		print (self.I.readLog()	)
 		self.plot=self.add2DPlot(self.plot_area)
 		self.plot.setLabel('bottom', 'Datapoints -->>')
 		self.plot.setYRange(-35000,35000)
@@ -66,7 +68,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 	def addPlot(self,addr,param):
 		newNode = self.I.newRadioLink(address=addr)
 		self.nodeList.append(newNode)
-		print 'made link',addr,param
+		print ('made link',addr,param)
 		#newNode.write_register(self.I.NRF.RF_SETUP,0x0E)
 		#self.I.NRF.write_register(self.I.NRF.RF_SETUP,0x0E) #Change to 2MBPS
 		cls=False
@@ -159,7 +161,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 
 	def updateLogWindow(self):
 		x=self.I.readLog()
-		if len(x):print 'Log:',x
+		if len(x):print ('Log:',x)
 		lst = self.I.NRF.get_nodelist()
 		T='''
 		<style type="text/css" scoped>
@@ -191,13 +193,13 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 	def reloadNodeList(self):
 		lst = self.I.NRF.get_nodelist()
 		x=self.I.readLog()
-		if len(x):print x
+		if len(x):print (x)
 		for a in self.nodeWidgets:
 			a.setParent(None)
 		self.nodeWidgets=[]
 		for a in lst:
 			new = self.I.newRadioLink(address=a)
-			print new.I2C_scan()
+			print (new.I2C_scan())
 			newNode=self.nodeHandler(a,lst[a],self.addPlot)
 			self.nodeArea.insertWidget(0,newNode)
 			self.nodeWidgets.append(newNode)
@@ -240,7 +242,7 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 			self.refreshTimer.stop()
 
 	def __exit__(self):
-		print 'CYA'
+		print ('CYA')
 		self.I.NRF.stop_token_manager()
 		self.I.restoreStandalone()		
 

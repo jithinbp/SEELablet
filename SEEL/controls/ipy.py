@@ -3,6 +3,7 @@
 Output Peripheral control for the vLabtool - version 0.
 '''
 
+from __future__ import print_function
 import os
 os.environ['QT_API'] = 'pyqt'
 import sip
@@ -28,7 +29,7 @@ class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
 
-		self.setWindowTitle('iPython Console : '+self.I.H.version_string)
+		self.setWindowTitle('iPython Console : '+self.I.H.version_string.decode("utf-8"))
 		self.msg = QtGui.QLabel()
 		self.statusbar.addWidget(self.msg)
 		self.msg.setText('Hi!')
@@ -42,7 +43,7 @@ class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):
 			self.splash.finish(self);
 			errbox = QtGui.QMessageBox()
 			errbox.setStyleSheet('background:#fff;')
-			print errbox.styleSheet()
+			print (errbox.styleSheet())
 			errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
 			return
 			
@@ -97,7 +98,7 @@ class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):
 		# adding progress bar
 		self.progressBar = QtGui.QProgressBar(self.splash)
 		self.progressBar.resize(self.splash.width(),20)
-		css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css")
+		css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css").decode("utf-8")
 		if css:
 			self.splash.setStyleSheet(css)
 		self.splashMsg = QtGui.QLabel(self.splash);self.splashMsg.setStyleSheet("font-weight:bold;color:purple")
@@ -111,7 +112,7 @@ class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):
 		self.finished=True
 
 	def __del__(self):
-		print 'bye'
+		print ('bye')
         		
 if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)

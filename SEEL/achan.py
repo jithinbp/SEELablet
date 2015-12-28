@@ -184,7 +184,7 @@ class analogAcquisitionChannel:
 			self.regenerate_xaxis()
 
 	def regenerate_xaxis(self):
-		for a in range(self.length): self.xaxis[a] = self.timebase*a
+		for a in range(int(self.length)): self.xaxis[a] = self.timebase*a
 
 	def get_xaxis(self):
 		return self.xaxis[:self.length]

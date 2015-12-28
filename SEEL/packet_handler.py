@@ -1,7 +1,7 @@
 from __future__ import print_function
 
-from commands_proto import *
-import serial,commands
+from SEEL.commands_proto import *
+import serial, subprocess
 
 class Handler():
     def __init__(self,timeout=1.0,**kwargs):
@@ -14,7 +14,7 @@ class Handler():
         self.version_string=b''
         self.connected=False
         self.fd = None
-        if kwargs.has_key('port'):
+        if 'port' in kwargs:
             self.portname=kwargs.get('port',None)
             if not self.portname:
                 print ('device not found',self.portname)
@@ -32,8 +32,10 @@ class Handler():
             return
         else:	#Scan and pick a port	
             for a in range(10):
-                res = commands.getoutput('lsof -t '+ self.BASE_PORT_NAME+str(a))
-                if res == '':
+                cmd=['lsof', '-t', self.BASE_PORT_NAME+str(a)]
+                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                res, err = process.communicate()
+                if res == b'':
                     try:
                         self.fd = serial.Serial(self.BASE_PORT_NAME+str(a), 9600, stopbits=1, timeout = 0.01)
                         #self.fd.read(100)
@@ -44,8 +46,9 @@ class Handler():
                         self.fd.flush()
                         version = self.get_version(self.fd)
                         self.version_string=version
-                        #print (version,self.portname)
-                        if(version[:6]=='LTS-v0'):
+                        #expected_version=b'LTS-v0'
+                        expected_version=b'LTS'
+                        if version[:len(expected_version)]==expected_version:
                             #print ('Connected to device at ',self.portname,' ,Version:',version)
                             self.fd.setTimeout(1.)
                             self.connected=True
@@ -67,7 +70,7 @@ class Handler():
         return x
 
     def reconnect(self,**kwargs):
-        if kwargs.has_key('port'):
+        if 'port' in kwargs:
             self.portname=kwargs.get('port',None)
 
         try:
