@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 #from distutils.core import setup
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -31,10 +32,18 @@ def check_root():
 
 class CustomInstall(install):
 	def run(self):
-		install_udev_rules(True)
-		install.run(self)
+                if 'debian' in self.root:
+                        try:
+                                os.makedirs(os.path.join(self.root,'lib/udev/rules.d'))
+                        except:
+                                pass
+                        shutil.copy('proto.rules', os.path.join(self.root,'lib/udev/rules.d/99-seelablet.rules'))
+                else:
+                        install_udev_rules(True)
+                install.run(self)
 
 data_files = []
+
 def subdirs(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
@@ -48,7 +57,8 @@ for directory in directories:
 	files = [os.path.join(directory,a) for a in files]
 	data_files.append((directory,files))
 
-print data_files
+print (data_files)
+
 
 setup(name='SEEL',
 	version='1.0',
