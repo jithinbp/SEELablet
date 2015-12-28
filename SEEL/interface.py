@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # interface - software stack to support the SEELablet.
 #
 # Copyright (C) 2015 by Jithin B.P. <jithinbp@gmail.com>
@@ -16,16 +17,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
 import os
 
-from commands_proto import *
+from SEEL.commands_proto import *
 
-import packet_handler
+import SEEL.packet_handler as packet_handler
 
-import I2C_class,SPI_class,NRF24L01_class,MCP4728_class,NRF_NODE
+import I2C_class as I2C_class
+import SPI_class as SPI_class
+import NRF24L01_class as NRF24L01_class
+import MCP4728_class as MCP4728_class
+import NRF_NODE as NRF_NODE
 
-from achan import *
-from digital_channel import *
+from SEEL.achan import *
+from SEEL.digital_channel import *
 import serial,string
 import time
 import sys
@@ -42,7 +48,7 @@ def connect(**kwargs):
     if obj.H.fd != None:
         return obj
     else:
-        print 'Err'
+        print ('Err')
         return None
     
 
@@ -67,7 +73,7 @@ class Interface():
 
     >>> from SEEL import interface
     >>> I = interface.connect()
-    >>> print I
+    >>> print (I)
     <interface.Interface instance at 0xb6c0cac>
     
 
@@ -118,7 +124,7 @@ class Interface():
     def __runInitSequence__(self,**kwargs):
         self.connected = self.H.connected
         if not self.H.connected:
-            print 'Check hardware connections. Not connected'
+            print ('Check hardware connections. Not connected')
             return          
         self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
         
@@ -206,11 +212,11 @@ class Interface():
     def __print__(self,*args):
         if self.verbose:
             for a in args:
-                print a,
-            print
+                print (a, end="")
+            print()
 
     def __del__(self):
-        print 'closing port'
+        print ('closing port')
         try:
             self.H.fd.close()
         except:
@@ -415,7 +421,7 @@ class Interface():
     
         """
         if len(args)==0:
-            print 'please specify channels to record'
+            print ('please specify channels to record')
             return
         tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
         if(tg<1.5):tg=int(1.5*8)/8.
@@ -423,7 +429,7 @@ class Interface():
 
         total_samples = samples*total_chans
         if(total_samples>self.MAX_SAMPLES):
-            print 'Sample limit exceeded. 10,000 total'
+            print ('Sample limit exceeded. 10,000 total')
             total_samples = self.MAX_SAMPLES
             samples = self.MAX_SAMPLES/total_chans
 
@@ -508,7 +514,7 @@ class Interface():
         tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
         if(tg<0.5):tg=int(0.5*8)/8.
         if(samples>self.MAX_SAMPLES):
-            print 'Sample limit exceeded. 10,000 max'
+            print ('Sample limit exceeded. 10,000 max')
             samples = self.MAX_SAMPLES
 
         self.timebase = int(tg*8)/8.
@@ -751,10 +757,10 @@ class Interface():
         :return: conversion done(bool) ,samples acquired (number)
 
         >>> I.start_capture(1,3200,2)
-        >>> print I.oscilloscope_progress()
+        >>> print (I.oscilloscope_progress())
         (0,46)
         >>> time.sleep(3200*2e-6)
-        >>> print I.oscilloscope_progress()
+        >>> print (I.oscilloscope_progress())
         (1,3200)
         
         .. seealso::
@@ -770,8 +776,8 @@ class Interface():
             conversion_done = self.H.__getByte__()
             samples = self.H.__getInt__()
             self.H.__get_ack__()
-        except:
-            print 'disconnected!!'
+        except Exception as e:
+            print ('disconnected!! Error =', e)
             #sys.exit(1)
         return conversion_done,samples
 
@@ -791,7 +797,7 @@ class Interface():
         """
         samples = self.achans[channel_number-1].length
         if(channel_number>self.channels_in_buffer):
-            print 'Channel unavailable'
+            print ('Channel unavailable')
             return False
         data=''
         for i in range(int(samples/self.data_splitting)):
@@ -834,7 +840,7 @@ class Interface():
         offset=0 
         samples = self.achans[channel_number-1].length
         if(channel_number>self.channels_in_buffer):
-            print 'Channel unavailable'
+            print ('Channel unavailable')
             return False
         self.H.__sendByte__(ADC)
         self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -924,7 +930,7 @@ class Interface():
 
         """
         if self.analogInputSources[channel].gainPGA==None:
-            print 'No amplifier exists on this channel :',channel
+            print ('No amplifier exists on this channel :',channel)
             return
         
         self.analogInputSources[channel].setGain(self.gain_values[gain])
@@ -943,7 +949,7 @@ class Interface():
         source = self.analogInputSources[name]
 
         if name not in self.allAnalogChannels:
-            print 'not a valid channel name. selecting CH1'
+            print ('not a valid channel name. selecting CH1')
             return self.__calcCHOSA__('CH1')
 
         return source.CHOSA
@@ -970,7 +976,7 @@ class Interface():
 
         Example:
         
-        >>> print I.get_average_voltage('CH4')
+        >>> print (I.get_average_voltage('CH4'))
         1.002
         
         """
@@ -1021,7 +1027,7 @@ class Interface():
         if name in self.digital_channel_names:
             return self.digital_channel_names.index(name)
         else:
-            print ' invalid channel',name,' , selecting ID1 instead '
+            print (' invalid channel',name,' , selecting ID1 instead ')
             return 0
         
     def __get_high_freq__backup__(self,pin):
@@ -1067,7 +1073,7 @@ class Interface():
         scale=self.H.__getByte__()
         val = self.H.__getLong__()
         self.H.__get_ack__()
-        #print hex(val)
+        #print (hex(val))
         return scale*(val)/1.0e-1 #100mS sampling
 
 
@@ -1098,15 +1104,15 @@ class Interface():
             * connect SQR1 to ID1
             
             >>> I.sqr1(4000,25)
-            >>> print I.get_freq('ID1')
+            >>> print (I.get_freq('ID1'))
             4000.0
-            >>> print I.r2r_time('ID1')
+            >>> print (I.r2r_time('ID1'))
             #time between successive rising edges
             0.00025
-            >>> print I.f2f_time('ID1')
+            >>> print (I.f2f_time('ID1'))
             #time between successive falling edges
             0.00025
-            >>> print I.pulse_time('ID1')
+            >>> print (I.pulse_time('ID1'))
             #may detect a low pulse, or a high pulse. Whichever comes first
             6.25e-05
             >>> I.duty_cycle('ID1')
@@ -1123,7 +1129,7 @@ class Interface():
         x=[self.H.__getLong__() for a in range(2)]
         self.H.__get_ack__()
         freq = lambda t: 16*64e6/t if(t) else 0
-        #print x,tmt,timeout_msb
+        #print (x,tmt,timeout_msb)
         if(tmt):return 0
         return freq(x[1]-x[0])
 
@@ -1232,7 +1238,7 @@ class Interface():
             y = [x[1]-x[0],x[2]-x[0]]
         else:       #falling edge
             y = [x[2]-x[1],x[2]-x[0]]
-        print x,y,edge
+        print (x,y,edge)
         if(tmt >= timeout_msb):return -1,-1
         rtime = lambda t: t/64e6
         params = rtime(y[1]),rtime(y[0])/rtime(y[1])
@@ -1295,7 +1301,7 @@ class Interface():
         B=self.H.__getLong__()
         tmt = self.H.__getInt__()
         self.H.__get_ack__()
-        #print A,B
+        #print (A,B)
         if(tmt >= timeout_msb or B==0):return -1
         rtime = lambda t: t/64e6
         return rtime(B-A+20)
@@ -1331,7 +1337,7 @@ class Interface():
         self.H.__get_ack__()
         if(tmt >= timeout_msb):return -1
         rtime = lambda t: t/64e6
-        #print params[0]*1e6,params[1]*1e6
+        #print (params[0]*1e6,params[1]*1e6)
         return rtime(x[1]-x[0])
 
 
@@ -1487,7 +1493,7 @@ class Interface():
             if 'trigger_channel' in args:
                 trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
                 tredge = args.get('trigger_edge',0)
-                print 'trigger chan',trchan,' trigger edge ',tredge
+                print ('trigger chan',trchan,' trigger edge ',tredge)
                 if tredge!=-1:
                     self.H.__sendByte__((trchan<<4)|(tredge<<1)|1)
                 else:
@@ -1724,7 +1730,7 @@ class Interface():
         prescale = 0
         """
         if(maximum_time > 0.26):
-            #print 'too long for 4 channel. try 2/1 channels'
+            #print ('too long for 4 channel. try 2/1 channels')
             prescale = 3
         elif(maximum_time > 0.0655):
             prescale = 3
@@ -1786,7 +1792,7 @@ class Interface():
         if C<0: C=0
         if D<0: D=0
 
-        #print [(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)],[(s_err&1!=0),(s_err&2!=0),(s_err&4!=0),(s&8!=0)]
+        #print ([(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)],[(s_err&1!=0),(s_err&2!=0),(s_err&4!=0),(s&8!=0)])
         return A,B,C,D,[(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)]
 
         
@@ -1869,7 +1875,7 @@ class Interface():
         s=initial_states[4]
         a=self.dchans[channel_number]
         if a.channel_number>=self.digital_channels_in_buffer:
-            print 'channel unavailable'
+            print ('channel unavailable')
             return False
 
         samples = a.length
@@ -1891,7 +1897,7 @@ class Interface():
         """
         gets the state of the digital inputs. returns dictionary with keys 'ID1','ID2','ID3','ID4'
 
-        >>> print get_states()
+        >>> print (get_states())
         {'ID1': True, 'ID2': True, 'ID3': True, 'ID4': False}
         
         """
@@ -1915,7 +1921,7 @@ class Interface():
                             'ID4' -> state of ID4
         ==============  ============================================================================================
 
-        >>> print I.get_state(I.ID1)
+        >>> print (I.get_state(I.ID1))
         False
         
         """
@@ -2015,7 +2021,7 @@ class Interface():
         while 1:
             V,C = self.__get_capacitance__(CR,0,CT)
             if CT>30000 and V<0.1:
-                print 'Capacitance too high for this method'
+                print ('Capacitance too high for this method')
                 return 0
             elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
                 return C
@@ -2023,7 +2029,7 @@ class Interface():
                 if GOOD_VOLTS[0]/V >1.1 and iterations<10:
                     CT=int(CT*GOOD_VOLTS[0]/V)
                     iterations+=1
-                    print 'increased CT ',CT
+                    print ('increased CT ',CT)
                 elif iterations==10:
                     return 0
                 else:
@@ -2049,7 +2055,7 @@ class Interface():
         Charge_Current = currents[current_range]*(100+trim)/100.0
         if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
         else: C = 0
-        #print 'Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6)
+        #print ('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
         return V,C
 
 
@@ -2077,7 +2083,7 @@ class Interface():
         time.sleep(0.001)
         self.H.__getByte__()    #junk byte '0' sent since UART was in IDLE mode and needs to recover.
         #V = [self.H.__getInt__() for a in range(16)]
-        #print V
+        #print (V)
         #v=sum(V)
         v=self.H.__getInt__() #16*voltage across the current source
         self.H.__get_ack__()
@@ -2194,7 +2200,7 @@ class Interface():
         ================    ============================================================================================
 
         """
-        print 'Dumping ',len(bytearray),' bytes into flash'
+        print ('Dumping ',len(bytearray),' bytes into flash')
         self.H.__sendByte__(FLASH)
         self.H.__sendByte__(WRITE_BULK_FLASH)   #indicate a flash write coming through
         self.H.__sendInt__(len(bytearray))  #send the length
@@ -2235,7 +2241,7 @@ class Interface():
         :return: frequency
         """
         if freq<5:
-            print 'freq too low'
+            print ('freq too low')
             return 0        
         elif freq<1100:
             HIGHRES=1
@@ -2271,7 +2277,7 @@ class Interface():
         :return: frequency
         """
         if freq<5:
-            print 'freq too low'
+            print ('freq too low')
             return 0        
         elif freq<1100:
             HIGHRES=1
@@ -2313,7 +2319,7 @@ class Interface():
             freq2 = freq
 
         if freq<5:
-            print 'freq1 too low'
+            print ('freq1 too low')
             return 0        
         elif freq<1100:
             HIGHRES=1
@@ -2323,7 +2329,7 @@ class Interface():
             table_size = 32
 
         if freq2<5:
-            print 'freq2 too low'
+            print ('freq2 too low')
             return 0        
         elif freq2<1100:
             HIGHRES2=1
@@ -2397,7 +2403,7 @@ class Interface():
 
         y2 = list(np.int16(np.round( 64 - 64*y2 )))
 
-        print len(y1),len(y2),min(y1),max(y1)
+        print (len(y1),len(y2),min(y1),max(y1))
 
         self.H.__sendByte__(WAVEGEN)
         if(num==1):self.H.__sendByte__(LOAD_WAVEFORM1)
@@ -2498,7 +2504,7 @@ class Interface():
         self.H.__sendByte__(B)
         self.H.__sendByte__(R)
         self.H.__sendByte__(G)
-        print B,R,G
+        print (B,R,G)
         time.sleep(0.001)
         self.H.__get_ack__()
         return B,R,G    
@@ -2588,7 +2594,7 @@ class Interface():
             self.H.fd.read(20000)
             self.H.fd.flush()
         else:
-            print 'not streaming'
+            print ('not streaming')
         self.streaming=False
 
     def sqr1(self,freq,duty_cycle=50,echo=False):
@@ -2611,10 +2617,10 @@ class Interface():
             if wavelength<65525: break
             prescaler+=1
         if prescaler==4:
-            print 'out of range'
+            print ('out of range')
             return 0
         high_time = wavelength*duty_cycle/100.
-        if echo:print wavelength,high_time,prescaler
+        if echo:print (wavelength,high_time,prescaler)
         self.H.__sendByte__(WAVEGEN)
         self.H.__sendByte__(SET_SQR1)
         self.H.__sendInt__(int(round(wavelength)))
@@ -2646,10 +2652,10 @@ class Interface():
             if wavelength<65525: break
             prescaler+=1
         if prescaler==4:
-            print 'out of range'
+            print ('out of range')
             return
         high_time = wavelength*duty_cycle/100.
-        print wavelength,high_time,prescaler
+        print (wavelength,high_time,prescaler)
         self.H.__sendByte__(WAVEGEN)
         self.H.__sendByte__(SET_SQR2)
         self.H.__sendInt__(int(round(wavelength)))
@@ -2708,7 +2714,7 @@ class Interface():
         wavelength = int(64e6/freq)
         params=0
         if wavelength>0xFFFF00:
-            print 'frequency too low.'
+            print ('frequency too low.')
             return
         elif wavelength>0x3FFFC0:
             wavelength = int(64e6/freq/256)
@@ -2733,8 +2739,8 @@ class Interface():
         A3 = int(p3%1*wavelength)
         B3 = int((h3+p3)%1*wavelength)
 
-        #print p1,h1,p2,h2,p3,h3
-        #print wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3
+        #print (p1,h1,p2,h2,p3,h3)
+        #print (wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
         self.H.__sendInt__(A1)
         self.H.__sendInt__(B1)
         self.H.__sendInt__(A2)
@@ -2767,7 +2773,7 @@ class Interface():
         wavelength = int(64e6/freq)
         params=0
         if wavelength>0xFFFF00:
-            print 'frequency too low.'
+            print ('frequency too low.')
             return
         elif wavelength>0x3FFFC0:
             wavelength = int(64e6/freq/256)
@@ -2791,8 +2797,8 @@ class Interface():
         A3 = int(p3%1*wavelength)
         B3 = int((h3+p3)%1*wavelength)
 
-        #print p1,h1,p2,h2,p3,h3
-        #print wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3
+        #print (p1,h1,p2,h2,p3,h3)
+        #print (wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
         self.H.__sendInt__(A1)
         self.H.__sendInt__(B1)
         self.H.__sendInt__(A2)
@@ -3027,9 +3033,9 @@ class Interface():
         self.H.__sendByte__(PASS_UART)
         self.H.__sendByte__(1 if persist else 0)
         self.H.__sendInt__(int( round(((64e6/baudrate)/4)-1) ))
-        print 'BRGVAL:',int( round(((64e6/baudrate)/4)-1) )
+        print ('BRGVAL:',int( round(((64e6/baudrate)/4)-1) ))
         time.sleep(0.1)
-        print 'junk bytes read:',len(self.H.fd.read(100))
+        print ('junk bytes read:',len(self.H.fd.read(100)))
 
 
 
@@ -3060,7 +3066,7 @@ class Interface():
         B=self.H.__getLong__()
         tmt = self.H.__getInt__()
         self.H.__get_ack__()
-        #print A,B
+        #print (A,B)
         if(tmt >= timeout_msb or B==0):return 0
         rtime = lambda t: t/64e6
         return rtime(B-A+20)
@@ -3110,7 +3116,7 @@ class Interface():
         return log
 
 if __name__ == "__main__":
-    print """this is not an executable file
+    print ("""this is not an executable file
     from SEEL import interface
     I=interface.connect()
     
@@ -3119,4 +3125,4 @@ if __name__ == "__main__":
     eg.
     
     I.get_average_voltage('CH1')
-    """
+    """)
