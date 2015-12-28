@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 TEN_BIT=10
 TWELVE_BIT=12
@@ -62,7 +63,7 @@ class analogInputSource:
 
 	def setGain(self,g):
 		if not	self.gainEnabled:
-			print 'Analog gain is not available on',self.name
+			print ('Analog gain is not available on',self.name)
 			return False
 		self.gain=self.gain_values.index(g)
 		self.regenerateCalibration()
@@ -123,12 +124,12 @@ class analogInputSource:
 '''
 for a in ['CH1']:
 	x=analogInputSource(a)
-	print x.name,x.calPoly10#,calfacs[x.name][0]
-	print 'CAL:',x.calPoly10(0),x.calPoly10(1023)
+	print (x.name,x.calPoly10#,calfacs[x.name][0])
+	print ('CAL:',x.calPoly10(0),x.calPoly10(1023))
 	x.setOffset(1.65)
 	x.setGain(32)
-	print x.name,x.calPoly10#,calfacs[x.name][0]
-	print 'CAL:',x.calPoly10(0),x.calPoly10(1023)
+	print (x.name,x.calPoly10#,calfacs[x.name][0])
+	print ('CAL:',x.calPoly10(0),x.calPoly10(1023))
 '''
 #---------------------------------------------------------------------
 

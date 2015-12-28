@@ -44,9 +44,9 @@ class Handler():
                         self.fd.flush()
                         version = self.get_version(self.fd)
                         self.version_string=version
-                        #print version,self.portname
+                        #print (version,self.portname)
                         if(version[:6]=='LTS-v0'):
-                            #print 'Connected to device at ',self.portname,' ,Version:',version
+                            #print ('Connected to device at ',self.portname,' ,Version:',version)
                             self.fd.setTimeout(1.)
                             self.connected=True
                             break

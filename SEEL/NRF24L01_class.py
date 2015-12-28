@@ -1,4 +1,5 @@
-from commands_proto import *
+from __future__ import print_function
+from SEEL.commands_proto import *
 import time
 
 class NRF24L01():
@@ -156,7 +157,7 @@ class NRF24L01():
 		address byte can either be located in the NRF24L01+ manual, or chosen
 		from some of the constants defined in this module.
 		'''
-		print 'writing',address,value
+		print ('writing',address,value)
 		self.H.__sendByte__(NRFL01)
 		self.H.__sendByte__(NRF_WRITEREG)
 		self.H.__sendByte__(address)
@@ -237,20 +238,20 @@ class NRF24L01():
 			self.H.__sendByte__(a)
 		val=self.H.__get_ack__()>>4
 		if(verbose):
-			if val&0x2: print ' NRF radio not found. Connect one to the add-on port'
-			elif val&0x1: print ' Node probably dead/out of range. It failed to acknowledge'
+			if val&0x2: print (' NRF radio not found. Connect one to the add-on port')
+			elif val&0x1: print (' Node probably dead/out of range. It failed to acknowledge')
 			return
 		return val
 	
 
 	def I2C_scan(self):
 		import sensorlist
-		print 'Scanning addresses 0-127...'
+		print ('Scanning addresses 0-127...')
 		x = self.transaction([self.I2C_COMMANDS|self.I2C_SCAN|0x80],timeout=500)
 		if not x:return []
 		if not sum(x):return []
 		addrs=[]
-		print 'Address','\t','Possible Devices'
+		print ('Address','\t','Possible Devices')
 
 		for a in range(16):
 			if(x[a]^255):
@@ -258,7 +259,7 @@ class NRF24L01():
 					if x[a]&(0x80>>b)==0:
 						addr = 8*a+b
 						addrs.append(addr)
-						print hex(addr),'\t\t',sensorlist.sensors.get(addr,'None')
+						print (hex(addr),'\t\t',sensorlist.sensors.get(addr,'None'))
 						
 		return addrs
 
@@ -279,9 +280,9 @@ class NRF24L01():
 		else: data=[]
 		val=self.H.__get_ack__()>>4
 		if(verbose):
-			if val&0x1: print time.time(),'%s Err. Node not found'%(hex(self.CURRENT_ADDRESS))
-			if val&0x2: print time.time(),'%s Err. NRF on-board transmitter not found'%(hex(self.CURRENT_ADDRESS))
-			if val&0x4 and args['listen']: print time.time(),'%s Err. Node received command but did not reply'%(hex(self.CURRENT_ADDRESS))
+			if val&0x1: print (time.time(),'%s Err. Node not found'%(hex(self.CURRENT_ADDRESS)))
+			if val&0x2: print (time.time(),'%s Err. NRF on-board transmitter not found'%(hex(self.CURRENT_ADDRESS)))
+			if val&0x4 and args['listen']: print (time.time(),'%s Err. Node received command but did not reply'%(hex(self.CURRENT_ADDRESS)))
 		if val&0x7:
 			self.flush()
 			return False
@@ -301,11 +302,11 @@ class NRF24L01():
 		if(len(data)!=self.ACK_PAYLOAD_SIZE):
 			self.ACK_PAYLOAD_SIZE=len(data)
 			if self.ACK_PAYLOAD_SIZE>15:
-				print 'too large. truncating.'
+				print ('too large. truncating.')
 				self.ACK_PAYLOAD_SIZE=15
 				data=data[:15]
 			else:
-				print 'ack payload size:',self.ACK_PAYLOAD_SIZE
+				print ('ack payload size:',self.ACK_PAYLOAD_SIZE)
 		self.H.__sendByte__(NRFL01)
 		self.H.__sendByte__(NRF_WRITEPAYLOAD)
 		self.H.__sendByte__(len(data))
@@ -401,7 +402,7 @@ class NRF24L01():
 		
 	def __delete_all_registered_nodes__(self):
 			while self.total_tokens():
-				print '-'
+				print ('-')
 				self.__delete_registered_node__(0)
 
 	def isAlive(self,addr):
@@ -440,7 +441,7 @@ class NRF24L01():
 			args['myaddr0']=0xA523B5
 		#if not args.has_key('sendaddr'):
 		#	args['sendaddr']=0xA523B5
-		print args
+		print (args)
 		self.init()
 		self.write_register(self.RF_SETUP,0x26)  #2MBPS speed
 
@@ -450,7 +451,7 @@ class NRF24L01():
 		for a in range(0,6):
 			x=args.get('myaddr'+str(a),None)
 			if x: 
-				print hex(x),hex(self.RX_ADDR_P0+a)
+				print (hex(x),hex(self.RX_ADDR_P0+a))
 				enabled_pipes|= (1<<a)
 				self.write_address(self.RX_ADDR_P0+a,x)
 		P15_base_address = args.get('myaddr1',None)

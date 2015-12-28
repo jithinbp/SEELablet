@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Set the QT API to PyQt4
 import os
 import pkg_resources
@@ -11,157 +12,157 @@ from PyQt4 import QtGui,QtCore
 import sys
 import functools,random
 
-from templates import template_exp
+from SEEL.templates import template_exp
 import time,sys
-import custom_widgets as Widgets
+import SEEL.custom_widgets as Widgets
  
 import numpy as np
 import sys
 
 
 class ConvenienceClass():
-	"""
-	This class contains methods that simplify setting up and running
-	an experiment.
-	
-	The :func:`arbitFit` method accepts two arrays, the fitting function,
-	and a keyword argument 'guess' that is an array containing
-	guess values for the various fiting parameters.
-	Guess values can be obtained using the :func:`getGuessValues` based on
-	a keyword argument 'func' which as of this moment can be either 'sine' 
-	or 'damped sine'
-	"""
+        """
+        This class contains methods that simplify setting up and running
+        an experiment.
 
-	timers=[]
-	def __init__(self):
-		print 'initializing convenience class'
-		try:
-			import scipy.optimize as optimize
-			import scipy.fftpack as fftpack
-		except ImportError:
-			print 'imports failed for scipy.optimize,scipy.fftpack'
-			self.optimize = None;self.fftpack=None
-		else:
-			self.optimize = optimize;self.fftpack=fftpack
-		self.timers=[]
+        The :func:`arbitFit` method accepts two arrays, the fitting function,
+        and a keyword argument 'guess' that is an array containing
+        guess values for the various fiting parameters.
+        Guess values can be obtained using the :func:`getGuessValues` based on
+        a keyword argument 'func' which as of this moment can be either 'sine' 
+        or 'damped sine'
+        """
 
-	def loopTask(self,interval,func,*args):
-		"""
-		Creates a QTimer that executes 'func' every 'interval' milliseconds
-		all additional arguments passed to this function are passed on as
-		arguments to func
-		
-		Refer to the source code for experiments such as diodeIV, Bandpass filter etc.
-		
-		
-		"""
-		timer = QtCore.QTimer()
-		timerCallback = functools.partial(func,*args)
-		timer.timeout.connect(timerCallback)
-		timer.start(interval)
-		self.timers.append(timer)
-		return timer
-		
-	def delayedTask(self,interval,func,*args):
-		"""
-		Creates a QTimer that executes 'func' once after 'interval' milliseconds.
-		
-		all additional arguments passed to this function are passed on as
-		arguments to func
-		
-		
-		"""
-		timer = QtCore.QTimer()
-		timerCallback = functools.partial(func,*args)
-		timer.singleShot(interval,timerCallback)
-		self.timers.append(timer)
+        timers=[]
+        def __init__(self):
+                print ('initializing convenience class')
+                try:
+                        import scipy.optimize as optimize
+                        import scipy.fftpack as fftpack
+                except ImportError:
+                        print ('imports failed for scipy.optimize,scipy.fftpack')
+                        self.optimize = None;self.fftpack=None
+                else:
+                        self.optimize = optimize;self.fftpack=fftpack
+                self.timers=[]
 
-	def random_color(self):
-		c=QtGui.QColor(random.randint(20,255),random.randint(20,255),random.randint(20,255))
-		if np.average(c.getRgb())<150:
-			c=self.random_color()
-		return c
+        def loopTask(self,interval,func,*args):
+                """
+                Creates a QTimer that executes 'func' every 'interval' milliseconds
+                all additional arguments passed to this function are passed on as
+                arguments to func
 
-	def displayObjectContents(self,d):
-		"""
-		The contents of the dictionary 'd' are displayed in a new QWindow
-		
-		"""
-		self.tree = self.pg.DataTreeWidget(data=d)
-		self.tree.show()
-		self.tree.setWindowTitle('Data')
-		self.tree.resize(600,600)
-
-	def dampedSine(self,x, amp, freq, phase,offset,damp):
-		"""
-		A damped sine wave function
-		
-		"""
-		return offset + amp*np.exp(-damp*x)*np.sin(abs(freq)*x + phase)
+                Refer to the source code for experiments such as diodeIV, Bandpass filter etc.
 
 
-	def fitData(self,xReal,yReal,**args):
-		def mysine(x, a1, a2, a3,a4):
-		    return a4 + a1*np.sin(abs(a2)*x + a3)
-		N=len(xReal)
-		yhat = self.fftpack.rfft(yReal)
-		idx = (yhat**2).argmax()
-		freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
-		frequency = freqs[idx]
+                """
+                timer = QtCore.QTimer()
+                timerCallback = functools.partial(func,*args)
+                timer.timeout.connect(timerCallback)
+                timer.start(interval)
+                self.timers.append(timer)
+                return timer
 
-		amplitude = (yReal.max()-yReal.min())/2.0
-		offset = yReal.max()-yReal.min()
-		frequency=args.get('frequency',1e6*abs(frequency)/(2*np.pi))*(2*np.pi)/1e6
-		phase=args.get('phase',0.)
-		guess = [amplitude, frequency, phase,offset]
-		try:
-			(amplitude, frequency, phase,offset), pcov = self.optimize.curve_fit(mysine, xReal, yReal, guess)
-			ph = ((phase)*180/(np.pi))
+        def delayedTask(self,interval,func,*args):
+                """
+                Creates a QTimer that executes 'func' once after 'interval' milliseconds.
 
-			if(frequency<0):
-				#print 'negative frq'
-				return 0,0,0,0,pcov
+                all additional arguments passed to this function are passed on as
+                arguments to func
 
-			if(amplitude<0):
-				#print 'AMP<0'
-				ph-=180
 
-			if(ph<-90):ph+=360
-			if(ph>360):ph-=360
-			freq=1e6*abs(frequency)/(2*np.pi)
-			amp=abs(amplitude)
-			if(frequency):	period = 1./frequency
-			else: period = 0
-			pcov[0]*=1e6
-			return amp,freq,ph,offset,pcov
-		except:
-			return 0,0,0,0,[[]]
+                """
+                timer = QtCore.QTimer()
+                timerCallback = functools.partial(func,*args)
+                timer.singleShot(interval,timerCallback)
+                self.timers.append(timer)
 
-	def getGuessValues(self,xReal,yReal,func='sine'):
-		if(func=='sine' or func=='damped sine'):
-			N=len(xReal)
-			offset = np.average(yReal)
-			yhat = self.fftpack.rfft(yReal-offset)
-			idx = (yhat**2).argmax()
-			freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
-			frequency = freqs[idx]
+        def random_color(self):
+                c=QtGui.QColor(random.randint(20,255),random.randint(20,255),random.randint(20,255))
+                if np.average(c.getRgb())<150:
+                        c=self.random_color()
+                return c
 
-			amplitude = (yReal.max()-yReal.min())/2.0
-			phase=0.
-			if func=='sine':
-				return amplitude, frequency, phase,offset
-			if func=='damped sine':
-				return amplitude, frequency, phase,offset,0
+        def displayObjectContents(self,d):
+                """
+                The contents of the dictionary 'd' are displayed in a new QWindow
 
-	def arbitFit(self,xReal,yReal,func,**args):
-		N=len(xReal)
-		guess=args.get('guess',[])
-		try:
-			results, pcov = self.optimize.curve_fit(func, xReal, yReal,guess)
-			pcov[0]*=1e6
-			return True,results,pcov
-		except:
-			return False,[],[]
+                """
+                self.tree = self.pg.DataTreeWidget(data=d)
+                self.tree.show()
+                self.tree.setWindowTitle('Data')
+                self.tree.resize(600,600)
+
+        def dampedSine(self,x, amp, freq, phase,offset,damp):
+                """
+                A damped sine wave function
+
+                """
+                return offset + amp*np.exp(-damp*x)*np.sin(abs(freq)*x + phase)
+
+
+        def fitData(self,xReal,yReal,**args):
+                def mysine(x, a1, a2, a3,a4):
+                    return a4 + a1*np.sin(abs(a2)*x + a3)
+                N=len(xReal)
+                yhat = self.fftpack.rfft(yReal)
+                idx = (yhat**2).argmax()
+                freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
+                frequency = freqs[idx]
+
+                amplitude = (yReal.max()-yReal.min())/2.0
+                offset = yReal.max()-yReal.min()
+                frequency=args.get('frequency',1e6*abs(frequency)/(2*np.pi))*(2*np.pi)/1e6
+                phase=args.get('phase',0.)
+                guess = [amplitude, frequency, phase,offset]
+                try:
+                        (amplitude, frequency, phase,offset), pcov = self.optimize.curve_fit(mysine, xReal, yReal, guess)
+                        ph = ((phase)*180/(np.pi))
+
+                        if(frequency<0):
+                                #print ('negative frq')
+                                return 0,0,0,0,pcov
+
+                        if(amplitude<0):
+                                #print ('AMP<0')
+                                ph-=180
+
+                        if(ph<-90):ph+=360
+                        if(ph>360):ph-=360
+                        freq=1e6*abs(frequency)/(2*np.pi)
+                        amp=abs(amplitude)
+                        if(frequency):	period = 1./frequency
+                        else: period = 0
+                        pcov[0]*=1e6
+                        return amp,freq,ph,offset,pcov
+                except:
+                        return 0,0,0,0,[[]]
+
+        def getGuessValues(self,xReal,yReal,func='sine'):
+                if(func=='sine' or func=='damped sine'):
+                        N=len(xReal)
+                        offset = np.average(yReal)
+                        yhat = self.fftpack.rfft(yReal-offset)
+                        idx = (yhat**2).argmax()
+                        freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
+                        frequency = freqs[idx]
+
+                        amplitude = (yReal.max()-yReal.min())/2.0
+                        phase=0.
+                        if func=='sine':
+                                return amplitude, frequency, phase,offset
+                        if func=='damped sine':
+                                return amplitude, frequency, phase,offset,0
+
+        def arbitFit(self,xReal,yReal,func,**args):
+                N=len(xReal)
+                guess=args.get('guess',[])
+                try:
+                        results, pcov = self.optimize.curve_fit(func, xReal, yReal,guess)
+                        pcov[0]*=1e6
+                        return True,results,pcov
+                except:
+                        return False,[],[]
 
 
 class Experiment(QtGui.QMainWindow,template_exp.Ui_MainWindow,Widgets.CustomWidgets):
@@ -371,83 +372,83 @@ class Experiment(QtGui.QMainWindow,template_exp.Ui_MainWindow,Widgets.CustomWidg
 				self.ipyConsole.pushVariables({"I":self.I})
 				self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage(0)")                           
 		except:
-			print 'Device Not Connected.'
+			print ('Device Not Connected.')
 		
-  	def addConsole(self,**args):
-  		try:
-			#read arguments
-			self.I = args.get('I',self.I)
-			self.showSplash();self.updateSplash(10,'Importing iPython Widgets...')
-			from iPythonEmbed import QIPythonWidget;self.updateSplash(10,'Creating Dock Widget...')
-			#-------create an area for it to sit------
-			dock = QtGui.QDockWidget()
-			dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable|QtGui.QDockWidget.DockWidgetFloatable)#|QDockWidget.DockWidgetVerticalTitleBar)
-			dock.setWindowTitle("Interactive Python Console")
-			fr = QtGui.QFrame();self.updateSplash(10)
-			dock.setWidget(fr)
-			self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock)
-			fr.setFrameShape(QtGui.QFrame.StyledPanel)
-			fr.setFrameShadow(QtGui.QFrame.Raised);self.updateSplash(10,'Embedding IPython Widget...')
+	def addConsole(self,**args):
+                try:
+                        #read arguments
+                        self.I = args.get('I',self.I)
+                        self.showSplash();self.updateSplash(10,'Importing iPython Widgets...')
+                        from iPythonEmbed import QIPythonWidget;self.updateSplash(10,'Creating Dock Widget...')
+                        #-------create an area for it to sit------
+                        dock = QtGui.QDockWidget()
+                        dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable|QtGui.QDockWidget.DockWidgetFloatable)#|QDockWidget.DockWidgetVerticalTitleBar)
+                        dock.setWindowTitle("Interactive Python Console")
+                        fr = QtGui.QFrame();self.updateSplash(10)
+                        dock.setWidget(fr)
+                        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock)
+                        fr.setFrameShape(QtGui.QFrame.StyledPanel)
+                        fr.setFrameShadow(QtGui.QFrame.Raised);self.updateSplash(10,'Embedding IPython Widget...')
 
-			#--------instantiate the iPython class-------
-			self.ipyConsole = QIPythonWidget(customBanner="An interactive Python Console!\n");self.updateSplash(10)
-			layout = QtGui.QVBoxLayout(fr)
-			layout.setMargin(0)
-			layout.addWidget(self.ipyConsole);self.updateSplash(10,'Preparing default command dictionary...')        
-			cmdDict = {"delayedTask":self.delayedTask,"loopTask":self.loopTask,"addWidget":self.addWidget,"setCommand":self.setCommand,"Widgets":Widgets}
-			#if self.graphContainer1_enabled:cmdDict["graph"]=self.graph
-			if self.I :
-				cmdDict["I"]=self.I
-				self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage('CH1')")
-			self.ipyConsole.pushVariables(cmdDict);self.updateSplash(10,'Winding up...')
-			self.console_enabled=True
-			self.splash.finish(dock);self.updateSplash(10)
-			dock.widget().setMaximumSize(QtCore.QSize(self.width(), self.height()/3))
-			dock.widget().setMinimumSize(QtCore.QSize(self.width(), self.height()/3))
-			print dock.width(),dock.height()
-			def dockResize():
-				dock.widget().setMaximumSize(65535,65535)
-				dock.widget().setMinimumSize(60,60)
-			self.delayedTask(0,dockResize)
-			return self.ipyConsole
-		except:
-			self.splash.finish(self);self.updateSplash(10)
-			errbox = QtGui.QMessageBox()
-			errbox.setStyleSheet('background:#fff;')
-			print errbox.styleSheet()
-			errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
-			
- 	def showHelp(self):
- 		from PyQt4 import QtWebKit
-		dock = QtGui.QMainWindow()
-		self.helpView = QtWebKit.QWebView()
-		dock.setCentralWidget(self.helpView)
-		dock.setWindowTitle("Help window")
-		dock.show()
-		self.helpView.setUrl(QtCore.QUrl(self.help_url))			
-		self.helpWindow = dock
+                        #--------instantiate the iPython class-------
+                        self.ipyConsole = QIPythonWidget(customBanner="An interactive Python Console!\n");self.updateSplash(10)
+                        layout = QtGui.QVBoxLayout(fr)
+                        layout.setMargin(0)
+                        layout.addWidget(self.ipyConsole);self.updateSplash(10,'Preparing default command dictionary...')        
+                        cmdDict = {"delayedTask":self.delayedTask,"loopTask":self.loopTask,"addWidget":self.addWidget,"setCommand":self.setCommand,"Widgets":Widgets}
+                        #if self.graphContainer1_enabled:cmdDict["graph"]=self.graph
+                        if self.I :
+                                cmdDict["I"]=self.I
+                                self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage('CH1')")
+                        self.ipyConsole.pushVariables(cmdDict);self.updateSplash(10,'Winding up...')
+                        self.console_enabled=True
+                        self.splash.finish(dock);self.updateSplash(10)
+                        dock.widget().setMaximumSize(QtCore.QSize(self.width(), self.height()/3))
+                        dock.widget().setMinimumSize(QtCore.QSize(self.width(), self.height()/3))
+                        print (dock.width(),dock.height())
+                        def dockResize():
+                                dock.widget().setMaximumSize(65535,65535)
+                                dock.widget().setMinimumSize(60,60)
+                        self.delayedTask(0,dockResize)
+                        return self.ipyConsole
+                except:
+                        self.splash.finish(self);self.updateSplash(10)
+                        errbox = QtGui.QMessageBox()
+                        errbox.setStyleSheet('background:#fff;')
+                        print (errbox.styleSheet())
+                        errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
 
- 	def showFullHelp(self):
- 		from PyQt4 import QtWebKit
-		dock = QtGui.QMainWindow()
-		self.helpView = QtWebKit.QWebView()
-		dock.setCentralWidget(self.helpView)
-		dock.setWindowTitle("Help window")
-		dock.show()
-		URL = pkg_resources.resource_filename(__name__, os.path.join('helpfiles','interface.html'))
-		self.helpView.setUrl(QtCore.QUrl(URL))			
-		self.fullHelpWindow = dock
+	def showHelp(self):
+                from PyQt4 import QtWebKit
+                dock = QtGui.QMainWindow()
+                self.helpView = QtWebKit.QWebView()
+                dock.setCentralWidget(self.helpView)
+                dock.setWindowTitle("Help window")
+                dock.show()
+                self.helpView.setUrl(QtCore.QUrl(self.help_url))			
+                self.helpWindow = dock
 
- 	def showImageMap(self):
- 		from PyQt4 import QtWebKit
-		dock = QtGui.QMainWindow()
-		self.helpView = QtWebKit.QWebView()
-		dock.setCentralWidget(self.helpView)
-		dock.setWindowTitle("Help window")
-		dock.show()
-		URL = pkg_resources.resource_filename(__name__, os.path.join('helpfiles','imagemap.html'))
-		self.helpView.setUrl(QtCore.QUrl(URL))			
-		self.imageMapHelp = dock
+	def showFullHelp(self):
+                from PyQt4 import QtWebKit
+                dock = QtGui.QMainWindow()
+                self.helpView = QtWebKit.QWebView()
+                dock.setCentralWidget(self.helpView)
+                dock.setWindowTitle("Help window")
+                dock.show()
+                URL = pkg_resources.resource_filename(__name__, os.path.join('helpfiles','interface.html'))
+                self.helpView.setUrl(QtCore.QUrl(URL))			
+                self.fullHelpWindow = dock
+
+	def showImageMap(self):
+                from PyQt4 import QtWebKit
+                dock = QtGui.QMainWindow()
+                self.helpView = QtWebKit.QWebView()
+                dock.setCentralWidget(self.helpView)
+                dock.setWindowTitle("Help window")
+                dock.show()
+                URL = pkg_resources.resource_filename(__name__, os.path.join('helpfiles','imagemap.html'))
+                self.helpView.setUrl(QtCore.QUrl(URL))			
+                self.imageMapHelp = dock
 
 
 	def setHelpUrl(self,url):
@@ -549,7 +550,7 @@ class Experiment(QtGui.QMainWindow,template_exp.Ui_MainWindow,Widgets.CustomWidg
 			buttonCallback = functools.partial(slot,*args)
 			QObject.connect(widget, SIGNAL(signal), buttonCallback)
 
- 	'''
+	'''
 	class WorkThread(QtCore.QThread):
 		punched = QtCore.pyqtSignal()		 
 		def __init__(self):

@@ -213,7 +213,7 @@ class Interface():
         if self.verbose:
             for a in args:
                 print (a, end="")
-            print()
+            print ()
 
     def __del__(self):
         print ('closing port')
