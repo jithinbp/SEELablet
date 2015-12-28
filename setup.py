@@ -57,7 +57,7 @@ for directory in directories:
 	files = [os.path.join(directory,a) for a in files]
 	data_files.append((directory,files))
 
-print (data_files)
+#print (data_files)
 
 
 setup(name='SEEL',
