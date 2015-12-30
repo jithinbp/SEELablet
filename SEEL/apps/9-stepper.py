@@ -3,6 +3,7 @@
 Output Peripheral control for the vLabtool - version 0.
 '''
 
+from __future__ import print_function
 import os
 os.environ['QT_API'] = 'pyqt'
 import sip
@@ -30,7 +31,7 @@ class AppWindow(QtGui.QMainWindow, stepper.Ui_MainWindow):
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
 
-		self.setWindowTitle('Stepper Motor Control: '+self.I.H.version_string)
+		self.setWindowTitle('Stepper Motor Control: '+self.I.H.version_string.decode("utf-8"))
 
 	def takeSteps(self):
 		steps = self.steps.value()

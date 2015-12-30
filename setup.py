@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 #from distutils.core import setup
 from setuptools import setup, find_packages
 from setuptools.command.install import install
@@ -16,7 +17,7 @@ def udev_trigger():
 
 def install_udev_rules(raise_exception):
 	if check_root():
-		shutil.copy('SEEL/calib_data/proto.rules', '/etc/udev/rules.d')
+		shutil.copy('proto.rules', '/etc/udev/rules.d')
 		execute(udev_reload_rules, [], "Reloading udev rules")
 		execute(udev_trigger, [], "Triggering udev rules")
 	else:
@@ -31,24 +32,36 @@ def check_root():
 
 class CustomInstall(install):
 	def run(self):
-		install_udev_rules(True)
-		install.run(self)
+                if 'debian' in self.root:
+                        try:
+                                os.makedirs(os.path.join(self.root,'lib/udev/rules.d'))
+                        except:
+                                pass
+                        shutil.copy('proto.rules', os.path.join(self.root,'lib/udev/rules.d/99-seelablet.rules'))
+                else:
+                        install_udev_rules(True)
+                install.run(self)
 
 data_files = []
+
 def subdirs(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
-directories=subdirs('SEEL/helpfiles/')
-directories.append('')
-for directory in directories:
-	directory = 'SEEL/helpfiles/'+directory
-	files = os.listdir(directory)
-	files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
-	files = [os.path.join(directory,a) for a in files]
-	data_files.append((directory,files))
+try:
+    directories=subdirs('docs/_build/html/')
+    directories.append('')
+    for directory in directories:
+        directory = 'docs/_build/html/'+directory
+        files = os.listdir(directory)
+        files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
+        files = [os.path.join(directory,a) for a in files]
+        data_files.append((directory,files))
+except:
+    pass
 
-print data_files
+#print (data_files)
+
 
 setup(name='SEEL',
 	version='1.0',

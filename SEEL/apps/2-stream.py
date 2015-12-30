@@ -8,6 +8,7 @@ Useful for monitoring time evolution of parameters
 measured by the vLabtool
 '''
 
+from __future__ import print_function
 import os
 os.environ['QT_API'] = 'pyqt'
 import sip
@@ -46,7 +47,7 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
 
-		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string)
+		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
 		self.plot=pg.PlotWidget()
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot.setLabel('left','Value -->', units='',**labelStyle)
@@ -99,7 +100,7 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 		try:
 			self.arrow.setPos(self.num,self.Y[self.num])
 		except:
-			print self.num
+			print (self.num)
 		self.num+=1
 		if self.num>=self.totalpoints:
 			self.num=0
@@ -119,15 +120,15 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 			int_args=[]	#in case the function has zero arguments, args[-1] will fail.
 		method = getattr(self.I,fn_name)
 		if method == None :
-			print 'no such command :',fn_name
+			print ('no such command :',fn_name)
 			return None
 		else:
-			print method,int_args
+			print (method,int_args)
 			return method,int_args
 
 	def __del__(self):
 		self.looptimer.stop()
-		print 'bye'
+		print ('bye')
 
 	def closeEvent(self, event):
 		self.looptimer.stop()
