@@ -91,19 +91,37 @@ color: black;
 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 stop: 0 #abe, stop: 0.7 #aba);
 }
+#SCF2
+{
+background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: .9 #6af, stop:1 #689);
+}
+
 
 
 
 
 </string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="SCF2">
    <property name="styleSheet">
     <string notr="true"/>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="margin">
+    <property name="spacing">
+     <number>3</number>
+    </property>
+    <property name="leftMargin">
      <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>3</number>
     </property>
     <item>
      <widget class="QScrollArea" name="scrollArea_4">
@@ -152,6 +170,10 @@ stop: 0 #abe, stop: 0.7 #aba);
         </property>
         <item row="0" column="0">
          <widget class="QFrame" name="frame_5">
+          <property name="toolTip">
+           <string>Widgets specific to detected sensors will be displayed
+here after you click the button below</string>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -193,6 +215,10 @@ stop: 0 #abe, stop: 0.7 #aba);
     </item>
     <item>
      <widget class="QPushButton" name="pushButton">
+      <property name="toolTip">
+       <string>Scan the I2C BUS for sensors
+and generate widgets</string>
+      </property>
       <property name="text">
        <string>Auto Scan</string>
       </property>

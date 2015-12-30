@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sensorGrid.ui'
 #
-# Created: Tue Dec 29 00:57:25 2015
+# Created: Tue Dec 29 10:47:35 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -94,18 +94,25 @@ class Ui_MainWindow(object):
 "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
 "stop: 0 #abe, stop: 0.7 #aba);\n"
 "}\n"
+"#SCF2\n"
+"{\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: .9 #6af, stop:1 #689);\n"
+"}\n"
+"\n"
 "\n"
 "\n"
 "\n"
 "\n"
 ""))
-        self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setStyleSheet(_fromUtf8(""))
-        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
-        self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setMargin(0)
+        self.SCF2 = QtGui.QWidget(MainWindow)
+        self.SCF2.setStyleSheet(_fromUtf8(""))
+        self.SCF2.setObjectName(_fromUtf8("SCF2"))
+        self.verticalLayout = QtGui.QVBoxLayout(self.SCF2)
+        self.verticalLayout.setSpacing(3)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 3)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.scrollArea_4 = QtGui.QScrollArea(self.centralwidget)
+        self.scrollArea_4 = QtGui.QScrollArea(self.SCF2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -140,10 +147,10 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addWidget(self.frame_5, 0, 0, 1, 1)
         self.scrollArea_4.setWidget(self.SCF1)
         self.verticalLayout.addWidget(self.scrollArea_4)
-        self.pushButton = QtGui.QPushButton(self.centralwidget)
+        self.pushButton = QtGui.QPushButton(self.SCF2)
         self.pushButton.setObjectName(_fromUtf8("pushButton"))
         self.verticalLayout.addWidget(self.pushButton)
-        MainWindow.setCentralWidget(self.centralwidget)
+        MainWindow.setCentralWidget(self.SCF2)
         self.actionIPython_Console = QtGui.QAction(MainWindow)
         self.actionIPython_Console.setObjectName(_fromUtf8("actionIPython_Console"))
         self.actionIPython = QtGui.QAction(MainWindow)
@@ -158,6 +165,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "SEELablet:Sensors Control Panel", None))
         self.SCF1.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
+        self.frame_5.setToolTip(_translate("MainWindow", "Widgets specific to detected sensors will be displayed\n"
+"here after you click the button below", None))
+        self.pushButton.setToolTip(_translate("MainWindow", "Scan the I2C BUS for sensors\n"
+"and generate widgets", None))
         self.pushButton.setText(_translate("MainWindow", "Auto Scan", None))
         self.actionIPython_Console.setText(_translate("MainWindow", "iPython Console", None))
         self.actionIPython.setText(_translate("MainWindow", "iPython Console", None))

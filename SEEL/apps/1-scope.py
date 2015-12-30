@@ -150,17 +150,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.timer = QtCore.QTimer()
 		self.finished=False
 		self.timer.singleShot(500,self.start_capture)
-		self.thread = QtCore.QThread()
-		self.thread.start()
-
-	class AThread(QtCore.QThread):
-		def run(self):
-			while 1:
-				print 'ha'
-				time.sleep(0.2)
-
-
-
+		
 	def updateViews(self):
 			self.plot2.setGeometry(self.plot.getViewBox().sceneBoundingRect())
 			self.plot2.linkedViewChanged(self.plot.plotItem.vb, self.plot2.XAxis)

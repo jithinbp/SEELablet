@@ -69,6 +69,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		row=0;col=0;colLimit=3
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
 
+
 		for app in apps:
 			if(col==colLimit):
 				col=0;row+=1
