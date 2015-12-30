@@ -1,8 +1,13 @@
 #!/usr/bin/python
-import time,thread,sys,string,serial.tools.list_ports
+from __future__ import print_function
+import time,sys,string,serial.tools.list_ports
 from threading import Thread
-import gtk
-import appindicator
+if sys.version_info.major < 3:
+        import gtk
+        import appindicator
+else:
+        from gi.repository import Gtk as gtk
+        from gi.repository import AppIndicator3 as appindicator
 from subprocess import call
 
 
@@ -76,7 +81,7 @@ class messenger():
 
 		
 	def check_for_devices(self):
-		#print 'check msg'
+		#print ('check msg')
 		L = serial.tools.list_ports.comports()
 		shortlist=[]
 		for a in L:
@@ -107,10 +112,10 @@ class messenger():
 		return True
 
 	def device_selected(self,devnum,num):
-		print devnum,num
+		print (devnum,num)
 
-    	def quit(self,widget):
-		print 'bye bye'
+	def quit(self,widget):
+		print ('bye bye')
 		sys.exit(0)
 
 

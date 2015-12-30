@@ -1,16 +1,18 @@
+from __future__ import print_function
+
 from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
 class QIPythonWidget(RichIPythonWidget):
 	def __init__(self,customBanner=None,*args,**kwargs):
-		print 'importing KernelManager'
+		print ('importing KernelManager')
 		from IPython.qt.inprocess import QtInProcessKernelManager
-		print 'import GuiSupport'
+		print ('import GuiSupport')
 		from IPython.lib import guisupport
 		if customBanner!=None: self.banner=customBanner
-		print 'initializing'
+		print ('initializing')
 		super(QIPythonWidget, self).__init__(*args,**kwargs)
-		print 'kernel manager creating'
+		print ('kernel manager creating')
 		self.kernel_manager = kernel_manager = QtInProcessKernelManager()
-		print 'kernel manager starting'
+		print ('kernel manager starting')
 		kernel_manager.start_kernel()
 		kernel_manager.kernel.gui = 'qt4'
 		self.kernel_client = kernel_client = self._kernel_manager.client()

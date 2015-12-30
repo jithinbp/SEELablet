@@ -2,6 +2,7 @@
 These widgets will be used by the Experiment framework
 
 """
+from __future__ import print_function
 import sip,os
 
 os.environ['QT_API'] = 'pyqt'
@@ -10,24 +11,24 @@ sip.setapi("QVariant", 2)
 # Import the core and GUI elements of Qt
 from PyQt4  import QtGui,QtCore
 
-import interface
+import SEEL.interface as interface
 
-from widgets.sliding import Ui_Form as Ui_Sliding
-from widgets.clicking import Ui_Form as Ui_Clicking
-from widgets.clickingOptions import Ui_Form as Ui_ClickingOptions
+from SEEL.widgets.sliding import Ui_Form as Ui_Sliding
+from SEEL.widgets.clicking import Ui_Form as Ui_Clicking
+from SEEL.widgets.clickingOptions import Ui_Form as Ui_ClickingOptions
 
 class CustomWidgets:
 	parent=None
 	def __init__(self):
-		print "widgets imported"
+		print ("widgets imported")
 		self.I=interface.Interface()
 	
 
 	def newWidget(self,widget_type,**args):
 			b=widget_type(**args)
-			if(args.has_key('object_name')): b.setObjectName(args.get('object_name'))
-			if(args.has_key('text')): b.setText(args.get('text'))
-			if(args.has_key('items')):
+			if('object_name' in args): b.setObjectName(args.get('object_name'))
+			if('text' in args): b.setText(args.get('text'))
+			if('items' in args):
 				for a in args.get('items'): b.addItem(a)
 			self.updateWidgetBay(b)
 			return b

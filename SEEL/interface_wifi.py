@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 # interface - software stack to support the vLabtool.
 #
 # Copyright (C) 2015 by Jithin B.P. <jithinbp@gmail.com>
@@ -16,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
 import os
 
 from commands_proto import *
@@ -41,7 +43,7 @@ def connect(**kwargs):
 	obj = Interface(**kwargs)
 	if obj.H.fd != None:
 		return obj
-	print 'Could not find hardware'#_('Could not find hardware'),_('Check the connections.')
+	print ('Could not find hardware')#_('Could not find hardware'),_('Check the connections.')
 
 
 
@@ -64,7 +66,7 @@ class Interface(object):
 
 	>>> from SEEL import interface
 	>>> I = interface.connect()
-	>>> print I
+	>>> print (I)
 	<interface.Interface instance at 0xb6c0cac>
 
 
@@ -105,158 +107,160 @@ class Interface(object):
 		self.H = packet_handler.Handler(kwargs.get('timeout',1.0),**kwargs)
 		self.connected = self.H.connected
 		if not self.H.connected:
-			print 'Check hardware connections. Not connected'
+			print ('Check hardware connections. Not connected')
 		else:
 			self.__runInitSequence__(**kwargs)
 	
 	def __runInitSequence__(self,**kwargs):
-		self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
-		self.analogInputSources={}
-		self.allAnalogChannels=allAnalogChannels
-		for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
+                self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
+                self.analogInputSources={}
+                self.allAnalogChannels=allAnalogChannels
+                for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
 
-		#-------Check for calibration data. And process them if found---------------
-		if kwargs.get('load_calibration',True):
-			polynomials = self.read_bulk_flash(self.ADC_POLYNOMIALS_LOCATION,2048)
-			polyDict={}
-			if polynomials[:8]=='VLABTOOL':
-				self.__print__('ADC calibration found...')
-				import struct
-				adc_shifts = self.read_bulk_flash(self.ADC_SHIFTS_LOCATION1,2048)+self.read_bulk_flash(self.ADC_SHIFTS_LOCATION2,2048)
-				adc_shifts = [ord(a) for a in adc_shifts]
-				self.__print__('ADC INL correction table loaded.')
-				inl_slope_intercept = polynomials.split('STOP')[2]
-				dac_slope_intercept = polynomials.split('STOP')[1]
-				slopes_offsets=polynomials.split('STOP')[0]
-				for a in slopes_offsets.split('>|')[1:]:
-					S= a.split('|<')
-					self.__print__( '>>>>>>',S[0])
-					cals=S[1]
-					polyDict[S[0]]=[]
-					for b in range(len(cals)/16):
-						poly=struct.unpack('4f',cals[b*16:(b+1)*16])
-						self.__print__( b,poly)
-						polyDict[S[0]].append(poly)
+                #-------Check for calibration data. And process them if found---------------
+                if kwargs.get('load_calibration',True):
+                        polynomials = self.read_bulk_flash(self.ADC_POLYNOMIALS_LOCATION,2048)
+                        polyDict={}
+                        if polynomials[:8]=='VLABTOOL':
+                                self.__print__('ADC calibration found...')
+                                import struct
+                                adc_shifts = self.read_bulk_flash(self.ADC_SHIFTS_LOCATION1,2048)+self.read_bulk_flash(self.ADC_SHIFTS_LOCATION2,2048)
+                                adc_shifts = [Byte.unpack(a)[0] for a in adc_shifts]
+                                self.__print__('ADC INL correction table loaded.')
+                                inl_slope_intercept = polynomials.split('STOP')[2]
+                                dac_slope_intercept = polynomials.split('STOP')[1]
+                                slopes_offsets=polynomials.split('STOP')[0]
+                                for a in slopes_offsets.split('>|')[1:]:
+                                        S= a.split('|<')
+                                        self.__print__( '>>>>>>',S[0])
+                                        cals=S[1]
+                                        polyDict[S[0]]=[]
+                                        for b in range(len(cals)//16):
+                                                poly=struct.unpack('4f',cals[b*16:(b+1)*16])
+                                                self.__print__( b,poly)
+                                                polyDict[S[0]].append(poly)
 
-				for a in dac_slope_intercept.split('>|')[1:]:
-					S= a.split('|<')
-					NAME = S[0][:4]
-					self.__print__( '>>>>>>',NAME)
-					fits = struct.unpack('6f',S[1])
-					slope=fits[0];intercept=fits[1]
-					fitvals = fits[2:]
-					if NAME in ['PVS1','PVS2','PVS3']:
-						DACX=np.linspace(self.DAC.CHANS[NAME].range[0],self.DAC.CHANS[NAME].range[1],4096)
-						if NAME=='PVS1':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS1A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS1B,2048)
-						elif NAME=='PVS2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS2B,2048)
-						elif NAME=='PVS3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS3B,2048)
+                                for a in dac_slope_intercept.split('>|')[1:]:
+                                        S= a.split('|<')
+                                        NAME = S[0][:4]
+                                        self.__print__( '>>>>>>',NAME)
+                                        fits = struct.unpack('6f',S[1])
+                                        slope=fits[0];intercept=fits[1]
+                                        fitvals = fits[2:]
+                                        if NAME in ['PVS1','PVS2','PVS3']:
+                                                DACX=np.linspace(self.DAC.CHANS[NAME].range[0],self.DAC.CHANS[NAME].range[1],4096)
+                                                if NAME=='PVS1':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS1A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS1B,2048)
+                                                elif NAME=='PVS2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS2B,2048)
+                                                elif NAME=='PVS3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS3B,2048)
 
-						OFF = np.array([ord(data) for data in OFF])
-						fitfn = np.poly1d(fitvals)
-						YDATA = fitfn(DACX) - (OFF*slope+intercept)
-						LOOKBEHIND = 100;LOOKAHEAD=100						
-						OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
-						self.DAC.load_calibration(NAME,OFF)
-				
-				inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)
-				for a in self.analogInputSources:
-					self.analogInputSources[a].loadCalibrationTable(adc_shifts,inl_slope_intercept[0],inl_slope_intercept[1])
-					if a in polyDict:
-						self.analogInputSources[a].loadPolynomials(polyDict[a])
-						self.analogInputSources[a].calibrationReady=True
-						self.analogInputSources[a].regenerateCalibration()
-				
-				self.__print__( polynomials.split('>|')[0])
-				
-		
-		self.digital_channel_names=['ID1','ID2','ID3','ID4','-','CH1','Fin']
-		self.dchans=[digital_channel(a) for a in range(4)]
-		#This array of four instances of digital_channel is used to store data retrieved from the
-		#logic analyzer section of the device.  It also contains methods to generate plottable data
-		#from the original timestamp arrays.
-		
-		self.streaming=False
-		self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]
-		
-		self.gain_values=[1,2,4,5,8,10,16,32]
-		self.buff=np.zeros(10000)
+                                                OFF = np.array([Byte.unpack(data)[0] for data in OFF])
+                                                fitfn = np.poly1d(fitvals)
+                                                YDATA = fitfn(DACX) - (OFF*slope+intercept)
+                                                LOOKBEHIND = 100;LOOKAHEAD=100						
+                                                OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
+                                                self.DAC.load_calibration(NAME,OFF)
 
-		self.I2C = I2C_class.I2C(self.H)
-		"""
-		Sub-Instance I2C of the Interface library contains methods to access devices
-		connected to the I2C port.
-		
-		example::
-			>>> I.I2C.start(self.ADDRESS,0) #writing mode
-			>>> I.I2C.send(0x01)
-			>>> I.I2C.stop()
-		
-		.. seealso::  :py:meth:`~I2C_class.I2C` for complete documentation
-		"""
-		#self.I2C.pullSCLLow(5000)
-		
-		self.SPI = SPI_class.SPI(self.H)
-		"""
-		Sub-Instance SPI of the Interface library contains methods to access devices
-		connected to the SPI port.
-		
-		example::
-			>>> I=Interface()
-			>>> I.SPI.start('CS1')
-			>>> I.SPI.send16(0xAAFF)
-			>>> print I.SPI.send16(0xFFFF)
-			some number
-		
-		.. seealso:: :py:meth:`~SPI_class.SPI` for complete documentation
-		"""
-		
-		self.SPI.set_parameters(1,7,1,0)
-		self.NRF = NRF24L01_class.NRF24L01(self.H)
-		"""
-		Sub-Instance NRF of the Interface library contains methods to access wireless sensor nodes
-		via an NRF24L01+ module connnected to the SPI port
-		
-		try out the wireless modules app by running *vLabtool-experiments* from the command line.
-		
-		.. _nrf_example:
+                                inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)
+                                for a in self.analogInputSources:
+                                        self.analogInputSources[a].loadCalibrationTable(adc_shifts,inl_slope_intercept[0],inl_slope_intercept[1])
+                                        if a in polyDict:
+                                                self.analogInputSources[a].loadPolynomials(polyDict[a])
+                                                self.analogInputSources[a].calibrationReady=True
+                                                self.analogInputSources[a].regenerateCalibration()
 
-			example::
-				>>> I=interface.Interface()
-				>>> I.NRF.start_token_manager()  #Start listening to any nodes that may turn on 
-				>>> while 1:   #Wait for at least one node to register itself
-				>>> 	lst = I.NRF.get_nodelist()
-				>>> 	print lst
-				>>> 	time.sleep(0.5)
-				>>> 	if(len(lst)>0):break
-				>>> I.NRF.stop_token_manager()	# Registrations closed!
-				>>> LINK = I.newRadioLink(address=lst.keys()[0])  #lst = dictionary with node addresses as keys, and I2C sensors as values
-				>>> print LINK.I2C_scan()						  #vLabtool automatically transmits stuff to LINK's address, and retrieves sensor info.
-		
-			.. raw:: html
-		
-				<iframe width="560" height="315" src="https://www.youtube.com/embed/7VAGckFzVlc" frameborder="0" allowfullscreen></iframe>
-		
-		.. seealso:: :py:meth:`~NRF24L01_class.NRF24L01` for complete documentation
-		"""
+                                self.__print__( polynomials.split('>|')[0])
 
-		self.DDS_MAX_FREQ = 0xFFFFFFFL-1	#28 bit resolution
-		self.DDS_CLOCK = 8e6			# MHz clock
-		self.map_reference_clock(4,'wavegen')
-		#print self.DDS_CLOCK
-		self.__selectSensorChannel__(0)
-		for a in ['CH1','CH2']: self.set_gain(a,0)
-		self.SOCKET_CAPACITANCE = 42e-12
-		time.sleep(0.001)
+
+                self.digital_channel_names=['ID1','ID2','ID3','ID4','-','CH1','Fin']
+                self.dchans=[digital_channel(a) for a in range(4)]
+                #This array of four instances of digital_channel is used to store data retrieved from the
+                #logic analyzer section of the device.  It also contains methods to generate plottable data
+                #from the original timestamp arrays.
+
+                self.streaming=False
+                self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]
+
+                self.gain_values=[1,2,4,5,8,10,16,32]
+                self.buff=np.zeros(10000)
+
+                self.I2C = I2C_class.I2C(self.H)
+                """
+                Sub-Instance I2C of the Interface library contains methods to access devices
+                connected to the I2C port.
+
+                example::
+                        >>> I.I2C.start(self.ADDRESS,0) #writing mode
+                        >>> I.I2C.send(0x01)
+                        >>> I.I2C.stop()
+
+                .. seealso::  :py:meth:`~I2C_class.I2C` for complete documentation
+                """
+                #self.I2C.pullSCLLow(5000)
+
+                self.SPI = SPI_class.SPI(self.H)
+                """
+                Sub-Instance SPI of the Interface library contains methods to access devices
+                connected to the SPI port.
+
+                example::
+                        >>> I=Interface()
+                        >>> I.SPI.start('CS1')
+                        >>> I.SPI.send16(0xAAFF)
+                        >>> print (I.SPI.send16(0xFFFF))
+                        some number
+
+                .. seealso:: :py:meth:`~SPI_class.SPI` for complete documentation
+                """
+
+                self.SPI.set_parameters(1,7,1,0)
+                self.NRF = NRF24L01_class.NRF24L01(self.H)
+                """
+                Sub-Instance NRF of the Interface library contains methods to access wireless sensor nodes
+                via an NRF24L01+ module connnected to the SPI port
+
+                try out the wireless modules app by running *vLabtool-experiments* from the command line.
+
+                .. _nrf_example:
+
+                        example::
+                                >>> I=interface.Interface()
+                                >>> I.NRF.start_token_manager()  #Start listening to any nodes that may turn on 
+                                >>> while 1:   #Wait for at least one node to register itself
+                                >>> 	lst = I.NRF.get_nodelist()
+                                >>> 	print (lst)
+                                >>> 	time.sleep(0.5)
+                                >>> 	if(len(lst)>0):break
+                                >>> I.NRF.stop_token_manager()	# Registrations closed!
+                                >>> LINK = I.newRadioLink(address=lst.keys()[0])  #lst = dictionary with node addresses as keys, and I2C sensors as values
+                                >>> print (LINK.I2C_scan())						  #vLabtool automatically transmits stuff to LINK's address, and retrieves sensor info.
+
+                        .. raw:: html
+
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/7VAGckFzVlc" frameborder="0" allowfullscreen></iframe>
+
+                .. seealso:: :py:meth:`~NRF24L01_class.NRF24L01` for complete documentation
+                """
+                if sys.version_info.major < 3:
+                        self.DDS_MAX_FREQ = eval("0xFFFFFFFL-1")	#28 bit resolution
+                else:
+                         self.DDS_MAX_FREQ = 0xFFFFFFF - 1
+                self.DDS_CLOCK = 8e6			# MHz clock
+                self.map_reference_clock(4,'wavegen')
+                #print (self.DDS_CLOCK)
+                self.__selectSensorChannel__(0)
+                for a in ['CH1','CH2']: self.set_gain(a,0)
+                self.SOCKET_CAPACITANCE = 42e-12
+                time.sleep(0.001)
 
 
 	def __print__(self,*args):
 		if self.verbose:
 			for a in args:
-				print a,
-			print
+				print (a,end="")
+			print ()
 
 	def __del__(self):
-		print 'closing port'
+		print ('closing port')
 		try:
 			self.H.fd.close()
 		except:
@@ -426,7 +430,7 @@ class Interface(object):
 	
 		"""
 		if len(args)==0:
-			print 'please specify channels to record'
+			print ('please specify channels to record')
 			return
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
 		if(tg<1.5):tg=int(1.5*8)/8.
@@ -434,7 +438,7 @@ class Interface(object):
 
 		total_samples = samples*total_chans
 		if(total_samples>self.MAX_SAMPLES):
-			print 'Sample limit exceeded. 10,000 total'
+			print ('Sample limit exceeded. 10,000 total')
 			total_samples = self.MAX_SAMPLES
 			samples = self.MAX_SAMPLES/total_chans
 
@@ -455,9 +459,9 @@ class Interface(object):
 		self.__print__( 'wait')
 		time.sleep(1e-6*total_samples*tg+.01)
 		self.__print__( 'done')
-		data=''
+		data=b''
 
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -465,12 +469,12 @@ class Interface(object):
 			self.H.__sendInt__(self.data_splitting)
 			self.H.__sendInt__(i*self.data_splitting)
 			rem = self.data_splitting*2+1
-			print 'partial',
+			print ('partial', end="")
 			for a in range(200):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					break
 				time.sleep(0.01)
@@ -487,16 +491,16 @@ class Interface(object):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					break
 				time.sleep(0.01)
 			data=data[:-1]
 
-		for a in range(total_samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(total_samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		yield np.linspace(0,tg*(samples-1),samples)
-		for a in range(total_chans):
+		for a in range(int(total_chans)):
 			yield self.buff[a:total_samples][::total_chans]
 
 
@@ -507,7 +511,7 @@ class Interface(object):
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
 		if(tg<0.5):tg=int(0.5*8)/8.
 		if(samples>self.MAX_SAMPLES):
-			print 'Sample limit exceeded. 10,000 max'
+			print ('Sample limit exceeded. 10,000 max')
 			samples = self.MAX_SAMPLES
 
 		CHOSA=self.analogInputSources[chan].CHOSA
@@ -534,10 +538,10 @@ class Interface(object):
 	def __retrieveBufferData__(self,chan,samples,tg):
 		'''
 		'''	
-		data=''
+		data=b''
 
 
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -545,12 +549,12 @@ class Interface(object):
 			self.H.__sendInt__(self.data_splitting)
 			self.H.__sendInt__(i*self.data_splitting)
 			rem = self.data_splitting*2+1
-			print 'partial',
+			print ('partial', end="")
 			for a in range(200):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					break
 				time.sleep(0.01)
@@ -567,13 +571,13 @@ class Interface(object):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					break
 				time.sleep(0.01)
 			data=data[:-1]
 
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return np.linspace(0,tg*(samples-1),samples),self.analogInputSources[chan].calPoly10(self.buff[:samples])
 
@@ -763,10 +767,10 @@ class Interface(object):
 		:return: conversion done(bool) ,samples acquired (number)
 
 		>>> I.start_capture(1,3200,2)
-		>>> print I.oscilloscope_progress()
+		>>> print (I.oscilloscope_progress())
 		(0,46)
 		>>> time.sleep(3200*2e-6)
-		>>> print I.oscilloscope_progress()
+		>>> print (I.oscilloscope_progress())
 		(1,3200)
 		
 		.. seealso::
@@ -782,8 +786,8 @@ class Interface(object):
 			conversion_done = self.H.__getByte__()
 			samples = self.H.__getInt__()
 			self.H.__get_ack__()
-		except:
-			print 'disconnected!!'
+		except Exception as e:
+			print ('disconnected!! Error =', e)
 			#sys.exit(1)
 		return conversion_done,samples
 
@@ -801,9 +805,9 @@ class Interface(object):
 		"""
 		samples = self.achans[channel_number-1].length
 		if(channel_number>self.channels_in_buffer):
-			print 'Channel unavailable'
+			print ('Channel unavailable')
 			return False
-		data=''
+		data=b''
 		for i in range(int(samples/self.data_splitting)):
 			self.H.__sendByte__(ADC)
 			self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -811,12 +815,12 @@ class Interface(object):
 			self.H.__sendInt__(self.data_splitting)
 			self.H.__sendInt__(i*self.data_splitting)
 			rem = self.data_splitting*2+1
-			print 'partial',
+			print ('partial', end="")
 			for a in range(200):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					break
 				time.sleep(0.01)
@@ -833,7 +837,7 @@ class Interface(object):
 				partial = self.H.fd.recv(rem)		#reading int by int sometimes causes a communication error. this works better.
 				rem -=len(partial)
 				data+=partial
-				print ' ',len(partial),
+				print (' ',len(partial), end="")
 				if rem<=0:
 					data=data[:-1]
 					break
@@ -842,8 +846,8 @@ class Interface(object):
 
 
 
-		print '\ndata:',len(data)
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		print ('\ndata:',len(data))
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return True
 
@@ -863,7 +867,7 @@ class Interface(object):
 		offset=0 
 		samples = self.achans[channel_number-1].length
 		if(channel_number>self.channels_in_buffer):
-			print 'Channel unavailable'
+			print ('Channel unavailable')
 			return False
 		self.H.__sendByte__(ADC)
 		self.H.__sendByte__(GET_CAPTURE_CHANNEL)
@@ -872,7 +876,7 @@ class Interface(object):
 		self.H.__sendInt__(offset)
 		data = self.H.fd.recv(samples*2)		#reading int by int sometimes causes a communication error. this works better.
 		self.H.__get_ack__()
-		for a in range(samples): self.buff[a] = ord(data[a*2])|(ord(data[a*2+1])<<8)
+		for a in range(int(samples)): self.buff[a] = ShortInt.unpack(data[a*2:a*2+2])[0]
 		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return True
 
@@ -946,7 +950,7 @@ class Interface(object):
 
 		"""
 		if self.analogInputSources[channel].gainPGA==None:
-			print 'No amplifier exists on this channel :',channel
+			print ('No amplifier exists on this channel :',channel)
 			return
 		
 		self.analogInputSources[channel].setGain(self.gain_values[gain])
@@ -981,7 +985,7 @@ class Interface(object):
 		source = self.analogInputSources[name]
 
 		if name not in self.allAnalogChannels:
-			print 'not a valid channel name. selecting CH1'
+			print ('not a valid channel name. selecting CH1')
 			return self.__calcCHOSA__('CH1')
 
 		return source.CHOSA
@@ -1009,12 +1013,12 @@ class Interface(object):
 
 		Example:
 		
-		>>> print I.get_average_voltage('CH4')
+		>>> print (I.get_average_voltage('CH4'))
 		1.002
 		
 		"""
 		poly = self.analogInputSources[channel_name].calPoly12
-		val = np.average([poly(self.__get_raw_average_voltage__(channel_name,**kwargs)) for a in range(kwargs.get('samples',1))])		
+		val = np.average([poly(self.__get_raw_average_voltage__(channel_name,**kwargs)) for a in range(int(kwargs.get('samples',1)))])		
 		return  val
 
 
@@ -1058,7 +1062,7 @@ class Interface(object):
 		if name in self.digital_channel_names:
 			return self.digital_channel_names.index(name)
 		else:
-			print ' invalid channel',name,' , selecting ID1 instead '
+			print (' invalid channel',name,' , selecting ID1 instead ')
 			return 0
 		
 	def get_high_freq(self,pin):
@@ -1102,7 +1106,7 @@ class Interface(object):
 		scale=self.H.__getByte__()
 		val = self.H.__getLong__()
 		self.H.__get_ack__()
-		print hex(val)
+		print (hex(val))
 		return scale*(val)/1.0e-1 #100mS sampling
 
 
@@ -1131,13 +1135,13 @@ class Interface(object):
 			* connect SQR1 to ID1
 			
 			>>> I.set_sqr1(2000,500,1) # TODO: edit this function
-			>>> print I.get_freq('ID1')
+			>>> print (I.get_freq('ID1'))
 			4000.0
-			>>> print I.r2r_time('ID1')	#time between successive rising edges
+			>>> print (I.r2r_time('ID1'))	#time between successive rising edges
 			0.00025
-			>>> print I.f2f_time('ID1') #time between successive falling edges
+			>>> print (I.f2f_time('ID1')) #time between successive falling edges
 			0.00025
-			>>> print I.pulse_time('ID1') #may detect a low pulse, or a high pulse. Whichever comes first
+			>>> print (I.pulse_time('ID1')) #may detect a low pulse, or a high pulse. Whichever comes first
 			6.25e-05
 			>>> I.duty_cycle('ID1')		#returns wavelength, high time
 			(0.00025,6.25e-05)			
@@ -1255,7 +1259,7 @@ class Interface(object):
 			y = [x[1]-x[0],x[2]-x[0]]
 		else:		#falling edge
 			y = [x[2]-x[1],x[2]-x[0]]
-		print x,y,edge
+		print (x,y,edge)
 		if(tmt >= timeout_msb):return -1,-1
 		rtime = lambda t: t/64e6
 		params = rtime(y[1]),rtime(y[0])/rtime(y[1])
@@ -1319,7 +1323,7 @@ class Interface(object):
 		B=self.H.__getLong__()
 		tmt = self.H.__getInt__()
 		self.H.__get_ack__()
-		#print A,B
+		#print (A,B)
 		if(tmt >= timeout_msb or B==0):return -1
 		rtime = lambda t: t/64e6
 		return rtime(B-A+20)
@@ -1353,7 +1357,7 @@ class Interface(object):
 		self.H.__get_ack__()
 		if(tmt >= timeout_msb):return -1
 		rtime = lambda t: t/64e6
-		#print params[0]*1e6,params[1]*1e6
+		#print (params[0]*1e6,params[1]*1e6)
 		return rtime(x[1]-x[0])
 
 	def setup_comparator(self,level=7,digital_filter=3):
@@ -1372,7 +1376,7 @@ class Interface(object):
 		.. seealso:: timing_example_
 
 		"""
-		print (1./4)*(3.3) + (level/32.)*(3.3) 
+		print ((1./4)*(3.3) + (level/32.)*(3.3) )
 		self.H.__sendByte__(TIMING)
 		self.H.__sendByte__(CONFIGURE_COMPARATOR)
 		self.H.__sendByte__(level | (digital_filter<<4) )
@@ -1525,7 +1529,7 @@ class Interface(object):
 			if 'trigger_channel' in args:
 				trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
 				tredge = args.get('trigger_edge',0)
-				print 'trigger chan',trchan,' trigger edge ',tredge
+				print ('trigger chan',trchan,' trigger edge ',tredge)
 				if tredge!=-1:
 					self.H.__sendByte__((trchan<<4)|(tredge<<1)|1)
 				else:
@@ -1756,7 +1760,7 @@ class Interface(object):
 		prescale = 0
 		"""
 		if(maximum_time > 0.26):
-			#print 'too long for 4 channel. try 2/1 channels'
+			#print ('too long for 4 channel. try 2/1 channels')
 			prescale = 3
 		elif(maximum_time > 0.0655):
 			prescale = 3
@@ -1818,7 +1822,7 @@ class Interface(object):
 		if C<0: C=0
 		if D<0: D=0
 
-		#print [(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)],[(s_err&1!=0),(s_err&2!=0),(s_err&4!=0),(s&8!=0)]
+		#print ([(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)],[(s_err&1!=0),(s_err&2!=0),(s_err&4!=0),(s&8!=0)])
 		return A,B,C,D,[(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)]
 
 		
@@ -1840,8 +1844,8 @@ class Interface(object):
 
 		ss = self.H.fd.recv(bytes*2)
 		t = np.zeros(bytes*2)
-		for a in range(bytes):
-			t[a] = ord(ss[0+a*2]) |(ord(ss[1+a*2])<<8)
+		for a in range(int(bytes)):
+			t[a] = ShortInt.unpack(ss[a*2:a*2+2])[0]
 
 		self.H.__get_ack__()
 		t=np.trim_zeros(t)
@@ -1870,8 +1874,8 @@ class Interface(object):
 		self.H.__sendByte__(chan-1)
 		ss = self.H.fd.recv(bytes*4)
 		tmp = np.zeros(bytes)
-		for a in range(bytes):
-			tmp[a] = ord(ss[0+a*4])|(ord(ss[1+a*4])<<8)|(ord(ss[2+a*4])<<16)|(ord(ss[3+a*4])<<24)
+		for a in range(int(bytes)):
+			tmp[a] = Integer.unpack(ss[a*4:a*4+4])[0]
 		self.H.__get_ack__()
 		tmp = np.trim_zeros(tmp) 
 		return tmp
@@ -1897,7 +1901,7 @@ class Interface(object):
 		s=initial_states[4]
 		a=self.dchans[channel_number]
 		if a.channel_number>=self.digital_channels_in_buffer:
-			print 'channel unavailable'
+			print ('channel unavailable')
 			return False
 
 		samples = a.length
@@ -1919,7 +1923,7 @@ class Interface(object):
 		"""
 		gets the state of the digital inputs. returns dictionary with keys 'ID1','ID2','ID3','ID4'
 
-		>>> print get_states()
+		>>> print (get_states())
 		{'ID1': True, 'ID2': True, 'ID3': True, 'ID4': False}
 		
 		"""
@@ -1947,7 +1951,7 @@ class Interface(object):
 		|          |  * 'ID4' -> state of ID4                                        |
 		+----------+-----------------------------------------------------------------+
 
-		>>> print I.get_state(I.ID1)
+		>>> print (I.get_state(I.ID1))
 		False
 		
 		"""
@@ -1971,17 +1975,17 @@ class Interface(object):
 
 		"""
 		data=0
-		if kwargs.has_key('OD1'):
+		if 'OD1' in kwargs:
 			data|= 0x40|(kwargs.get('OD1')<<2)
-		if kwargs.has_key('OD2'):
+		if 'OD2' in kwargs:
 			data|= 0x80|(kwargs.get('OD2')<<3)
-		if kwargs.has_key('SQR1'):
+		if 'SQR1' in kwargs:
 			data|= 0x10|(kwargs.get('SQR1'))
-		if kwargs.has_key('SQR2'):
+		if 'SQR2' in kwargs:
 			data|= 0x20|(kwargs.get('SQR2')<<1)
-		if kwargs.has_key('SQR3'):
+		if 'SQR3' in kwargs:
 			data|= 0x40|(kwargs.get('SQR3')<<2)
-		if kwargs.has_key('SQR4'):
+		if 'SQR4' in kwargs:
 			data|= 0x80|(kwargs.get('SQR4')<<3)
 		self.H.__sendByte__(DOUT)
 		self.H.__sendByte__(SET_STATE)
@@ -2047,14 +2051,14 @@ class Interface(object):
 		while 1:
 			V,C = self.__get_capacitance__(CR,0,CT)
 			if CT>30000 and V<0.1:
-				print 'Capacitance too high for this method'
+				print ('Capacitance too high for this method')
 				return 0
 			elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
 				return C
 			elif V<GOOD_VOLTS[0] and V>0.1:
 				if GOOD_VOLTS[0]/V >1.1:
 					CT=int(CT*GOOD_VOLTS[0]/V)
-					print 'increased CT ',CT
+					print ('increased CT ',CT)
 				else:
 					return C
 			elif V<=0.1 and CR<3:
@@ -2079,7 +2083,7 @@ class Interface(object):
 		Charge_Current = currents[current_range]*(100+trim)/100.0
 		if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
 		else: C = 0
-		#print 'Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6)
+		#print ('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
 		return V,C
 
 
@@ -2107,7 +2111,7 @@ class Interface(object):
 		time.sleep(0.001)
 		self.H.__getByte__()	#junk byte '0' sent since UART was in IDLE mode and needs to recover.
 		#V = [self.H.__getInt__() for a in range(16)]
-		#print V
+		#print (V)
 		#v=sum(V)
 		v=self.H.__getInt__() #16*voltage across the current source
 		self.H.__get_ack__()
@@ -2162,13 +2166,13 @@ class Interface(object):
 		self.H.__sendInt__(bytes) 	#send the location
 		self.H.__sendByte__(page)
 
-		data=''
+		data=b''
 		rem = bytes+1
 		for a in range(200):
 			partial = self.H.fd.recv(rem)
 			rem -=len(partial)
 			data+=partial
-			print ' ',len(partial),
+			print (' ',len(partial), end="")
 			if rem<=0:
 				break
 			time.sleep(0.01)
@@ -2220,7 +2224,7 @@ class Interface(object):
 		================	============================================================================================
 
 		"""
-		print 'Dumping ',len(bytearray),' bytes into flash'
+		print ('Dumping ',len(bytearray),' bytes into flash')
 		self.H.__sendByte__(FLASH)
 		self.H.__sendByte__(WRITE_BULK_FLASH) 	#indicate a flash write coming through
 		self.H.__sendInt__(len(bytearray)) 	#send the length
@@ -2281,7 +2285,7 @@ class Interface(object):
 		:return: frequency
 		"""
 		if freq<5:
-			print 'freq too low'
+			print ('freq too low')
 			return 0		
 		elif freq<1100:
 			HIGHRES=1
@@ -2314,7 +2318,7 @@ class Interface(object):
 		:return: frequency
 		"""
 		if freq<5:
-			print 'freq too low'
+			print ('freq too low')
 			return 0		
 		elif freq<1100:
 			HIGHRES=1
@@ -2348,7 +2352,7 @@ class Interface(object):
 		:return: frequency
 		"""
 		if freq<5:
-			print 'freq too low'
+			print ('freq too low')
 			return 0		
 		elif freq<1100:
 			HIGHRES=1
@@ -2412,7 +2416,7 @@ class Interface(object):
 
 		y2 = list(np.int16(np.round( 64 - 64*y2 )))
 
-		print len(y1),len(y2),min(y1),max(y1)
+		print (len(y1),len(y2),min(y1),max(y1))
 
 		self.H.__sendByte__(WAVEGEN)
 		if(num==1):self.H.__sendByte__(LOAD_WAVEFORM1)
@@ -2422,7 +2426,7 @@ class Interface(object):
 			self.H.__sendInt__(a)
 			time.sleep(0.001)
 		for a in y2:
-			self.H.__sendByte__(chr(a))
+			self.H.__sendByte__(Byte.pack(a))
 			time.sleep(0.001)
 		time.sleep(0.1)
 		self.H.__get_ack__()
@@ -2503,7 +2507,7 @@ class Interface(object):
 		self.H.__sendByte__(B)
 		self.H.__sendByte__(R)
 		self.H.__sendByte__(G)
-		print B,R,G
+		print (B,R,G)
 		time.sleep(0.001)
 		self.H.__get_ack__()
 		return B,R,G	
@@ -2542,7 +2546,7 @@ class Interface(object):
 		self.H.__sendByte__(RETRIEVE_BUFFER)
 		self.H.__sendInt__(starting_position)
 		self.H.__sendInt__(total_points)
-		for a in range(total_points): self.buff[a]=self.H.__getInt__()
+		for a in range(int(total_points)): self.buff[a]=self.H.__getInt__()
 		self.H.__get_ack__()
 
 	def clear_buffer(self,starting_position,total_points):
@@ -2584,7 +2588,7 @@ class Interface(object):
 			self.H.fd.recv(20000)
 			self.H.fd.flush()
 		else:
-			print 'not streaming'
+			print ('not streaming')
 		self.streaming=False
 
 	def sqr1(self,freq,duty_cycle=50,echo=False):
@@ -2605,10 +2609,10 @@ class Interface(object):
 			if wavelength<65525: break
 			prescaler+=1
 		if prescaler==4:
-			print 'out of range'
+			print ('out of range')
 			return 0
 		high_time = wavelength*duty_cycle/100.
-		if echo:print wavelength,high_time,prescaler
+		if echo:print (wavelength,high_time,prescaler)
 		self.H.__sendByte__(WAVEGEN)
 		self.H.__sendByte__(SET_SQR1)
 		self.H.__sendInt__(int(round(wavelength)))
@@ -2638,10 +2642,10 @@ class Interface(object):
 			if wavelength<65525: break
 			prescaler+=1
 		if prescaler==4:
-			print 'out of range'
+			print ('out of range')
 			return
 		high_time = wavelength*duty_cycle/100.
-		print wavelength,high_time,prescaler
+		print (wavelength,high_time,prescaler)
 		self.H.__sendByte__(WAVEGEN)
 		self.H.__sendByte__(SET_SQR2)
 		self.H.__sendInt__(int(round(wavelength)))
@@ -2694,7 +2698,7 @@ class Interface(object):
 		"""
 		wavelength = int(64e6/freq)
 		if wavelength>65535:
-			print 'frequency too low.'
+			print ('frequency too low.')
 			return
 		self.H.__sendByte__(WAVEGEN)
 		self.H.__sendByte__(SQR4)
@@ -2726,7 +2730,7 @@ class Interface(object):
 			A3 = int(p3*wavelength)
 			B3 = int((h3+p3)*wavelength)
 
-		print wavelength,A1,B1,A2,B2,A3,B3
+		print (wavelength,A1,B1,A2,B2,A3,B3)
 		self.H.__sendInt__(A1)
 		self.H.__sendInt__(B1)
 		self.H.__sendInt__(A2)
@@ -2757,7 +2761,7 @@ class Interface(object):
 		wavelength = int(64e6/freq)
 		params=0
 		if wavelength>0xFFFF00:
-			print 'frequency too low.'
+			print ('frequency too low.')
 			return
 		elif wavelength>0x3FFFC0:
 			wavelength = int(64e6/freq/256)
@@ -2781,8 +2785,8 @@ class Interface(object):
 		A3 = int(p3%1*wavelength)
 		B3 = int((h3+p3)%1*wavelength)
 
-		print p1,h1,p2,h2,p3,h3
-		print wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3
+		print (p1,h1,p2,h2,p3,h3)
+		print (wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
 		self.H.__sendInt__(A1)
 		self.H.__sendInt__(B1)
 		self.H.__sendInt__(A2)
@@ -3024,9 +3028,9 @@ class Interface(object):
 		self.H.__sendByte__(PASS_UART)
 		self.H.__sendByte__(1 if persist else 0)
 		self.H.__sendInt__(int( round(((64e6/baudrate)/4)-1) ))
-		print 'BRGVAL:',int( round(((64e6/baudrate)/4)-1) )
+		print ('BRGVAL:',int( round(((64e6/baudrate)/4)-1) ))
 		time.sleep(0.1)
-		print 'junk bytes read:',len(self.H.fd.recv(100))
+		print ('junk bytes read:',len(self.H.fd.recv(100)))
 
 
 
@@ -3057,7 +3061,7 @@ class Interface(object):
 		B=self.H.__getLong__()
 		tmt = self.H.__getInt__()
 		self.H.__get_ack__()
-		#print A,B
+		#print (A,B)
 		if(tmt >= timeout_msb or B==0):return 0
 		rtime = lambda t: t/64e6
 		return rtime(B-A+20)
@@ -3103,7 +3107,7 @@ class Interface(object):
 		return 'meh.'
 
 if __name__ == "__main__":
-	print """this is not an executable file
+	print ("""this is not an executable file
 	from SEEL import interface
 	I=interface.connect()
 	
@@ -3112,4 +3116,4 @@ if __name__ == "__main__":
 	eg.
 	
 	I.get_average_voltage('CH1')
-	"""
+	""")

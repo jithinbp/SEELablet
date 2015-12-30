@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Set the QT API to PyQt4
 import os
 os.environ['QT_API'] = 'pyqt'
@@ -15,9 +16,9 @@ import functools,random
 import scipy.optimize as optimize
 import scipy.fftpack as fftpack
 
-from Labtools.templates import template_exp_standalone
+from SEEL.templates import template_exp_standalone
 import time,sys
-from Labtools.customui_rc import *
+from SEEL.customui_rc import *
 
 import numpy as np
 import pyqtgraph as pg
@@ -166,7 +167,7 @@ class Experiment(QMainWindow,template_exp_standalone.Ui_MainWindow):		#,interfac
 				self.ipyConsole.pushVariables({"I":self.I})
 				self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage(0)")                           
 		except:
-			print 'Device Not Connected.'
+			print ('Device Not Connected.')
 
 
 	def new3dSurface(self,plot,**args):
@@ -258,9 +259,9 @@ class Experiment(QMainWindow,template_exp_standalone.Ui_MainWindow):		#,interfac
 
 	def addWidget(self,widget_type,**args):
 			b=widget_type(**args)
-			if(args.has_key('object_name')): b.setObjectName(args.get('object_name'))
-			if(args.has_key('text')): b.setText(args.get('text'))
-			if(args.has_key('items')):
+			if('object_name' in args): b.setObjectName(args.get('object_name'))
+			if('text' in args): b.setText(args.get('text'))
+			if('items' in args):
 				for a in args.get('items'): b.addItem(a)
 			self.updateWidgetBay(b)
 			return b

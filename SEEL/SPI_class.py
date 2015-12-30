@@ -1,4 +1,4 @@
-from commands_proto import *
+from SEEL.commands_proto import *
 
 class SPI():
     """

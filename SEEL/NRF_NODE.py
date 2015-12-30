@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 
 class RadioLink():
@@ -18,10 +19,10 @@ class RadioLink():
 
 	def __init__(self,NRF,**args):
 		self.NRF = NRF
-		if args.has_key('address'):
+		if 'address' in args:
 			self.ADDRESS = args.get('address',False)
 		else:
-			print 'Address not specified. Add "address=0x....." argument while instantiating'
+			print ('Address not specified. Add "address=0x....." argument while instantiating')
 			self.ADDRESS=0x010101
 		
 
@@ -33,12 +34,12 @@ class RadioLink():
 	def I2C_scan(self):
 		self.__selectMe__()
 		import sensorlist
-		print 'Scanning addresses 0-127...'
+		print ('Scanning addresses 0-127...')
 		x = self.NRF.transaction([self.I2C_COMMANDS|self.SCAN_I2C|0x80],timeout=500)
 		if not x:return []
 		if not sum(x):return []
 		addrs=[]
-		print 'Address','\t','Possible Devices'
+		print ('Address','\t','Possible Devices')
 
 		for a in range(16):
 			if(x[a]^255):
@@ -46,7 +47,7 @@ class RadioLink():
 					if x[a]&(0x80>>b)==0:
 						addr = 8*a+b
 						addrs.append(addr)
-						print hex(addr),'\t\t',sensorlist.sensors.get(addr,'None')
+						print (hex(addr),'\t\t',sensorlist.sensors.get(addr,'None'))
 						
 		return addrs
 
@@ -99,12 +100,12 @@ class RadioLink():
 	def configI2C(self,freq):
 		self.__selectMe__()
 		brgval=int(32e6/freq/4 - 1)
-		print brgval
+		print (brgval)
 		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_CONFIG]+[brgval],listen=False)
 
 	def write_register(self,reg,val):
 		self.__selectMe__()
-		print 'writing to ',reg,val
+		print ('writing to ',reg,val)
 		return self.NRF.transaction([self.NRF_COMMANDS|self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
 
 	def read_register(self,reg):
