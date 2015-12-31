@@ -3,7 +3,7 @@
 oscilloscope for the vLabtool - version 0.
 Also includes control widgets, and a logic analyzer
 '''
-
+from __future__ import print_function
 from argparse import ArgumentParser
 parser = ArgumentParser()
 # Add more options if you like
@@ -65,13 +65,13 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 
 
 		if not self.I.connected:
-			print 'Exiting'
+			print ('Exiting')
 			sys.exit(1)
 			if not self.I.connected:
-				print 'Exiting'
+				print ('Exiting')
 				sys.exit(1)
 
-		self.setWindowTitle('vLabtool : '+self.I.H.version_string)
+		self.setWindowTitle(u'vLabtool : '+self.I.H.version_string.decode("utf-8"))
 		
 		self.dacval=0
 
@@ -185,7 +185,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 		self.autoRange()
 		#self.plot.setMouseEnabled(False,True)
 		self.timer = QtCore.QTimer()
-		#print 'capturing.',self.I.capture2(4000,3)
+		#print ('capturing.',self.I.capture2(4000,3))
 		self.timer.singleShot(500,self.start_capture)
 
 	def updateViews(self):
@@ -197,7 +197,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 
 
 	def blah(self,**args):
-		print args
+		print (args)
 
 	def showgrid(self):
 		return
@@ -234,7 +234,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 	def setSinePhase(self):
 		freq = self.sinePhase_freq.value()
 		phase = self.sinePhase_phase.value()
-		#print freq,phase
+		#print (freq,phase)
 		f=self.I.set_sine_phase(freq,phase)
 		self.WAVE1_FREQ.setText('%.2f'%(f))
 		self.WAVE2_FREQ.setText('%.2f'%(f))
@@ -244,7 +244,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			self.timer.singleShot(200,self.start_capture)
 			return
 
-		#print self.get_inductance()
+		#print (self.get_inductance())
 		temperature=self.I.get_temperature()
 		self.plot.setTitle('%0.2f fps, 	%0.1f ^C' % (self.fps,temperature ) )
 		self.channels_in_buffer=self.active_channels
@@ -281,7 +281,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 				trchan = self.LA1_trig.currentText()
 				trmode = self.LA1_trigmode.currentIndex()
 				if(trmode):trmode+=1
-				#print aqchan,aqmode,trchan,trmode
+				#print (aqchan,aqmode,trchan,trmode)
 				if trmode: self.I.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_channel=trchan,trigger_mode=trmode)
 				else : self.I.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_mode=0)
 			elif self.active_dchannels==3:
@@ -302,7 +302,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 		n=0
 		while(not self.I.oscilloscope_progress()[0]):
 			time.sleep(0.001)
-			print self.timebase,'correction required',n
+			print (self.timebase,'correction required',n)
 			n+=1
 		if not self.scope_type:	#Analog mode
 			if(self.channels_in_buffer>=1):self.I.__fetch_channel__(1)
@@ -377,7 +377,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			else:
 				self.curve_lis.clear()
 				self.liss_ready=False
-				#print self.fps,'not available',self.active_channels,self.liss_x,self.liss_y
+				#print (self.fps,'not available',self.active_channels,self.liss_x,self.liss_y)
 		else:
 			self.curve_lis.clear()
 			
@@ -427,7 +427,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			offset+=OFFSET
 			ph = ((phase)*180/(np.pi))
 			if(frequency<0):
-				#print 'negative frq'
+				#print ('negative frq')
 				return 'fit failed'
 
 			if(amplitude<0):
@@ -439,7 +439,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			if(frequency):	period = 2*np.pi/frequency
 			else: period = 0
 			pcov[0]*=1e6
-			#print pcov
+			#print (pcov)
 			#return amp,freq,ph,offset,pcov
 			if(abs(pcov[-1][0])>1e-6):
 				if plotnum==1:self.curve_fitL.clear()
@@ -460,7 +460,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 				s=np.argsort(xNew)
 				self.p1 = self.collapse_win.addPlot(title="Collapsing plot: %.1f waveforms collapsed on top of each other"%(xReal[-1]/period), x=xNew[s],y=yNew[s])
 				if(self.collapse_win.windowState() & QtCore.Qt.WindowActive):
-					print 'opened'
+					print ('opened')
 			#------------------------------------------------------
 			
 			if(self.overlay_fit_button.isChecked()):
@@ -495,7 +495,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 
 	def setOffset(self,off):
 		chan = self.I.analogInputSources[self.chan1remap]
-		print 'no offset on ',chan
+		print ('no offset on ',chan)
 
 	def setOffsetCH1(self,g):
 		cnum=0
@@ -509,7 +509,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 	def setTimeBase(self,g):
 		timebases = [1.75,2,4,8,16,32,128,256,512,1024,1024]
 		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.1,0.1]
-		#print g,len(timebases),len(samplescaling)
+		#print (g,len(timebases),len(samplescaling))
 		self.timebase=timebases[g]
 		'''
 		if(self.active_channels==1 and self.timebase<1.0):
@@ -531,7 +531,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			self.timebase_dial.setValue(0)
 			self.setTimeBase(0)
 			if(frq>1e6):
-				print 'Frequency too high :',frq
+				print ('Frequency too high :',frq)
 		elif frq>2:
 			max_s = self.max_samples_per_channel[self.active_channels]
 			expected_time = 4./frq	#accomodate four wavelengths
@@ -544,10 +544,10 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 				self.samples = max_s
 			self.timebase_label.setValue(self.timebase)
 		else:
-			print 'frequency too low / autoset error'
+			print ('frequency too low / autoset error')
 		self.autoRange()
 			
-		#print frq,self.timebase,self.samples
+		#print (frq,self.timebase,self.samples)
 
 	def autoSetSamples(self):
 		self.samples = self.max_samples_per_channel[self.active_channels]
@@ -603,7 +603,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 		chan = self.I.analogInputSources[self.chan1remap]
 		R = [chan.calPoly10(0),chan.calPoly10(1023)]
 		R[0]=R[0]*.9;R[1]=R[1]*.9
-		#print R
+		#print (R)
 		self.plot.setYRange(min(R),max(R))
 		chan = self.I.analogInputSources['CH2']
 		R = [chan.calPoly10(0),chan.calPoly10(1023)]
@@ -667,7 +667,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 		self.liss_win.setWindowTitle('pyqtgraph example: Plotting')
 		self.p1 = self.liss_win.addPlot(title="Lissajous: x:%s , y:%s"%(lissx,lissy), x=self.I.achans[self.liss_x].get_yaxis(),y=self.I.achans[self.liss_y].get_yaxis())
 		if(self.liss_win.windowState() & QtCore.Qt.WindowActive):
-			print 'opened'
+			print ('opened')
 
 	def liss_animate(self,val):
 		if val and self.liss_ready and self.Liss_show.isChecked():
@@ -728,7 +728,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			self.I.H.fd.close()
 		except:
 			pass
-		print 'bye'
+		print ('bye')
         		
 if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)

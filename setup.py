@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 #from distutils.core import setup
 from __future__ import print_function
 from setuptools import setup, find_packages
@@ -37,6 +38,7 @@ class CustomInstall(install):
                 install.run(self)
 
 data_files = []
+
 def subdirs(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]

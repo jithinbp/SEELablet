@@ -1,5 +1,6 @@
+from __future__ import print_function
 import numpy as np
-from commands_proto import *
+from SEEL.commands_proto import *
 digital_channel_names=['ID1','ID2','ID3','ID4']
 
 
@@ -34,10 +35,10 @@ class digital_channel:
 		else: self.initial_state = initial_state[self.channel_number]
 		self.timestamps=timestamps
 		self.dlength = len(self.timestamps)
-		#print self.channel_number,self.dlength,len(self.timestamps),timestamps
+		#print (self.channel_number,self.dlength,len(self.timestamps),timestamps)
 		
 	def generate_axes(self):
-		#print self.channel_number,self.dlength
+		#print (self.channel_number,self.dlength)
 		HIGH = (4-self.channel_number)*(3)
 		LOW = HIGH - 2.5
 		state = HIGH if self.initial_state else LOW

@@ -1,4 +1,5 @@
-from commands_proto import *
+from __future__ import print_function
+from SEEL.commands_proto import *
 import socket,commands
 
 
@@ -16,7 +17,7 @@ class Handler(object):
 		self.fd.connect((self.HOST, self.PORT))
 		self.connected=True
 		self.fd.settimeout(timeout)
-		print 'ready',self.get_version(self.fd)
+		print ('ready',self.get_version(self.fd))
 
 
 	def get_version(self,fd):
@@ -24,7 +25,7 @@ class Handler(object):
 		fd.send(chr(GET_VERSION))
 		x=fd.recv(100)
 		try:
-			print 'clear',self.fd.recv(200)
+			print ('clear',self.fd.recv(200))
 		except:
 			pass
 		if len(x):x=x[:-1]
@@ -37,7 +38,7 @@ class Handler(object):
 			
 		
 	def __del__(self):
-		#print 'closing port'
+		#print ('closing port')
 		try:self.fd.close()
 		except: pass
 
@@ -82,7 +83,7 @@ class Handler(object):
 		ss=self.fd.recv(1)
 		if len(ss): return ord(ss)
 		else:
-			print 'byte communication error.',time.ctime()
+			print ('byte communication error.',time.ctime())
 			return -1
 			#sys.exit(1)
 	
@@ -94,7 +95,7 @@ class Handler(object):
 		ss = self.fd.recv(2)
 		if len(ss)==2: return ord(ss[0])|(ord(ss[1])<<8)
 		else:
-			print 'int communication error.',time.ctime()
+			print ('int communication error.',time.ctime())
 			return -1
 			#sys.exit(1)
 
@@ -106,7 +107,7 @@ class Handler(object):
 		ss = self.fd.recv(4)
 		if len(ss)==4: return ord(ss[0])|(ord(ss[1])<<8)|(ord(ss[2])<<16)|(ord(ss[3])<<24)
 		else:
-			#print '.'
+			#print ('.')
 			return -1
 	
 
@@ -128,7 +129,7 @@ class Handler(object):
 		
 
 		"""
-		#print [ord(a) for a in self.burstBuffer],self.inputQueueSize
+		#print ([ord(a) for a in self.burstBuffer],self.inputQueueSize)
 		self.fd.send(self.burstBuffer)
 		self.burstBuffer=''
 		self.loadBurst=False

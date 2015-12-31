@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import numpy as np
 import scipy.optimize as optimize
@@ -46,13 +47,13 @@ class analyticsClass():
 			offset+=OFFSET
 
 			if(frequency<0):
-				#print 'negative frq'
+				#print ('negative frq')
 				return False
 
 			freq=1e6*abs(frequency)
 			amp=abs(amplitude)
 			pcov[0]*=1e6
-			#print pcov
+			#print (pcov)
 			if(abs(pcov[-1][0])>1e-6):
 				False
 			return [amp, freq, phase,dc,offset]
@@ -75,7 +76,7 @@ class analyticsClass():
 			offset+=OFFSET
 			ph = ((phase)*180/(np.pi))
 			if(frequency<0):
-				#print 'negative frq'
+				#print ('negative frq')
 				return False
 
 			if(amplitude<0):
@@ -85,7 +86,7 @@ class analyticsClass():
 			freq=1e6*abs(frequency)
 			amp=abs(amplitude)
 			pcov[0]*=1e6
-			#print pcov
+			#print (pcov)
 			if(abs(pcov[-1][0])>1e-6):
 				False
 			return [amp, freq, offset,ph]

@@ -1,6 +1,7 @@
-from commands_proto import *
+from __future__ import print_function
+from SEEL.commands_proto import *
 
-import I2C_class
+import SEEL.I2C_class as I2C_class
 import numpy as np
 
 class DACCHAN:
@@ -33,7 +34,7 @@ class MCP4728:
 		self.addr = 0x60|self.devid		#0x60 is the base address
 		self.H=H
 		self.I2C = I2C_class.I2C(self.H)
-		print int( (1./2e6-1./1e7)*64e6-1 )
+		print (int( (1./2e6-1./1e7)*64e6-1 ))
 		self.SWITCHEDOFF=[0,0,0,0]
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
 		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PVS3':DACCHAN('PVS3',[0,3.3],1),'PVS2':DACCHAN('PVS2',[-3.3,3.3],2),'PVS1':DACCHAN('PVS1',[-5.,5.],3)}
@@ -61,7 +62,7 @@ class MCP4728:
 		self.H.__sendByte__(CHAN.channum)		#DAC channel
 		if self.calibration_enabled[name]:
 			val = v+self.calibration_tables[name][v]
-			#print val,v,self.calibration_tables[name][v]
+			#print (val,v,self.calibration_tables[name][v])
 			self.H.__sendInt__((CHAN.VREF << 15) | (CHAN.SwitchedOff << 13) | (0 << 12) | (val) )
 		else:
 			self.H.__sendInt__((CHAN.VREF << 15) | (CHAN.SwitchedOff << 13) | (0 << 12) | v )
@@ -70,7 +71,7 @@ class MCP4728:
 		'''
 		if self.calibration_enabled[name]:
 			val = int(v+self.calibration_tables[name][v])
-			#print val,v,self.calibration_tables[name][v]
+			#print (val,v,self.calibration_tables[name][v])
 			self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(val>>8)&0x0F,val&0xFF])
 		else:
 			self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(v>>8)&0x0F,v&0xFF])
@@ -110,6 +111,6 @@ class MCP4728:
 		self.I2C.restart(self.addr,1)
 		vals=self.I2C.read(24)
 		self.I2C.stop()
-		print vals
+		print (vals)
 
 

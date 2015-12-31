@@ -130,6 +130,9 @@ if "%1" == "qthelp" (
 	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\SEELablet.qhcp
 	echo.To view the help file:
 	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\SEELablet.ghc
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\LabToolSuite.qhcp
+	echo.To view the help file:
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\LabToolSuite.ghc
 	goto end
 )
 

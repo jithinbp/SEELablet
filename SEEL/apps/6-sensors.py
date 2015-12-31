@@ -13,6 +13,8 @@ Currently Supports:\n
 
 
 '''
+from __future__ import print_function
+
 from SEEL.widgets.clicking import Ui_Form as Ui_Clicking
 from SEEL.templates.template_sensors import Ui_Form
 from SEEL.templates import sensorTemplate
@@ -43,7 +45,7 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 			self.I.I2C.init()
 			self.I.I2C.config(400e3)
 
-		print self.I.readLog()	
+		print (self.I.readLog()	)
 		self.plot=self.add2DPlot(self.plot_area)
 		self.plotLegend=self.plot.addLegend(offset=(-1,1))
 
@@ -199,7 +201,7 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 			
 	def __del__(self):
 		self.looptimer.stop()
-		print 'bye'
+		print ('bye')
 
 	def closeEvent(self, event):
 		self.looptimer.stop()

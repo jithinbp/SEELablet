@@ -3,6 +3,7 @@
 Lists the various available experiments and allows users to run them
 '''
 
+from __future__ import print_function
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -54,7 +55,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		else: self.I = interface.connect()
 		try:
 			if not self.I.connected:
-				print 'Not Connected'
+				print ('Not Connected')
 				self.updateSplash(10,'Failed to connect')
 		except:
 			self.updateSplash(30,'Connected. Loading Applications...')
@@ -64,8 +65,8 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		self.shortlist=[]
 		apps = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(APPS.__file__)])]
 		controls = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(CONTROLS.__file__)])]
-		print apps,controls
-
+		
+		print (apps,controls)
 		row=0;col=0;colLimit=3
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
 
@@ -155,7 +156,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 					self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.dock)
 			'''
 		else:
-			print self.setWindowTitle('Device Not Connected!')
+			print (self.setWindowTitle('Device Not Connected!'))
 
 	'''
 	class experimentIcon(QtGui.QFrame,icon.Ui_Form):
@@ -272,17 +273,17 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 
 	def selectDevice(self):
 		sel = self.deviceCombo.currentText()
-		print 'connecting to ',sel
+		print ('connecting to ',sel)
 		if self.I:
 			self.I.reconnect(port = sel)
 			self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
-			self.setWindowTitle('SEELablet : '+self.I.H.version_string)
+			self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
 		else:
 			self.I = interface.connect(port = sel)
-			print self.I
+			print (self.I)
 			try:
-				self.setWindowTitle('SEELablet : '+self.I.H.version_string)
 				self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
+				self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
 			except:
 				pass
 		return
@@ -300,7 +301,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 		# adding progress bar
 		self.progressBar = QtGui.QProgressBar(self.splash)
 		self.progressBar.resize(self.splash.width(),20)
-		css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css")
+		css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css").decode("utf-8")
 		if css:
 			self.splash.setStyleSheet(css)
 		self.splashMsg = QtGui.QLabel(self.splash);self.splashMsg.setStyleSheet("font-weight:bold;color:purple")
@@ -321,7 +322,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 				self.splash.finish(self);
 				errbox = QtGui.QMessageBox()
 				errbox.setStyleSheet('background:#fff;')
-				print errbox.styleSheet()
+				print (errbox.styleSheet())
 				errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
 				return
 				
@@ -357,7 +358,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 			self.splash.finish(self);self.updateSplash(10)
 			errbox = QtGui.QMessageBox()
 			errbox.setStyleSheet('background:#fff;')
-			print errbox.styleSheet()
+			print (errbox.styleSheet())
 			errbox.about(self, "Error", "iPython-qtconsole Could not be loaded")
 
 	def ipythonHelp(self):
@@ -366,7 +367,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 				helpurl = pkg_resources.resource_filename(interface.__name__, os.path.join('helpfiles','ipython.html'))
 				self.helpView.setUrl(QtCore.QUrl(helpurl))			
 			except:
-				print 'iPython help URL not found'
+				print ('iPython help URL not found')
 
 
 	def resetDevice(self):
@@ -381,7 +382,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 			self.I.H.fd.close()
 		except:
 			pass
-		print 'bye'
+		print ('bye')
         		
 if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)
