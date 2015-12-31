@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 #from distutils.core import setup
+from __future__ import print_function
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 import os,shutil
@@ -16,7 +17,7 @@ def udev_trigger():
 
 def install_udev_rules(raise_exception):
 	if check_root():
-		shutil.copy('SEEL/calib_data/proto.rules', '/etc/udev/rules.d')
+		shutil.copy('proto.rules', '/etc/udev/rules.d')
 		execute(udev_reload_rules, [], "Reloading udev rules")
 		execute(udev_trigger, [], "Triggering udev rules")
 	else:
@@ -30,28 +31,32 @@ def check_root():
 	return os.geteuid() == 0
 
 class CustomInstall(install):
-	def run(self):
-		install_udev_rules(True)
-		install.run(self)
+        def run(self):
+                if not hasattr(self,"root") or 'debian' not in self.root:
+                        install_udev_rules(True)
+                install.run(self)
 
 data_files = []
 def subdirs(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
-directories=subdirs('SEEL/helpfiles/')
-directories.append('')
-for directory in directories:
-	directory = 'SEEL/helpfiles/'+directory
-	files = os.listdir(directory)
-	files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
-	files = [os.path.join(directory,a) for a in files]
-	data_files.append((directory,files))
+try:
+    directories=subdirs('docs/build/html/')
+    directories.append('')
+    for directory in directories:
+        directory = 'docs/build/html/'+directory
+        files = os.listdir(directory)
+        files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
+        files = [os.path.join(directory,a) for a in files]
+        data_files.append((directory,files))
+except:
+    pass
 
-print data_files
+#print (data_files)
 
 setup(name='SEEL',
-	version='1.0',
+	version='0.1',
 	description='Package to deal with vLabtool-version 0',
 	author='Jithin B.P.',
 	author_email='jithinbp@gmail.com',
