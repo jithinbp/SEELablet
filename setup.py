@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 #from distutils.core import setup
+from __future__ import print_function
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 import os,shutil
@@ -31,14 +32,8 @@ def check_root():
 	return os.geteuid() == 0
 
 class CustomInstall(install):
-	def run(self):
-                if 'debian' in self.root:
-                        try:
-                                os.makedirs(os.path.join(self.root,'lib/udev/rules.d'))
-                        except:
-                                pass
-                        shutil.copy('proto.rules', os.path.join(self.root,'lib/udev/rules.d/99-seelablet.rules'))
-                else:
+        def run(self):
+                if not hasattr(self,"root") or 'debian' not in self.root:
                         install_udev_rules(True)
                 install.run(self)
 
@@ -49,10 +44,10 @@ def subdirs(a_dir):
             if os.path.isdir(os.path.join(a_dir, name))]
 
 try:
-    directories=subdirs('docs/_build/html/')
+    directories=subdirs('docs/build/html/')
     directories.append('')
     for directory in directories:
-        directory = 'docs/_build/html/'+directory
+        directory = 'docs/build/html/'+directory
         files = os.listdir(directory)
         files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
         files = [os.path.join(directory,a) for a in files]
@@ -62,9 +57,8 @@ except:
 
 #print (data_files)
 
-
 setup(name='SEEL',
-	version='1.0',
+	version='0.1',
 	description='Package to deal with vLabtool-version 0',
 	author='Jithin B.P.',
 	author_email='jithinbp@gmail.com',
