@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+import sys, os.path, re, base64
+
+pattern=re.compile(r'(.*img src=")([^"]*)(".*)')
+
+def inline_images(infile, outfile):
+    for l in infile.readlines():
+        m=pattern.match(l)
+        if m:
+            filename= m.group(2)
+            _, file_extension = os.path.splitext(filename)
+            filetype=None
+            if 'png' in file_extension:
+                filetype="png"
+            elif "jp" in file_extension:
+                filetype="jpg"
+            l=(m.group(1)+"data:image/%s;base64,"%filetype+base64.b64encode(open(filename,"rb").read()).decode("ascii")+"\n"+m.group(3))
+        outfile.write(l)
+    return
+                
+if __name__=="__main__":
+    with open(sys.argv[1]) as infile:
+        with open(os.path.join("build",sys.argv[1]),"w") as outfile:
+            inline_images(infile,outfile)
+            
+    
