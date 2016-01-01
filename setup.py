@@ -30,6 +30,7 @@ def install_udev_rules(raise_exception):
 def check_root():
 	return os.geteuid() == 0
 
+'''
 class CustomInstall(install):
 	def run(self):
                 if 'debian' in self.root:
@@ -41,7 +42,11 @@ class CustomInstall(install):
                 else:
                         install_udev_rules(True)
                 install.run(self)
-
+'''
+class CustomInstall(install):
+	def run(self):
+		install_udev_rules(True)
+		install.run(self)
 data_files = []
 
 def subdirs(a_dir):

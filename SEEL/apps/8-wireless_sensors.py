@@ -234,7 +234,8 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 
 	def __del__(self):
 		self.refreshTimer.stop()
-		print 'bye'
+		print ('bye')
+		
 
 	def __exit__(self):
 		print ('CYA')
