@@ -57,11 +57,14 @@ class SPI():
         Sets the relevant chip select pin to HIGH.
         
         .. tabularcolumns:: |p{3cm}|p{11cm}|
+
         ================    ============================================================================================
         **Arguments** 
         ================    ============================================================================================
         channel             1-7 ->[PGA1 connected to CH1,PGA2,PGA3,PGA4,PGA5,external chip select 1,external chip select 2]
         ================    ============================================================================================
+
+
         """
         self.H.__sendByte__(SPI_HEADER)
         self.H.__sendByte__(STOP_SPI)

@@ -107,7 +107,10 @@ class Handler():
         else:
             self.inputQueueSize+=1
             return 1
-        return Byte.unpack(x)[0]
+        try:
+            return Byte.unpack(x)[0]
+        except:
+            return 3
 
     def __sendInt__(self,val):
         """

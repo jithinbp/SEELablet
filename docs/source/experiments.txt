@@ -1,0 +1,91 @@
+General Purpose Applications for Real World interaction
+=======================================================
+
+Oscilloscope
+------------
+
+.. figure:: ../images/vlabtool-v0-gui.png
+	:width: 60%
+	:align: center
+	:alt: alternate text
+	:figclass: align-center
+
+
+
+.. automodule:: apps.1_scope
+   :members:
+
+Plot return values from various commands as a function of time
+-----------------------------------------------------------------
+
+.. figure:: ../images/vLabtool-stream.png
+	:width: 60%
+	:align: center
+	:alt: alternate text
+	:figclass: align-center
+
+
+.. automodule:: apps.2_stream
+    :members:
+
+
+Acquire and plot data from supported I2C Sensors
+-------------------------------------------------
+Visualize a variety of physical parameters ranging from angular velocity and altitude, to luminosity, and magnetic field vectors
+
+.. figure:: ../images/vLabtool-sensors.png
+	:width: 60%
+	:align: center
+	:alt: alternate text
+	:figclass: align-center
+	
+	Data streamed from MPU6050
+
+.. automodule:: apps.6_sensors
+    :members:
+
+Control Up to 4 servo motors using the PWM outputs (SQR1 - 4)
+--------------------------------------------------------------
+
+.. figure:: ../images/vLabtool-servo.png
+	:width: 60%
+	:align: center
+	:alt: alternate text
+	:figclass: align-center
+
+
+.. automodule:: apps.7_servo_motors
+    :members:
+    
+
+wireless sensors application
+-----------------------------
+Replace wires with the wireless nodes, and set up remote measurement of physical parameters.
+
+.. automodule:: apps.8_wireless_sensors
+   :members:
+
+
+Experiment Specific Graphical Utilities 
+=======================================
+
+Study Common Emitter characteristics of NPN transistors
+--------------------------------------------------------
+
+.. figure:: ../images/vLabtool-transistorCE.png
+	:width: 60%
+	:align: center
+	:alt: alternate text
+	:figclass: align-center
+
+
+
+.. automodule:: apps.4_transistorCE
+    :members:
+
+
+Diode IV Characteristics
+--------------------------
+
+.. automodule:: apps.3_diodeIV
+    :members:
