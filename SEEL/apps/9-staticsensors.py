@@ -13,6 +13,7 @@ Currently Supports:\n
 
 
 '''
+from __future__ import print_function
 from SEEL.templates import sensorGrid
 
 from SEEL.SENSORS.supported import supported
@@ -120,7 +121,7 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 			
 	def __del__(self):
 		self.looptimer.stop()
-		print 'bye'
+		print ('bye')
 
 	def closeEvent(self, event):
 		self.looptimer.stop()
