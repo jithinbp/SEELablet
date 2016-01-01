@@ -4,7 +4,7 @@ General Purpose Applications for Real World interaction
 Oscilloscope
 ------------
 
-.. figure:: ../../images/vlabtool-v0-gui.png
+.. figure:: ../images/vlabtool-v0-gui.png
 	:width: 60%
 	:align: center
 	:alt: alternate text
@@ -19,7 +19,7 @@ Oscilloscope
 Plot return values from various commands as a function of time
 -----------------------------------------------------------------
 
-.. figure:: ../../images/vLabtool-stream.png
+.. figure:: ../images/vLabtool-stream.png
 	:width: 60%
 	:align: center
 	:alt: alternate text
@@ -34,7 +34,7 @@ Acquire and plot data from supported I2C Sensors
 -------------------------------------------------
 Visualize a variety of physical parameters ranging from angular velocity and altitude, to luminosity, and magnetic field vectors
 
-.. figure:: ../../images/vLabtool-sensors.png
+.. figure:: ../images/vLabtool-sensors.png
 	:width: 60%
 	:align: center
 	:alt: alternate text
@@ -48,7 +48,7 @@ Visualize a variety of physical parameters ranging from angular velocity and alt
 Control Up to 4 servo motors using the PWM outputs (SQR1 - 4)
 --------------------------------------------------------------
 
-.. figure:: ../../images/vLabtool-servo.png
+.. figure:: ../images/vLabtool-servo.png
 	:width: 60%
 	:align: center
 	:alt: alternate text
@@ -72,7 +72,7 @@ Experiment Specific Graphical Utilities
 Study Common Emitter characteristics of NPN transistors
 --------------------------------------------------------
 
-.. figure:: ../../images/vLabtool-transistorCE.png
+.. figure:: ../images/vLabtool-transistorCE.png
 	:width: 60%
 	:align: center
 	:alt: alternate text

@@ -56,7 +56,7 @@ This will start a launcher with a list of available apps and experiments
 as well as a section with widgets that allow one-click control and measurement.
 
 
-.. figure:: ../../images/vlabtool-v0-gui.png
+.. figure:: ../images/vlabtool-v0-gui.png
 	:width: 15cm
 	:align: center
 	:alt: alternate text
