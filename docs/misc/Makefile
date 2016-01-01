@@ -5,7 +5,8 @@ BUILDS  = $(patsubst %,build/%,$(SOURCES))
 all: $(BUILDS)
 
 build/%.html : %.html
-	@inline_images $<
+	@mkdir -p build
+	@./inline_images $<
 	@echo "$< ==> $@"
 
 clean:
