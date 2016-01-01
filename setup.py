@@ -52,6 +52,10 @@ try:
         files = [name for name in files	if not os.path.isdir(os.path.join(directory, name))]
         files = [os.path.join(directory,a) for a in files]
         data_files.append((directory,files))
+    directory = 'docs/misc/build'
+    files = os.listdir(directory)
+    files = [os.path.join(directory,a) for a in files]
+    data_files.append((directory,files))
 except:
     pass
 
