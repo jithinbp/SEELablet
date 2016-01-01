@@ -12,9 +12,8 @@ Oscilloscope
 
 
 
-.. automodule:: experiments.1-scope
-	:currentmodule:
-    :members:
+.. automodule:: apps.1_scope
+   :members:
 
 Plot return values from various commands as a function of time
 -----------------------------------------------------------------
@@ -26,7 +25,7 @@ Plot return values from various commands as a function of time
 	:figclass: align-center
 
 
-.. automodule:: experiments.2-stream
+.. automodule:: apps.2_stream
     :members:
 
 
@@ -42,7 +41,7 @@ Visualize a variety of physical parameters ranging from angular velocity and alt
 	
 	Data streamed from MPU6050
 
-.. automodule:: experiments.6-sensors
+.. automodule:: apps.6_sensors
     :members:
 
 Control Up to 4 servo motors using the PWM outputs (SQR1 - 4)
@@ -55,15 +54,16 @@ Control Up to 4 servo motors using the PWM outputs (SQR1 - 4)
 	:figclass: align-center
 
 
-.. automodule:: experiments.7-servo_motors
+.. automodule:: apps.7_servo_motors
     :members:
     
 
 wireless sensors application
 -----------------------------
 Replace wires with the wireless nodes, and set up remote measurement of physical parameters.
-.. automodule:: experiments.8-wireless_sensors
-    :members:
+
+.. automodule:: apps.8_wireless_sensors
+   :members:
 
 
 Experiment Specific Graphical Utilities 
@@ -80,12 +80,12 @@ Study Common Emitter characteristics of NPN transistors
 
 
 
-.. automodule:: experiments.4-transistorCE
+.. automodule:: apps.4_transistorCE
     :members:
 
 
 Diode IV Characteristics
 --------------------------
 
-.. automodule:: experiments.3-diodeIV
+.. automodule:: apps.3_diodeIV
     :members:
