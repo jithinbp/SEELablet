@@ -48,7 +48,7 @@ Advanced Modules
    NRF24L01_class
    NRF_NODE
    experiment
-   Apps
+#   Apps
 
 
 
