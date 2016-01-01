@@ -68,7 +68,7 @@ as well as a section with widgets that allow one-click control and measurement.
 .. only:: html
 
 	Example Videos of the SEELablet
-	------------------------------
+	-------------------------------
 
 	.. toctree::
 	   :maxdepth: 2

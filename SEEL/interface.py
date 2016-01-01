@@ -1350,7 +1350,7 @@ class Interface():
         =================   ======================================================================================================
         **Arguments** 
         =================   ======================================================================================================
-        waiting_time          Total time to allow the logic analyzer to collect data.
+        waiting_time        Total time to allow the logic analyzer to collect data.
                             This is implemented using a simple sleep routine, so if large delays will be involved,
                             refer to :func:`start_one_channel_LA` to start the acquisition, and :func:`fetch_LA_channels` to
                             retrieve data from the hardware after adequate time. The retrieved data is stored
@@ -1369,7 +1369,7 @@ class Interface():
                             - DISABLED                    = 0
         
         trigger_mode        same as channel_mode.
-                                default_value : 3
+                            default_value : 3
 
         =================   ======================================================================================================
         
