@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wirelessTemplate.ui'
 #
-# Created: Tue Dec 29 10:47:35 2015
+# Created: Mon Jan  4 16:48:28 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

@@ -134,7 +134,8 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
 
 		def read(self):
 			retval = self.func()
-			self.value.setText('%.3e %s '%(retval,self.units))
+			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			else: self.value.setText('%.3e %s '%(retval,self.units))
 
 	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
 		def __init__(self,C):
@@ -149,25 +150,25 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
 
 		def read(self):
 			retval = self.func(self.optionBox.currentText())
-			self.value.setText('%.3e %s '%(retval,self.units))
-
+			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			else: self.value.setText('%.3e %s '%(retval,self.units))
 
 		
 	def setPVS1(self,val):
-		val=self.I.DAC.__setRawVoltage__('PVS1',val)
+		val=self.I.DAC.setVoltage('PVS1',val)
 		self.PVS1_LABEL.setText('%.3f V'%(val))
 
 	def setPVS2(self,val):
-		val=self.I.DAC.__setRawVoltage__('PVS2',val)
+		val=self.I.DAC.setVoltage('PVS2',val)
 		self.PVS2_LABEL.setText('%.3f V'%(val))
 
 	def setPVS3(self,val):
-		val=self.I.DAC.__setRawVoltage__('PVS3',val)
+		val=self.I.DAC.setVoltage('PVS3',val)
 		self.PVS3_LABEL.setText('%.3f V'%(val))
 
 	def setPCS(self,val):
-		val=3.3-self.I.DAC.__setRawVoltage__('PCS',val)
-		self.PCS_LABEL.setText('%.3f mA'%(val))
+		val=3.3e-3-self.I.DAC.setVoltage('PCS',val/1.e3)
+		self.PCS_LABEL.setText('%.3f mA'%(val*1e3))
 
 	def setSINE1(self,val):
 		f=self.I.set_sine1(val)

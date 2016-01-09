@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from SEEL.commands_proto import *
 
 class SPI():
@@ -50,6 +52,30 @@ class SPI():
         self.H.__sendByte__(START_SPI)
         self.H.__sendByte__(channel)    #value byte
         #self.H.__get_ack__()
+
+    def set_cs(self,channel,state):
+        """
+        Enable or disable a chip select
+        
+        .. tabularcolumns:: |p{3cm}|p{11cm}|
+        
+        ================    ============================================================================================
+        **Arguments** 
+        ================    ============================================================================================
+        channel             'CS1','CS2'
+        state               1 for HIGH, 0 for LOW
+        ================    ============================================================================================
+        
+        """
+        channel = channel.upper()
+        if channel in ['CS1','CS2']:
+            csnum=['CS1','CS2'].index(channel)+9  #chip select number 9=CSOUT1,10=CSOUT2
+            self.H.__sendByte__(SPI_HEADER)
+            if state:self.H.__sendByte__(STOP_SPI)
+            else:self.H.__sendByte__(START_SPI)
+            self.H.__sendByte__(csnum)   
+            print (state, csnum)
+        else: print('Channel does not exist')
         
     def stop(self,channel):
         """

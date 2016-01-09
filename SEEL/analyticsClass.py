@@ -3,6 +3,8 @@ import time
 import numpy as np
 import scipy.optimize as optimize
 import scipy.fftpack as fftpack
+from scipy.optimize import leastsq
+
 from scipy import signal
 
 class analyticsClass():
@@ -18,6 +20,33 @@ class analyticsClass():
 
 	def squareFunc(self,x, amp,freq,phase,dc,offset):
 	    return offset + amp*signal.square(2 * np.pi * freq * (x - phase), duty=dc)
+
+
+	#-------------------------- Exponential Fit ----------------------------------------
+	def exp_erf(self,p,y,x):
+		return y - p[0] * np.exp(p[1]*x) + p[2]
+
+	def exp_eval(self,x,p):
+		return p[0] * np.exp(p[1]*x)  -p[2]
+
+	def fit_exp(self,xlist, ylist):
+		size = len(xlist)
+		xa = np.array(xlist)
+		ya = np.array(ylist)
+		maxy = max(ya)
+		halfmaxy = maxy / 2.0
+		halftime = 1.0
+		for k in range(size):
+			if abs(ya[k] - halfmaxy) < halfmaxy/100:
+				halftime = xa[k]
+				break 
+		par = [maxy, -halftime,0] 					# Amp, decay, offset
+		plsq = leastsq(self.exp_erf, par,args=(ya,xa))
+		if plsq[1] > 4:
+			return None
+		yfit = self.exp_eval(xa, plsq[0])
+		return yfit,plsq[0]
+
 
 	def squareFit(self,xReal,yReal):
 		N=len(xReal)
@@ -60,16 +89,16 @@ class analyticsClass():
 		except:
 			return False
 
-	def sineFit(self,xReal,yReal):
+	def sineFit(self,xReal,yReal,**kwargs):
 		N=len(xReal)
 		OFFSET = (yReal.max()+yReal.min())/2.
 		yhat = fftpack.rfft(yReal-OFFSET)
 		idx = (yhat**2).argmax()
 		freqs = fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
-		frequency = freqs[idx]/(2*np.pi)  #Convert angular velocity to freq
-
-		amplitude = (yReal.max()-yReal.min())/2.0
-		phase=0#.5*np.pi*((yReal[0]-offset)/amplitude)
+		frequency = kwargs.get('freq',freqs[idx])  
+		frequency/=(2*np.pi) #Convert angular velocity to freq
+		amplitude = kwargs.get('amp',(yReal.max()-yReal.min())/2.0)
+		phase=kwargs.get('phase',0) #.5*np.pi*((yReal[0]-offset)/amplitude)
 		guess = [amplitude, frequency, phase,0]
 		try:
 			(amplitude, frequency, phase,offset), pcov = optimize.curve_fit(self.sineFunc, xReal, yReal-OFFSET, guess)

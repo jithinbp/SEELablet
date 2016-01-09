@@ -155,7 +155,8 @@ GET_CAP_RANGE	      = Byte.pack(16)
 SET_ONBOARD_RGB	      = Byte.pack(17)
 READ_LOG              = Byte.pack(18)
 RESTORE_STANDALONE    = Byte.pack(19)
-
+GET_ALTERNATE_HIGH_FREQUENCY = Byte.pack(20)
+MULTIPOINT_CAPACITANCE= Byte.pack(21)
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
 BAUD9600    = Byte.pack(1)

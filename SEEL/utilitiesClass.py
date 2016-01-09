@@ -94,6 +94,26 @@ class utilitiesClass():
 		self.axisItems.append(ax3)
 		return p3
 
+	def enableRightAxis(self,plot):
+		p = pg.ViewBox()
+		plot.showAxis('right')
+		plot.setMenuEnabled(False)
+		plot.scene().addItem(p)
+		plot.getAxis('right').linkToView(p)
+		p.setXLink(plot)
+		plot.viewBoxes.append(p)
+		Callback = functools.partial(self.updateViews,plot)		
+		plot.getViewBox().sigStateChanged.connect(Callback)
+		return p
+
+
+	def updateViews(self,plot):
+		for a in plot.viewBoxes:
+			a.setGeometry(plot.getViewBox().sceneBoundingRect())
+			a.linkedViewChanged(plot.plotItem.vb, a.XAxis)
+
+
+
 	def loopTask(self,interval,func,*args):
 			timer = QtCore.QTimer()
 			timerCallback = functools.partial(func,*args)

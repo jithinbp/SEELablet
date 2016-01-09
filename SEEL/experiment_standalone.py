@@ -18,7 +18,6 @@ import scipy.fftpack as fftpack
 
 from SEEL.templates import template_exp_standalone
 import time,sys
-from SEEL.customui_rc import *
 
 import numpy as np
 import pyqtgraph as pg

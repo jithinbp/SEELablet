@@ -10,6 +10,8 @@ clean:
 	find . -name "*~" -o -name "*.pyc" -o -name "__pycache__" | xargs rm -rf
 	make -C docs clean
 	make -C docs/misc clean
+	rm -rf /usr/lib/python2.7/dist-packages/SEEL*
+	sudo rm /usr/bin/Experiments
 
 IMAGEDIR=$(DESTDIR)/usr/share/doc/seelablet-common/images
 

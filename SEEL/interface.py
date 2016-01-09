@@ -28,6 +28,7 @@ import SEEL.I2C_class as I2C_class
 import SEEL.SPI_class as SPI_class
 import SEEL.NRF24L01_class as NRF24L01_class
 import SEEL.MCP4728_class as MCP4728_class
+from SEEL.analyticsClass import analyticsClass
 import SEEL.NRF_NODE as NRF_NODE
 
 from SEEL.achan import *
@@ -88,6 +89,7 @@ class Interface():
         self.verbose=kwargs.get('verbose',False)
         self.initialArgs = kwargs
         self.generic_name = 'SEELablet'
+        self.AC = analyticsClass()
         
         self.ADC_SHIFTS_LOCATION1=11
         self.ADC_SHIFTS_LOCATION2=12
@@ -868,7 +870,7 @@ class Interface():
         ==============  =====================================================================================================================
         **Arguments** 
         ==============  =====================================================================================================================
-        chan            channel . 0 or 1. corresponding to the channels being recorded by the capture routine(not the analog inputs)
+        chan            channel . 0, 1,2,3. corresponding to the channels being recorded by the capture routine(not the analog inputs)
         name            the name of the channel. 'CH1'... 'V+'
         voltage         The voltage level that should trigger the capture sequence(in Volts)
         ==============  =====================================================================================================================
@@ -1976,6 +1978,29 @@ class Interface():
         C = -ctime*1e-6/1e4/np.log(1-V/3.3)
         return  V,C
 
+
+    def autocaptrace(self,samples,tg):
+        tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
+        if(tg<0.5):tg=int(0.5*8)/8.
+        if(samples>self.MAX_SAMPLES):
+            print ('Sample limit exceeded. 10,000 max')
+            samples = self.MAX_SAMPLES
+
+        self.timebase = int(tg*8)/8.
+        self.samples = samples
+        self.H.__sendByte__(COMMON)
+        self.H.__sendByte__(MULTIPOINT_CAPACITANCE)
+        self.H.__sendInt__(samples)         #total number of samples to record
+        self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
+        self.H.__get_ack__()
+        self.__print__( 'wait')
+        time.sleep(1e-6*samples*tg+.01)
+        self.__print__( 'done')
+        x,y =  self.__retrieveBufferData__('CAP',samples,tg)
+        yfit,params = self.AC.fit_exp(np.array(x),y)
+        return x,y,yfit,params
+
+
     def get_capacitor_range(self):
         """ 
         Charges a capacitor connected to IN1 via a 20K resistor from a 3.3V source for a fixed interval
@@ -2348,8 +2373,7 @@ class Interface():
                     
         phase_coarse = int(table_size*( phase)/360.  )
         phase_fine = int(wavelength*(phase - (phase_coarse)*360./table_size)/(360./table_size))
-
-        phase_coarse += int(table_size*( freq/100.)/360.  ) # PHASE CORRECTION. 
+        
 
         self.H.__sendByte__(WAVEGEN)
         self.H.__sendByte__(SET_BOTH_WG)
@@ -3093,12 +3117,12 @@ class Interface():
         samples=3694
         self.H.__sendByte__(NONSTANDARD_IO)
         self.H.__sendByte__(TCD1304_HEADER)
-        self.H.__sendByte__(self.__calcCHOSA__('CH5'))
+        self.H.__sendByte__(self.__calcCHOSA__('CH3'))
         self.H.__sendByte__(int(tg*8))
         self.H.__sendInt__(delay)
+        
         self.H.__sendInt__(tp)
-        self.achans[0].gain = self.sensor_gain
-        self.achans[0].set_params(channel='CH5',length=samples,timebase=1,resolution=TWELVE_BIT)
+        self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=TWELVE_BIT,source=self.analogInputSources['CH3'])
         self.samples=samples
         self.channels_in_buffer=1
         time.sleep(0.005)

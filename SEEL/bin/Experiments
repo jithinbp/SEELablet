@@ -5,6 +5,7 @@ Lists the various available experiments and allows users to run them
 
 from __future__ import print_function
 from argparse import ArgumentParser
+import sys
 
 parser = ArgumentParser()
 
@@ -12,6 +13,30 @@ parser = ArgumentParser()
 parser.add_argument("-P", dest="PortName",
                     help="If you have connected multiple devices, provide the port name . e.g /dev/ttyACM0", metavar="PORT_NAME")
 args = parser.parse_args()
+
+
+try:
+	import socket
+	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	## Create an abstract socket, by prefixing it with null. 
+	s.bind( '\0postconnect_gateway_notify_lock') 
+except socket.error, e:
+	error_code = e.args[0]
+	error_string = e.args[1]
+	print("Process already running (%d:%s ). Exiting" % ( error_code, error_string) )
+	from PyQt4 import QtGui
+	class ErrDiag(QtGui.QDialog):
+		def __init__(self, parent=None):
+			QtGui.QDialog.__init__(self, parent)
+			self.setWindowTitle('Error')#'Another instance already running')
+			pass
+
+	app = QtGui.QApplication(sys.argv)
+	myapp= ErrDiag()
+	diag = QtGui.QMessageBox.about(myapp,'Error',  'Another instance of this program is already running.\n Please Close it first.')
+	diag.show()
+	sys.exit(app.exec_())
+
 
 import os
 os.environ['QT_API'] = 'pyqt'
@@ -34,7 +59,7 @@ import SEEL.controls as CONTROLS
 from SEEL.templates import single_col_exp,icon
 from SEEL.templates.widgets import dial,button,selectAndButton
 
-import sys,os,string,time,pkgutil,importlib,functools,pkg_resources,serial.tools.list_ports
+import os,string,time,pkgutil,importlib,functools,pkg_resources,serial.tools.list_ports
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -136,7 +161,7 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
 
 			FILE = importlib.import_module(fname)
 			inst = FILE.AppWindow(self,I=self.I)
-			inst.setWindowFlags(inst.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+			#inst.setWindowFlags(inst.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
 			inst.show()
 			size = inst.geometry()
 			inst.setGeometry(300, 50,size.width(), size.height())

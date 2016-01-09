@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dial.ui'
 #
-# Created: Tue Dec 29 10:47:35 2015
+# Created: Sat Jan  9 18:40:58 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,6 +34,11 @@ class Ui_Form(object):
         Form.setSizePolicy(sizePolicy)
         Form.setMinimumSize(QtCore.QSize(100, 105))
         Form.setMaximumSize(QtCore.QSize(104, 105))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        Form.setFont(font)
         Form.setStyleSheet(_fromUtf8("QFrame.PeripheralCollection{\n"
 "border-top-left-radius: 10px;\n"
 "border-top-right-radius: 10px;\n"
@@ -46,7 +51,6 @@ class Ui_Form(object):
 "}\n"
 " QLabel {\n"
 "color: white;\n"
-"font-weight: bold;\n"
 "background:transparent;\n"
 "}\n"
 "\n"
@@ -114,8 +118,8 @@ class Ui_Form(object):
         self.value = QtGui.QLabel(self.ImageFrame)
         font = QtGui.QFont()
         font.setPointSize(9)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setBold(False)
+        font.setWeight(50)
         self.value.setFont(font)
         self.value.setAlignment(QtCore.Qt.AlignCenter)
         self.value.setObjectName(_fromUtf8("value"))
