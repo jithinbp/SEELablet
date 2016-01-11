@@ -232,7 +232,6 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow):
         else:
             print (self.setWindowTitle('Device Not Connected!'))
 
-
     def __del__(self):
         print ('bye')
                 

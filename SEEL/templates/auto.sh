@@ -18,4 +18,6 @@ pyuic4 dial.ui -o dial.py
 pyuic4 button.ui -o button.py
 pyuic4 sensorWidget.ui -o sensorWidget.py
 pyuic4 selectAndButton.ui -o selectAndButton.py
+pyuic4 sineWidget.ui -o sineWidget.py
+
 cd ..

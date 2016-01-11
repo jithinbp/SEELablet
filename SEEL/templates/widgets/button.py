@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'button.ui'
 #
-# Created: Mon Jan 11 15:51:50 2016
+# Created: Mon Jan 11 16:19:55 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

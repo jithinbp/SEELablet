@@ -198,7 +198,7 @@ stop: 0 #abe, stop: 0.7 #aba);
              <x>0</x>
              <y>0</y>
              <width>394</width>
-             <height>601</height>
+             <height>633</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -334,7 +334,7 @@ stop: 0 #abe, stop: 0.7 #aba);
              <x>0</x>
              <y>0</y>
              <width>394</width>
-             <height>601</height>
+             <height>604</height>
             </rect>
            </property>
            <property name="styleSheet">
@@ -389,6 +389,61 @@ stop: 0 #abe, stop: 0.7 #aba);
             </item>
            </layout>
           </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="minimumSize">
+              <size>
+               <width>94</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>SET</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="deviceCombo"/>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1254,61 +1309,6 @@ stop: 0 #abe, stop: 0.7 #aba);
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="frame_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QPushButton" name="pushButton">
-         <property name="minimumSize">
-          <size>
-           <width>94</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>SET</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="deviceCombo"/>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>

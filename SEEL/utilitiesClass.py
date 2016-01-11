@@ -10,7 +10,7 @@ sip.setapi("QVariant", 2)
 from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
-from SEEL.templates.widgets import dial,button,selectAndButton
+from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -240,4 +240,36 @@ class utilitiesClass():
 			self.setMinimumHeight(70)
 			self.setMinimumWidth(470)
 			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.controls', _fromUtf8(tmp.params.get('image','') ))))
+
+	class sineWidget(QtGui.QWidget,sineWidget.Ui_Form):
+		def __init__(self,I):
+			super(utilitiesClass.sineWidget, self).__init__()
+			self.setupUi(self)
+			self.I = I
+
+
+		def loadSineTable(self):
+			if self.I:
+				from SEEL.utilityApps import loadSineTable
+				inst = loadSineTable.AppWindow(self,I=self.I)
+				inst.show()
+			else:
+				print (self.setWindowTitle('Device Not Connected!'))
+
+		def setSINE1(self,val):
+			f=self.I.set_sine1(val)
+			self.WAVE1_FREQ.setText('%.2f'%(f))
+
+		def setSINE2(self,val):
+			f=self.I.set_sine2(val)
+			self.WAVE2_FREQ.setText('%.2f'%(f))
+
+		def setSinePhase(self):
+			freq1 = self.SINE1BOX.value()
+			freq2 = self.SINE2BOX.value()
+			phase = self.SINEPHASE.value()
+			f=self.I.set_sine_phase(freq1,phase,freq2)
+			self.WAVE1_FREQ.setText('%.2f'%(f))
+			self.WAVE2_FREQ.setText('%.2f'%(f))
+
 

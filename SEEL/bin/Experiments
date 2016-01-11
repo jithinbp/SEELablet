@@ -225,9 +225,6 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
             print (self.setWindowTitle('Device Not Connected!'))
 
     
-
-
-
     def locateDevices(self):
         L = serial.tools.list_ports.comports()
         shortlist=[]
@@ -251,11 +248,12 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
         print ('connecting to ',sel)
         if self.I:
             self.I.reconnect(port = sel)
+            self.displayDialog('Reconnected :'+self.I.H.version_string.decode("utf-8"))
             self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
             self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
         else:
             self.I = interface.connect(port = sel)
-            print (self.I)
+            self.displayDialog('Connected :'+self.I.H.version_string.decode("utf-8"))
             try:
                 self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
                 self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
