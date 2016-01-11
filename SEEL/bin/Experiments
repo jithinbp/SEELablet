@@ -16,26 +16,26 @@ args = parser.parse_args()
 
 
 try:
-	import socket
-	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-	## Create an abstract socket, by prefixing it with null. 
-	s.bind( '\0postconnect_gateway_notify_lock') 
+    import socket
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    ## Create an abstract socket, by prefixing it with null. 
+    s.bind( '\0postconnect_gateway_notify_lock') 
 except socket.error, e:
-	error_code = e.args[0]
-	error_string = e.args[1]
-	print("Process already running (%d:%s ). Exiting" % ( error_code, error_string) )
-	from PyQt4 import QtGui
-	class ErrDiag(QtGui.QDialog):
-		def __init__(self, parent=None):
-			QtGui.QDialog.__init__(self, parent)
-			self.setWindowTitle('Error')#'Another instance already running')
-			pass
+    error_code = e.args[0]
+    error_string = e.args[1]
+    print("Process already running (%d:%s ). Exiting" % ( error_code, error_string) )
+    from PyQt4 import QtGui
+    class ErrDiag(QtGui.QDialog):
+        def __init__(self, parent=None):
+            QtGui.QDialog.__init__(self, parent)
+            self.setWindowTitle('Error')#'Another instance already running')
+            pass
 
-	app = QtGui.QApplication(sys.argv)
-	myapp= ErrDiag()
-	diag = QtGui.QMessageBox.about(myapp,'Error',  'Another instance of this program is already running.\n Please Close it first.')
-	diag.show()
-	sys.exit(app.exec_())
+    app = QtGui.QApplication(sys.argv)
+    myapp= ErrDiag()
+    diag = QtGui.QMessageBox.about(myapp,'Error',  'Another instance of this program is already running.\n Please Close it first.')
+    diag.show()
+    sys.exit(app.exec_())
 
 
 import os
@@ -44,6 +44,7 @@ import sip
 sip.setapi("QString", 2)
 sip.setapi("QVariant", 2)
 from PyQt4 import QtCore, QtGui
+from PyQt4 import QtWebKit
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -53,11 +54,12 @@ except AttributeError:
 
 from SEEL.stylesheets import styles
 from SEEL import interface
+from SEEL.utilitiesClass import utilitiesClass
+
 import SEEL.apps as APPS
 import SEEL.controls as CONTROLS
 
-from SEEL.templates import single_col_exp,icon
-from SEEL.templates.widgets import dial,button,selectAndButton
+from SEEL.templates import single_col_exp
 
 import os,string,time,pkgutil,importlib,functools,pkg_resources,serial.tools.list_ports
 
@@ -68,349 +70,374 @@ except AttributeError:
         return s
 
 
-class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow):
-	def __init__(self, parent=None,**kwargs):
-		super(MyMainWindow, self).__init__(parent)
-		self.eventHandler = kwargs.get('app',None)
-		self.showSplash();self.updateSplash(10,'Setting up UI...')
-		self.setupUi(self)
-		#self.setWindowState(QtCore.Qt.WindowMaximized)
-		self.updateSplash(10,'Connecting to Device...')
-		if  args.PortName: self.I = interface.connect(port = args.PortName)
-		else: self.I = interface.connect()
-		try:
-			if not self.I.connected:
-				print ('Not Connected')
-				self.updateSplash(10,'Failed to connect')
-		except:
-			self.updateSplash(30,'Connected. Loading Applications...')
-			pass
+class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClass):
+    def __init__(self, parent=None,**kwargs):
+        super(MyMainWindow, self).__init__(parent)
+        self.eventHandler = kwargs.get('app',None)
+        self.showSplash();self.updateSplash(10,'Setting up UI...')
+        self.setupUi(self)
+        #self.setWindowState(QtCore.Qt.WindowMaximized)
+        self.updateSplash(10,'Connecting to Device...')
+        if  args.PortName: self.I = interface.Interface(port = args.PortName)  #Not using connect method because it returns None if unconnected
+        else: self.I = interface.Interface()                                   #I need to pass the methods of interface to various control widgets regardless
+        try:
+            if not self.I.connected:
+                print ('Not Connected')
+                self.updateSplash(10,'Failed to connect')
+        except:
+            self.updateSplash(30,'Connected. Loading Applications...')
+            pass
 
-		self.funcs=[]
-		self.shortlist=[]
-		apps = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(APPS.__file__)])]
-		controls = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(CONTROLS.__file__)])]
-		
-		print (apps,controls)
-		row=0;col=0;colLimit=3
-		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
+        self.funcs=[]
+        self.shortlist=[]
+        apps = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(APPS.__file__)])]
+        controls = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(CONTROLS.__file__)])]
+        
+        print (apps,controls)
+        row=0;col=0;colLimit=3
+        self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
 
+        for app in apps:
+            if(col==colLimit):
+                col=0;row+=1
+            fn = functools.partial(self.launchFunc,'SEEL.apps.'+app)
+            self.funcs.append(fn)
+            self.ExperimentLayout.addWidget(self.experimentIcon(app,fn),row,col)
+            col+=1
 
-		for app in apps:
-			if(col==colLimit):
-				col=0;row+=1
-			fn = functools.partial(self.launchFunc,'SEEL.apps.'+app)
-			self.funcs.append(fn)
-			self.ExperimentLayout.addWidget(self.experimentIcon(app,fn),row,col)
-			col+=1
+        col=0;row+=1
+        line = QtGui.QFrame()
+        line.setFrameShape(QtGui.QFrame.HLine)
+        line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.ExperimentLayout.addWidget(line,row,0,1,3)
+        row+=1
 
-		col=0;row+=1
-		line = QtGui.QFrame()
-		line.setFrameShape(QtGui.QFrame.HLine)
-		line.setFrameShadow(QtGui.QFrame.Sunken)
-		self.ExperimentLayout.addWidget(line,row,0,1,3)
-		row+=1
-
-		for app in controls:
-			if(col==colLimit):
-				col=0;row+=1
-			fn = functools.partial(self.launchFunc,'SEEL.controls.'+app)
-			self.funcs.append(fn)
-			self.ExperimentLayout.addWidget(self.controlIcon(app,fn),row,col)
-			col+=1
-
-
-
-		if not self.I:
-			self.setWindowTitle(' : Not Connected')
-			self.SCF1.setStyleSheet(_fromUtf8(styles.disconnected))
-		elif not self.I.connected:
-			self.SCF1.setStyleSheet(_fromUtf8(styles.disconnected))
-			self.setWindowTitle(' : Not Connected')
-				
-
-		self.menu_entries=[]
-		self.menu_group=None
-
-		self.timer = QtCore.QTimer()
-		self.timer.timeout.connect(self.locateDevices)
-		self.timer.start(500)
-		self.updateSplash(30,'Almost done...')
-		self.splash.finish(self)
-		self.runningApp = None
-
-
-	class autogenControl:
-		def __init__(self,**kwargs):
-			self.TYPE = kwargs.get('TYPE','dial')
-			self.TITLE = kwargs.get('TITLE','TITLE')
-			self.UNITS = kwargs.get('UNITS','')
-			self.MAX = kwargs.get('MAX',100)
-			self.MIN = kwargs.get('MIN',0)
-			self.FUNC = kwargs.get('FUNC',None)
-			self.TOOLTIP = kwargs.get('TOOLTIP',None)
-			self.SCALE_FACTOR = kwargs.get('SCALE_FACTOR',1)
-			self.options = kwargs.get('OPTIONS',[])
-
-
-	def launchFunc(self,fname):
-		if self.I:
-			if fname.split('.')[1]=='apps':
-				if self.runningApp:
-					self.runningApp.close()
-
-			FILE = importlib.import_module(fname)
-			inst = FILE.AppWindow(self,I=self.I)
-			#inst.setWindowFlags(inst.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
-			inst.show()
-			size = inst.geometry()
-			inst.setGeometry(300, 50,size.width(), size.height())
-
-			if fname.split('.')[1]=='apps':
-				self.runningApp = inst
-			'''
-
-			if fname == 'SEEL.controls.outputs':
-					self.dock = QtGui.QDockWidget()
-					#self.dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable|QtGui.QDockWidget.DockWidgetFloatable)#|QDockWidget.DockWidgetVerticalTitleBar)
-					self.dock.setWindowTitle("Output Peripherals")
-					self.fr = QtGui.QFrame()
-					plt = QtGui.QGridLayout(self.fr)
-					plt.addWidget(inst)
-					self.dock.setWidget(self.fr)
-					self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.dock)
-			'''
-		else:
-			print (self.setWindowTitle('Device Not Connected!'))
-
-	'''
-	class experimentIcon(QtGui.QFrame,icon.Ui_Form):
-		def __init__(self,name,launchfunc):
-			super(MyMainWindow.experimentIcon, self).__init__()
-			self.setupUi(self)
-			self.name = name
-			self.title.setText(self.name)
-			self.func = launchfunc
-
-			tmp = importlib.import_module('SEEL.apps.'+name)
-			#self.ImageFrame.setStyleSheet("background-image:url(%s);background-size:auto 100%%;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.image))))
-			self.button.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.image))))
-
-		def run(self):
-			self.func()
-
-	'''
-	
-	class experimentIcon(QtGui.QPushButton):
-		def __init__(self,name,launchfunc):
-			super(MyMainWindow.experimentIcon, self).__init__()
-			self.name = name
-			tmp = importlib.import_module('SEEL.apps.'+name)
-			self.setText(tmp.params.get('name',name))
-			self.func = launchfunc			
-			self.clicked.connect(self.func)
-			self.setMinimumHeight(70)
-			self.setMinimumWidth(470)
-			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.params.get('image','') ))))
+        for app in controls:
+            if(col==colLimit):
+                col=0;row+=1
+            fn = functools.partial(self.launchFunc,'SEEL.controls.'+app)
+            self.funcs.append(fn)
+            self.ExperimentLayout.addWidget(self.controlIcon(app,fn),row,col)
+            col+=1
 
 
 
-	class controlIcon(QtGui.QPushButton):
-		def __init__(self,name,launchfunc,**kwargs):
-			super(MyMainWindow.controlIcon, self).__init__()
-			self.name = name
-			tmp = importlib.import_module('SEEL.controls.'+name)
-			self.setText(tmp.params.get('name',name))
-			self.func = launchfunc
-			self.clicked.connect(self.func)
-			if 'tooltip' in kwargs:self.widgetFrameOuter.setToolTip(kwargs.get('tooltip',''))
-			self.setMinimumHeight(70)
-			self.setMinimumWidth(470)
-			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.controls', _fromUtf8(tmp.params.get('image','') ))))
-
-	class dialIcon(QtGui.QFrame,dial.Ui_Form):
-		def __init__(self,C):
-			super(MyMainWindow.dialIcon, self).__init__()
-			self.setupUi(self)
-			self.name = C.TITLE
-			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			self.scale = C.SCALE_FACTOR
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
-
-			self.dial.setMinimum(C.MIN)
-			self.dial.setMaximum(C.MAX)
+        if not self.I:
+            self.setWindowTitle(' : Not Connected')
+            self.SCF1.setStyleSheet(_fromUtf8(styles.disconnected))
+        elif not self.I.connected:
+            self.SCF1.setStyleSheet(_fromUtf8(styles.disconnected))
+            self.setWindowTitle(' : Not Connected')
 
 
-		def setValue(self,val):
-			retval = self.func(val)
-			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+        row=0;col=0;colLimit=3
+        self.funcs=[]
+        self.WidgetLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
 
+        autogenControls=[]
+        autogenControls.append(self.autogenControl(TITLE='Wave 1',MIN=10,MAX=5000,FUNC=self.I.set_sine1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #1',LINK=self.updateWAVE1_FREQ))
+        autogenControls.append(self.autogenControl(TITLE='Wave 2',MIN=10,MAX=5000,FUNC=self.I.set_sine2,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #2',LINK=self.updateWAVE2_FREQ))
+        autogenControls.append(self.autogenControl(TITLE='square 1',MIN=10,MAX=50000,FUNC=self.I.sqr1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of square wave generator #1'))
 
-	class buttonIcon(QtGui.QFrame,button.Ui_Form):
-		def __init__(self,C):
-			super(MyMainWindow.buttonIcon, self).__init__()
-			self.setupUi(self)
-			self.name = C.TITLE
-			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+        tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS1')
+        autogenControls.append(self.autogenControl(TITLE='PVS1',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS1_LABEL))
 
-		def read(self):
-			retval = self.func()
-			self.value.setText('%.3e %s '%(retval,self.units))
+        tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS2')
+        autogenControls.append(self.autogenControl(TITLE='PVS2',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS2_LABEL))
 
-	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
-		def __init__(self,C):
-			super(MyMainWindow.selectAndButtonIcon, self).__init__()
-			self.setupUi(self)
-			self.name = C.TITLE
-			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			self.optionBox.addItems(C.options)
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+        tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS3')
+        autogenControls.append(self.autogenControl(TITLE='PVS3',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS3_LABEL))
 
-		def read(self):
-			retval = self.func(self.optionBox.currentText())
-			self.value.setText('%.3e %s '%(retval,self.units))
+        tmpfunc = lambda x: self.I.DAC.__setRawVoltage__('PCS',4095-x)
+        autogenControls.append(self.autogenControl(TITLE='PCS',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='mA',TOOLTIP='Programmable Current Source ',SCALE_FACTOR = 1e3,LINK=self.updatePCS_LABEL))
 
+        autogenControls.append(self.autogenControl(TITLE='CAPACITANCE',FUNC=self.I.get_capacitance,TYPE='button',UNITS='F',TOOLTIP='Read Capacitance connected to CAP input '))
 
-	def locateDevices(self):
-		L = serial.tools.list_ports.comports()
-		shortlist=[]
-		for a in L:
-			if ('ACM' in a[1]) and ('04d8:00df' in a[2]):
-				shortlist.append(a)
+        tmpfunc = functools.partial(self.I.get_average_voltage,samples=100)
+        autogenControls.append(self.autogenControl(TITLE='VOLTMETER',FUNC=tmpfunc,TYPE='selectButton',UNITS='V',TOOLTIP='Voltmeter',OPTIONS=self.I.allAnalogChannels))
+        autogenControls.append(self.autogenControl(TITLE='Low Frequency',FUNC=self.I.get_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequency. Minimum 40Hz',OPTIONS=self.I.allDigitalChannels))
+        autogenControls.append(self.autogenControl(TITLE='High Frequency',FUNC=self.I.get_high_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequencies over 1MHz with 10Hz resolution',OPTIONS=self.I.allDigitalChannels))
+        self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
 
-		total = len(shortlist)
-		if shortlist != self.shortlist:
-			self.shortlist=shortlist
-			for a in self.menu_entries:
-				self.deviceCombo.removeItem(0)
-			self.menu_entries=[]
-			for a in shortlist:
-				self.deviceCombo.addItem(a[0])
-				self.menu_entries.append(a[0])
+        for C in autogenControls:
+            if C.TYPE=='dial':
+                self.funcs.append(C.FUNC)
+                self.WidgetLayout.addWidget(self.dialIcon(C),row,col)
+            elif C.TYPE=='button':
+                self.funcs.append(C.FUNC)
+                self.WidgetLayout.addWidget(self.buttonIcon(C),row,col)
+            elif C.TYPE=='selectButton':
+                self.funcs.append(C.FUNC)
+                self.WidgetLayout.addWidget(self.selectAndButtonIcon(C),row,col)
 
+            col+=1
+            if(col==colLimit):
+                col=0;row+=1
+                
 
-	def selectDevice(self):
-		sel = self.deviceCombo.currentText()
-		print ('connecting to ',sel)
-		if self.I:
-			self.I.reconnect(port = sel)
-			self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
-			self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
-		else:
-			self.I = interface.connect(port = sel)
-			print (self.I)
-			try:
-				self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
-				self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
-			except:
-				pass
-		return
+        self.menu_entries=[]
+        self.menu_group=None
 
-	def updateSplash(self,x,txt=''):
-		self.progressBar.setValue(self.progressBar.value()+x)
-		if(len(txt)):self.splashMsg.setText('  '+txt)
-		self.eventHandler.processEvents()
-		self.splash.repaint()
+        self.helpView = QtWebKit.QWebView()
+        self.helpLayout.addWidget(self.helpView)
 
-	def showSplash(self):
-		import pkg_resources
-		splash_pix = QtGui.QPixmap(pkg_resources.resource_filename('SEEL.stylesheets', "splash3.png"))
-		self.splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
-		# adding progress bar
-		self.progressBar = QtGui.QProgressBar(self.splash)
-		self.progressBar.resize(self.splash.width(),20)
-		css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css").decode("utf-8")
-		if css:
-			self.splash.setStyleSheet(css)
-		self.splashMsg = QtGui.QLabel(self.splash);self.splashMsg.setStyleSheet("font-weight:bold;color:purple")
-		self.splash.setMask(splash_pix.mask())
-		self.splashMsg.setText('Loading....');self.splashMsg.resize(self.progressBar.width(),20)
-		self.splash.show()
-		self.splash.repaint()
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.locateDevices)
+        self.timer.start(500)
+        self.updateSplash(30,'Almost done...')
+        self.splash.finish(self)
+        self.runningApp = None
 
 
 
-	def addConsole(self):
-		try:
-			self.showSplash();self.updateSplash(10,'Importing iPython Widgets...')
-			try:
-				from SEEL.iPythonEmbed import QIPythonWidget
-				self.updateSplash(10,'Creating Dock Widget...')
-			except:
-				self.splash.finish(self);
-				errbox = QtGui.QMessageBox()
-				errbox.setStyleSheet('background:#fff;')
-				print (errbox.styleSheet())
-				errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
-				return
-				
-			#-------create an area for it to sit------
-			dock = QtGui.QMainWindow()
-			dock.setWindowTitle("Interactive Python Console")
-			
-			fr = QtGui.QFrame();self.updateSplash(10)
-			dock.setCentralWidget(fr)
-			fr.setFrameShape(QtGui.QFrame.StyledPanel)
-			fr.setFrameShadow(QtGui.QFrame.Raised);self.updateSplash(10,'Embedding IPython Widget...')
+    def launchFunc(self,fname):
+        if self.I:
+            if fname.split('.')[1]=='apps':
+                if self.runningApp:
+                    self.runningApp.close()
 
-			#--------instantiate the iPython class-------
-			self.ipyConsole = QIPythonWidget(customBanner="An interactive Python Console!\n");self.updateSplash(10)
-			layout = QtGui.QVBoxLayout(fr)
-			layout.setMargin(0)
-			layout.addWidget(self.ipyConsole);self.updateSplash(10,'Preparing default command dictionary...')        
-			
-			from SEEL.analyticsClass import analyticsClass
-			self.analytics = analyticsClass()
-			cmdDict = {"analytics":self.analytics}
-			#if self.graphContainer1_enabled:cmdDict["graph"]=self.graph
-			if self.I :
-				cmdDict["I"]=self.I
-				self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage('CH1')")
-			self.ipyConsole.pushVariables(cmdDict);self.updateSplash(10,'Winding up...')
-			self.console_enabled=True
-			self.splash.finish(dock);self.updateSplash(10)
-			dock.show()
-			return self.ipyConsole
-
-		except:
-			self.splash.finish(self);self.updateSplash(10)
-			errbox = QtGui.QMessageBox()
-			errbox.setStyleSheet('background:#fff;')
-			print (errbox.styleSheet())
-			errbox.about(self, "Error", "iPython-qtconsole Could not be loaded")
-
-	def ipythonHelp(self):
-			try:
-				self.helpTitle.setText('iPython Help')
-				helpurl = pkg_resources.resource_filename(interface.__name__, os.path.join('helpfiles','ipython.html'))
-				self.helpView.setUrl(QtCore.QUrl(helpurl))			
-			except:
-				print ('iPython help URL not found')
+            FILE = importlib.import_module(fname)
+            inst = FILE.AppWindow(self,I=self.I)
+            #inst.setWindowFlags(inst.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+            inst.show()
+            size = inst.geometry()
+            inst.setGeometry(300, 50,size.width(), size.height())
 
 
-	def resetDevice(self):
-		if self.I:
-			if self.I.connected:
-				self.I.resetHardware()
-				self.I.H.fd.close()
-				self.I.reconnect()
+            #Load help HTML if found
+            if fname.split('.')[1]=='apps':
+                try:
+                    HF = FILE.params.get('helpfile','introduction.html')
+                    print (HF)
+                    if 'http' in HF:
+                        helpurl = HF
+                    else:
+                        helpurl = pkg_resources.resource_filename(interface.__name__, os.path.join('helpfiles',HF))
+                    print ('url',helpurl)
+                    self.helpView.setUrl(QtCore.QUrl(helpurl))          
+                except:
+                    print ('No help URL file found')
 
-	def __del__(self):
-		try:
-			self.I.H.fd.close()
-		except:
-			pass
-		print ('bye')
-        		
+
+            if fname.split('.')[1]=='apps':
+                self.runningApp = inst
+        else:
+            print (self.setWindowTitle('Device Not Connected!'))
+
+    
+
+
+
+    def locateDevices(self):
+        L = serial.tools.list_ports.comports()
+        shortlist=[]
+        for a in L:
+            if ('ACM' in a[1]) and ('04d8:00df' in a[2]):
+                shortlist.append(a)
+
+        total = len(shortlist)
+        if shortlist != self.shortlist:
+            self.shortlist=shortlist
+            for a in self.menu_entries:
+                self.deviceCombo.removeItem(0)
+            self.menu_entries=[]
+            for a in shortlist:
+                self.deviceCombo.addItem(a[0])
+                self.menu_entries.append(a[0])
+
+
+    def selectDevice(self):
+        sel = self.deviceCombo.currentText()
+        print ('connecting to ',sel)
+        if self.I:
+            self.I.reconnect(port = sel)
+            self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
+            self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
+        else:
+            self.I = interface.connect(port = sel)
+            print (self.I)
+            try:
+                self.SCF1.setStyleSheet(_fromUtf8(styles.connected))
+                self.setWindowTitle('SEELablet : '+self.I.H.version_string.decode("utf-8"))
+            except:
+                pass
+        return
+
+    def updateSplash(self,x,txt=''):
+        self.progressBar.setValue(self.progressBar.value()+x)
+        if(len(txt)):self.splashMsg.setText('  '+txt)
+        self.eventHandler.processEvents()
+        self.splash.repaint()
+
+    def showSplash(self):
+        import pkg_resources
+        splash_pix = QtGui.QPixmap(pkg_resources.resource_filename('SEEL.stylesheets', "splash3.png"))
+        self.splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
+        # adding progress bar
+        self.progressBar = QtGui.QProgressBar(self.splash)
+        self.progressBar.resize(self.splash.width(),20)
+        css = pkg_resources.resource_string('SEEL', "stylesheets/splash.css").decode("utf-8")
+        if css:
+            self.splash.setStyleSheet(css)
+        self.splashMsg = QtGui.QLabel(self.splash);self.splashMsg.setStyleSheet("font-weight:bold;color:purple")
+        self.splash.setMask(splash_pix.mask())
+        self.splashMsg.setText('Loading....');self.splashMsg.resize(self.progressBar.width(),20)
+        self.splash.show()
+        self.splash.repaint()
+
+
+
+    def addConsole(self):
+        try:
+            self.showSplash();self.updateSplash(10,'Importing iPython Widgets...')
+            try:
+                from SEEL.iPythonEmbed import QIPythonWidget
+                self.updateSplash(10,'Creating Dock Widget...')
+            except:
+                self.splash.finish(self);
+                errbox = QtGui.QMessageBox()
+                errbox.setStyleSheet('background:#fff;')
+                print (errbox.styleSheet())
+                errbox.about(self, "Error", "iPython-qtconsole not found.\n Please Install the module")
+                return
+                
+            #-------create an area for it to sit------
+            dock = QtGui.QMainWindow()
+            dock.setWindowTitle("Interactive Python Console")
+            
+            fr = QtGui.QFrame();self.updateSplash(10)
+            dock.setCentralWidget(fr)
+            fr.setFrameShape(QtGui.QFrame.StyledPanel)
+            fr.setFrameShadow(QtGui.QFrame.Raised);self.updateSplash(10,'Embedding IPython Widget...')
+
+            #--------instantiate the iPython class-------
+            self.ipyConsole = QIPythonWidget(customBanner="An interactive Python Console!\n");self.updateSplash(10)
+            layout = QtGui.QVBoxLayout(fr)
+            layout.setMargin(0)
+            layout.addWidget(self.ipyConsole);self.updateSplash(10,'Preparing default command dictionary...')        
+            
+            from SEEL.analyticsClass import analyticsClass
+            self.analytics = analyticsClass()
+            cmdDict = {"analytics":self.analytics}
+            #if self.graphContainer1_enabled:cmdDict["graph"]=self.graph
+            if self.I :
+                cmdDict["I"]=self.I
+                self.ipyConsole.printText("Access hardware using the Instance 'I'.  e.g.  I.get_average_voltage('CH1')")
+            self.ipyConsole.pushVariables(cmdDict);self.updateSplash(10,'Winding up...')
+            self.console_enabled=True
+            self.splash.finish(dock);self.updateSplash(10)
+            dock.show()
+            return self.ipyConsole
+
+        except:
+            self.splash.finish(self);self.updateSplash(10)
+            errbox = QtGui.QMessageBox()
+            errbox.setStyleSheet('background:#fff;')
+            print (errbox.styleSheet())
+            errbox.about(self, "Error", "iPython-qtconsole Could not be loaded")
+
+    def ipythonHelp(self):
+            try:
+                self.helpTitle.setText('iPython Help')
+                helpurl = pkg_resources.resource_filename(interface.__name__, os.path.join('helpfiles','ipython.html'))
+                self.helpView.setUrl(QtCore.QUrl(helpurl))          
+            except:
+                print ('iPython help URL not found')
+
+
+    def resetDevice(self):
+        if self.I:
+            if self.I.connected:
+                self.I.resetHardware()
+                self.I.H.fd.close()
+                self.I.reconnect()
+
+    def __del__(self):
+        try:
+            self.I.H.fd.close()
+        except:
+            pass
+        print ('bye')
+
+    ############################Section for setting up control widgets#################################
+    
+        
+    def setPVS1(self,val):
+        val=self.I.DAC.setVoltage('PVS1',val)
+        self.PVS1_LABEL.setText('%.3f V'%(val))
+
+    def setPVS2(self,val):
+        val=self.I.DAC.setVoltage('PVS2',val)
+        self.PVS2_LABEL.setText('%.3f V'%(val))
+
+    def setPVS3(self,val):
+        val=self.I.DAC.setVoltage('PVS3',val)
+        self.PVS3_LABEL.setText('%.3f V'%(val))
+
+    def setPCS(self,val):
+        val=3.3e-3-self.I.DAC.setVoltage('PCS',val/1.e3)
+        self.PCS_LABEL.setText('%.3f mA'%(val*1e3))
+
+    def setSINE1(self,val):
+        f=self.I.set_sine1(val)
+        self.WAVE1_FREQ.setText('%.2f'%(f))
+
+    def setSINE2(self,val):
+        f=self.I.set_sine2(val)
+        self.WAVE2_FREQ.setText('%.2f'%(f))
+
+    def setSinePhase(self):
+        freq1 = self.SINE1BOX.value()
+        freq2 = self.SINE2BOX.value()
+        phase = self.SINEPHASE.value()
+        f=self.I.set_sine_phase(freq1,phase,freq2)
+        self.WAVE1_FREQ.setText('%.2f'%(f))
+        self.WAVE2_FREQ.setText('%.2f'%(f))
+
+
+    def setSQRS(self):
+        P2=self.SQR2P.value()/360.
+        P3=self.SQR3P.value()/360.
+        P4=self.SQR4P.value()/360.
+        D1=self.SQR1DC.value()
+        D2=self.SQR2DC.value()
+        D3=self.SQR3DC.value()
+        D4=self.SQR4DC.value()
+        
+        self.I.sqr4_continuous(self.SQRSF.value(),D1,P2,D2,P3,D3,P4,D4)
+
+
+    def updateWAVE1_FREQ(self,value,units=''):
+        self.WAVE1_FREQ.setText('%.3f %s '%(value,units))
+    def updateWAVE2_FREQ(self,value,units=''):
+        self.WAVE2_FREQ.setText('%.3f %s '%(value,units))
+    def updatePVS1_LABEL(self,value,units=''):
+        self.PVS1_LABEL.setText('%.3f %s '%(value,units))
+    def updatePVS2_LABEL(self,value,units=''):
+        self.PVS2_LABEL.setText('%.3f %s '%(value,units))
+    def updatePVS3_LABEL(self,value,units=''):
+        self.PVS3_LABEL.setText('%.3f %s '%(value,units))
+    def updatePCS_LABEL(self,value,units=''):
+        self.PCS_LABEL.setText('%.3f %s '%(value,units))
+
+
+    def measure_dcycle(self):
+        inp = self.timing_input.currentText()
+        v=self.I.DutyCycle(inp)
+        if(v[0]!=-1):p=100*v[1]
+        else: p=0
+        self.timing_results.setText('Duty Cycle: %f %%'%(p))
+
+    def measure_interval(self):
+        t = self.I.MeasureInterval(self.edge1chan.currentText(),self.edge2chan.currentText(),self.edge1edge.currentText(),self.edge2edge.currentText())
+        self.time_interval_label.setText('time: %.2e S'%(t))
+    
+    def loadSineTable(self):
+        self.launchFunc('SEEL.utilityApps.loadSineTable')
+
+                
 if __name__ == "__main__":
-	app = QtGui.QApplication(sys.argv)
-	myapp = MyMainWindow(app=app)
-	myapp.show()
-	sys.exit(app.exec_())
+    app = QtGui.QApplication(sys.argv)
+    myapp = MyMainWindow(app=app)
+    myapp.show()
+    sys.exit(app.exec_())

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'controlWidgets.ui'
 #
-# Created: Sun Dec 27 13:54:09 2015
+# Created: Mon Jan 11 15:51:50 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(720, 580)
+        MainWindow.resize(723, 595)
         MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
@@ -115,7 +115,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.SCF1 = QtGui.QWidget()
-        self.SCF1.setGeometry(QtCore.QRect(0, 0, 353, 574))
+        self.SCF1.setGeometry(QtCore.QRect(0, 0, 355, 589))
         self.SCF1.setStyleSheet(_fromUtf8(""))
         self.SCF1.setObjectName(_fromUtf8("SCF1"))
         self.gridLayout_6 = QtGui.QGridLayout(self.SCF1)
@@ -255,9 +255,28 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSpacing(5)
         self.verticalLayout_4.setContentsMargins(0, 5, 0, 0)
         self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
-        self.label_3 = QtGui.QLabel(self.frame_4)
+        self.frame = QtGui.QFrame(self.frame_4)
+        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setObjectName(_fromUtf8("frame"))
+        self.horizontalLayout = QtGui.QHBoxLayout(self.frame)
+        self.horizontalLayout.setSpacing(6)
+        self.horizontalLayout.setMargin(0)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.label_3 = QtGui.QLabel(self.frame)
         self.label_3.setObjectName(_fromUtf8("label_3"))
-        self.verticalLayout_4.addWidget(self.label_3)
+        self.horizontalLayout.addWidget(self.label_3)
+        self.commandLinkButton = QtGui.QCommandLinkButton(self.frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.commandLinkButton.sizePolicy().hasHeightForWidth())
+        self.commandLinkButton.setSizePolicy(sizePolicy)
+        self.commandLinkButton.setMinimumSize(QtCore.QSize(94, 0))
+        self.commandLinkButton.setMaximumSize(QtCore.QSize(30, 30))
+        self.commandLinkButton.setObjectName(_fromUtf8("commandLinkButton"))
+        self.horizontalLayout.addWidget(self.commandLinkButton)
+        self.verticalLayout_4.addWidget(self.frame)
         self.Frame_3 = QtGui.QFrame(self.frame_4)
         self.Frame_3.setProperty("PeripheralCollectionInner", _fromUtf8(""))
         self.Frame_3.setObjectName(_fromUtf8("Frame_3"))
@@ -549,6 +568,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.SINE2BOX, QtCore.SIGNAL(_fromUtf8("valueChanged(double)")), MainWindow.setSINE2)
         QtCore.QObject.connect(self.pushButton_4, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.setSinePhase)
         QtCore.QObject.connect(self.pushButton_6, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.setSQRS)
+        QtCore.QObject.connect(self.commandLinkButton, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.loadSineTable)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -567,6 +587,8 @@ class Ui_MainWindow(object):
         self.PVS1_LABEL.setText(_translate("MainWindow", "-5 to 5V", None))
         self.frame_4.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
         self.label_3.setText(_translate("MainWindow", " Waveform Generators", None))
+        self.commandLinkButton.setToolTip(_translate("MainWindow", "Edit the waveform table by setting a new function", None))
+        self.commandLinkButton.setText(_translate("MainWindow", "Edit", None))
         self.Frame_3.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.label_17.setText(_translate("MainWindow", "Wave 1", None))
         self.WAVE1_FREQ.setText(_translate("MainWindow", "10Hz to 5KHz", None))

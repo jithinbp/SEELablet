@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'template_experiments.ui'
 #
-# Created: Mon Dec 28 16:29:28 2015
+# Created: Sat Jan  9 23:35:18 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -246,7 +246,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "vLabtool: Control Panel", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "SEELablet: Control Panel", None))
         self.experimentFrameOuter.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
         self.label_4.setText(_translate("MainWindow", "Experiments", None))
         self.SCF1.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))

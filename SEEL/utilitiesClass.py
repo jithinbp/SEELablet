@@ -1,10 +1,22 @@
-import time,random,functools
+import time,random,functools,pkgutil,importlib,functools,pkg_resources
 import numpy as np
 
+import os
+os.environ['QT_API'] = 'pyqt'
+import sip
+sip.setapi("QString", 2)
+sip.setapi("QVariant", 2)
 
 from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
+from SEEL.templates.widgets import dial,button,selectAndButton
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
 
 #pg.setConfigOption('background', 'w')
 #pg.setConfigOption('foreground', 'k')
@@ -21,6 +33,7 @@ class utilitiesClass():
 	plots2D=[]
 	axisItems=[]
 	total_plot_areas=0
+	funcList=[]
 	def __init__(self):
 		pass
 
@@ -132,3 +145,99 @@ class utilitiesClass():
 
 	def displayDialog(self,txt=''):
 			QtGui.QMessageBox.about(self, 'Message',  txt)
+
+
+	class autogenControl:
+		def __init__(self,**kwargs):
+			self.TYPE = kwargs.get('TYPE','dial')
+			self.TITLE = kwargs.get('TITLE','TITLE')
+			self.UNITS = kwargs.get('UNITS','')
+			self.MAX = kwargs.get('MAX',100)
+			self.MIN = kwargs.get('MIN',0)
+			self.FUNC = kwargs.get('FUNC',None)
+			self.TOOLTIP = kwargs.get('TOOLTIP',None)
+			self.SCALE_FACTOR = kwargs.get('SCALE_FACTOR',1)
+			self.options = kwargs.get('OPTIONS',[])
+			self.LINK = kwargs.get('LINK',None)
+
+	class dialIcon(QtGui.QFrame,dial.Ui_Form):
+		def __init__(self,C):
+			super(utilitiesClass.dialIcon, self).__init__()
+			self.setupUi(self)
+			self.name = C.TITLE
+			self.title.setText(self.name)
+			self.func = C.FUNC
+			self.units = C.UNITS
+			self.scale = C.SCALE_FACTOR
+			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+
+			self.dial.setMinimum(C.MIN)
+			self.dial.setMaximum(C.MAX)
+			self.linkFunc = C.LINK
+
+		def setValue(self,val):
+			retval = self.func(val)
+			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			if self.linkFunc:
+				self.linkFunc(retval*self.scale,self.units)
+				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
+
+
+	class buttonIcon(QtGui.QFrame,button.Ui_Form):
+		def __init__(self,C):
+			super(utilitiesClass.buttonIcon, self).__init__()
+			self.setupUi(self)
+			self.name = C.TITLE
+			self.title.setText(self.name)
+			self.func = C.FUNC
+			self.units = C.UNITS
+			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+
+		def read(self):
+			retval = self.func()
+			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			else: self.value.setText('%.3e %s '%(retval,self.units))
+
+	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
+		def __init__(self,C):
+			super(utilitiesClass.selectAndButtonIcon, self).__init__()
+			self.setupUi(self)
+			self.name = C.TITLE
+			self.title.setText(self.name)
+			self.func = C.FUNC
+			self.units = C.UNITS
+			self.optionBox.addItems(C.options)
+			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+
+		def read(self):
+			retval = self.func(self.optionBox.currentText())
+			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			else: self.value.setText('%.3e %s '%(retval,self.units))
+
+	class experimentIcon(QtGui.QPushButton):
+		def __init__(self,name,launchfunc):
+			super(utilitiesClass.experimentIcon, self).__init__()
+			self.name = name
+			tmp = importlib.import_module('SEEL.apps.'+name)
+			self.setText(tmp.params.get('name',name))
+			self.func = launchfunc			
+			self.clicked.connect(self.func)
+			self.setMinimumHeight(70)
+			self.setMaximumWidth(170)
+			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.params.get('image','') ))))
+
+
+
+	class controlIcon(QtGui.QPushButton):
+		def __init__(self,name,launchfunc,**kwargs):
+			super(utilitiesClass.controlIcon, self).__init__()
+			self.name = name
+			tmp = importlib.import_module('SEEL.controls.'+name)
+			self.setText(tmp.params.get('name',name))
+			self.func = launchfunc
+			self.clicked.connect(self.func)
+			if 'tooltip' in kwargs:self.widgetFrameOuter.setToolTip(kwargs.get('tooltip',''))
+			self.setMinimumHeight(70)
+			self.setMinimumWidth(470)
+			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.controls', _fromUtf8(tmp.params.get('image','') ))))
+

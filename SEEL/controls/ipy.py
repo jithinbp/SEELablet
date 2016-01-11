@@ -115,23 +115,8 @@ class AppWindow(QtGui.QMainWindow, ipy.Ui_MainWindow):
 		print ('bye')
         		
 if __name__ == "__main__":
+	from SEEL import interface
 	app = QtGui.QApplication(sys.argv)
-
-	# Create and display the splash screen
-	#splash_pix = QtGui.QPixmap('cat.png')
-	#splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
-	#progressBar = QtGui.QProgressBar(splash)
-	#progressBar.setStyleSheet("""QProgressBar::chunk { width:100%;background: #112255; }""")
-	#splash.setMask(splash_pix.mask())
-	#splash.show()
-	#for i in range(0, 100):
-	#	progressBar.setValue(i)
-	#	t = time.time()
-	#	while time.time() < t + 0.001:
-	#		app.processEvents()
-	
-	myapp = MyMainWindow()
+	myapp = AppWindow(I=interface.connect())
 	myapp.show()
-	app.processEvents()
-	#splash.finish(myapp)
 	sys.exit(app.exec_())

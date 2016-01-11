@@ -2442,7 +2442,50 @@ class Interface():
         time.sleep(0.1)
         self.H.__get_ack__()
         
+    def load_waveform_table(self,num,points):
+        '''
+        Load an arbitrary waveform table to the waveform generators
         
+        .. tabularcolumns:: |p{3cm}|p{11cm}|
+        
+        ==============  ============================================================================================
+        **Arguments** 
+        ==============  ============================================================================================
+        num             The waveform generator to alter. 1 or 2
+        points          A list of 512 datapoints exactly
+        ==============  ============================================================================================
+        
+        example::
+          
+          >>> self.I.load_waveform_table(1,range(512))
+          #Load sawtooth wave to wavegen 1
+        '''
+
+        y1=np.array(points)
+        y1-=min(y1)
+        y1/=max(y1)
+        y1 = list(np.int16(np.round( 512 - 512*y1 )))
+
+        y2=np.array(points[::16])
+        y2-=min(y2)
+        y2/=max(y2)
+
+        y2 = list(np.int16(np.round( 64 - 64*y2 )))
+
+        print (len(y1),len(y2),min(y1),max(y1))
+
+        self.H.__sendByte__(WAVEGEN)
+        if(num==1):self.H.__sendByte__(LOAD_WAVEFORM1)
+        elif(num==2):self.H.__sendByte__(LOAD_WAVEFORM2)
+
+        for a in y1:
+            self.H.__sendInt__(a)
+            time.sleep(0.001)
+        for a in y2:
+            self.H.__sendByte__(Byte.pack(a))
+            time.sleep(0.001)
+        time.sleep(0.1)
+        self.H.__get_ack__()        
 
 
     def set_pvs1(self,val):
