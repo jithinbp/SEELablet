@@ -732,13 +732,13 @@ font-weight: bold;
               </property>
              </item>
             </widget>
-            <widget class="QLabel" name="label_48">
+            <widget class="QCheckBox" name="triggerBox">
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>10</y>
-               <width>141</width>
-               <height>21</height>
+               <y>1</y>
+               <width>131</width>
+               <height>31</height>
               </rect>
              </property>
              <property name="font">
@@ -751,6 +751,28 @@ font-weight: bold;
              </property>
              <property name="text">
               <string>TRIGGER</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="highresBox">
+             <property name="geometry">
+              <rect>
+               <x>280</x>
+               <y>0</y>
+               <width>20</width>
+               <height>22</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </widget>
@@ -1044,6 +1066,16 @@ font-weight: bold;
                <string>CH2</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>CH3</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>MIC</string>
+              </property>
+             </item>
             </widget>
             <widget class="QComboBox" name="Liss_y">
              <property name="geometry">
@@ -1065,6 +1097,16 @@ font-weight: bold;
              <item>
               <property name="text">
                <string>CH2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>CH3</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>MIC</string>
               </property>
              </item>
             </widget>

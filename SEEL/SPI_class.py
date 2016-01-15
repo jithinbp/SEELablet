@@ -74,7 +74,6 @@ class SPI():
             if state:self.H.__sendByte__(STOP_SPI)
             else:self.H.__sendByte__(START_SPI)
             self.H.__sendByte__(csnum)   
-            print (state, csnum)
         else: print('Channel does not exist')
         
     def stop(self,channel):

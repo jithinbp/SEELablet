@@ -248,6 +248,6 @@ class AppWindow(QtGui.QMainWindow, wirelessTemplate.Ui_MainWindow,utilitiesClass
 if __name__ == "__main__":
 	from SEEL import interface
 	app = QtGui.QApplication(sys.argv)
-	myapp = AppWindow(I=interface.connect(port = '/dev/ttyACM7'))
+	myapp = AppWindow(I=interface.connect())
 	myapp.show()
 	sys.exit(app.exec_())

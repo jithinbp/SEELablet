@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'selectAndButton.ui'
+# Form implementation generated from reading ui file 'setStateList.ui'
 #
-# Created: Mon Jan 11 20:20:07 2016
+# Created: Sat Jan 16 01:29:48 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName(_fromUtf8("Form"))
-        Form.resize(102, 105)
+        Form.resize(104, 105)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -44,8 +44,10 @@ class Ui_Form(object):
 "stop: 0 rgb(97, 146, 121), stop: 0.5 rgb(65, 89, 111));\n"
 "\n"
 "}\n"
-"QLabel {\n"
+"\n"
+"QLabel,QCheckBox {\n"
 "color: white;\n"
+"font-weight: bold;\n"
 "background:transparent;\n"
 "}\n"
 ""))
@@ -96,34 +98,35 @@ class Ui_Form(object):
         self.gridLayout_3.setHorizontalSpacing(0)
         self.gridLayout_3.setVerticalSpacing(2)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
-        self.optionBox = QtGui.QComboBox(self.ImageFrame)
-        self.optionBox.setObjectName(_fromUtf8("optionBox"))
-        self.gridLayout_3.addWidget(self.optionBox, 0, 0, 1, 1)
-        self.value = QtGui.QLabel(self.ImageFrame)
-        font = QtGui.QFont()
-        font.setPointSize(9)
-        font.setBold(True)
-        font.setWeight(75)
-        self.value.setFont(font)
-        self.value.setScaledContents(True)
-        self.value.setAlignment(QtCore.Qt.AlignCenter)
-        self.value.setObjectName(_fromUtf8("value"))
-        self.gridLayout_3.addWidget(self.value, 2, 0, 1, 1)
-        self.pushButton = QtGui.QPushButton(self.ImageFrame)
-        self.pushButton.setAutoRepeat(True)
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
-        self.gridLayout_3.addWidget(self.pushButton, 1, 0, 1, 1)
+        self.B1 = QtGui.QCheckBox(self.ImageFrame)
+        self.B1.setObjectName(_fromUtf8("B1"))
+        self.gridLayout_3.addWidget(self.B1, 0, 0, 1, 1)
+        self.B3 = QtGui.QCheckBox(self.ImageFrame)
+        self.B3.setObjectName(_fromUtf8("B3"))
+        self.gridLayout_3.addWidget(self.B3, 2, 0, 1, 1)
+        self.B4 = QtGui.QCheckBox(self.ImageFrame)
+        self.B4.setObjectName(_fromUtf8("B4"))
+        self.gridLayout_3.addWidget(self.B4, 3, 0, 1, 1)
+        self.B2 = QtGui.QCheckBox(self.ImageFrame)
+        self.B2.setObjectName(_fromUtf8("B2"))
+        self.gridLayout_3.addWidget(self.B2, 1, 0, 1, 1)
         self.verticalLayout_3.addWidget(self.ImageFrame)
         self.verticalLayout.addWidget(self.widgetFrameOuter)
 
         self.retranslateUi(Form)
-        QtCore.QObject.connect(self.pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), Form.read)
+        QtCore.QObject.connect(self.B1, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle1)
+        QtCore.QObject.connect(self.B2, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle2)
+        QtCore.QObject.connect(self.B3, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle3)
+        QtCore.QObject.connect(self.B4, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle4)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
+        self.widgetFrameOuter.setToolTip(_translate("Form", "Disable square waves and set them to High/Low", None))
         self.widgetFrameOuter.setProperty("class", _translate("Form", "PeripheralCollection", None))
-        self.title.setText(_translate("Form", "title", None))
-        self.value.setText(_translate("Form", "Result", None))
-        self.pushButton.setText(_translate("Form", "Read", None))
+        self.title.setText(_translate("Form", "Digital Outputs", None))
+        self.B1.setText(_translate("Form", "SQR1", None))
+        self.B3.setText(_translate("Form", "SQR3", None))
+        self.B4.setText(_translate("Form", "SQR4", None))
+        self.B2.setText(_translate("Form", "SQR2", None))
 

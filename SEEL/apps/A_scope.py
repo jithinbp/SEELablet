@@ -196,8 +196,12 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.channel_states[3]=d
 		
 		if self.active_channels:
-			self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10)
-			self.I.capture_traces(self.active_channels,self.samples,self.timebase,self.chan1remap,self.ch123sa)
+			if self.highresBox.isChecked():
+				self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=12)
+				self.I.capture_highres_traces(self.chan1remap,self.samples,self.timebase,trigger=self.triggerBox.isChecked())
+			else:
+				self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10)
+				self.I.capture_traces(self.active_channels,self.samples,self.timebase,self.chan1remap,self.ch123sa,trigger=self.triggerBox.isChecked())
 
 		self.timer.singleShot(self.samples*self.I.timebase*1e-3+10,self.update)
 

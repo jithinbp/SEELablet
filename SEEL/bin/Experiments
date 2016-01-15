@@ -88,6 +88,20 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
             self.updateSplash(30,'Connected. Loading Applications...')
             pass
 
+
+        self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
+        self.WidgetLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
+        self.advancedControlsLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
+
+        self.supplySection = self.supplyWidget(self.I)
+        self.advancedControlsLayout.addWidget(self.supplySection)
+        self.sineSection = self.sineWidget(self.I)
+        self.advancedControlsLayout.addWidget(self.sineSection)
+        self.pwmSection = self.pwmWidget(self.I)
+        self.advancedControlsLayout.addWidget(self.pwmSection)
+        
+
+
         self.funcs=[]
         self.shortlist=[]
         apps = [name for _, name, _ in pkgutil.iter_modules([os.path.dirname(APPS.__file__)])]
@@ -95,7 +109,6 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
         
         print (apps,controls)
         row=0;col=0;colLimit=3
-        self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
 
         for app in apps:
             if(col==colLimit):
@@ -132,48 +145,54 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
 
         row=0;col=0;colLimit=3
         self.funcs=[]
-        self.WidgetLayout.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
 
         autogenControls=[]
-        autogenControls.append(self.autogenControl(TITLE='Wave 1',MIN=10,MAX=5000,FUNC=self.I.set_sine1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #1',LINK=self.updateWAVE1_FREQ))
-        autogenControls.append(self.autogenControl(TITLE='Wave 2',MIN=10,MAX=5000,FUNC=self.I.set_sine2,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #2',LINK=self.updateWAVE2_FREQ))
-        autogenControls.append(self.autogenControl(TITLE='square 1',MIN=10,MAX=50000,FUNC=self.I.sqr1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of square wave generator #1'))
+        autogenControls.append({'TITLE':'Wave 1','MIN':1,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1','LINK':self.updateWAVE1_FREQ})
+        autogenControls.append({'TITLE':'Wave 2','MIN':1,'MAX':5000,'FUNC':self.I.set_sine2,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #2','LINK':self.updateWAVE2_FREQ})
+        autogenControls.append({'TITLE':'square 1','MIN':10,'MAX':50000,'FUNC':self.I.sqr1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of square wave generator #1'})
 
         tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS1')
-        autogenControls.append(self.autogenControl(TITLE='PVS1',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS1_LABEL))
+        autogenControls.append({'TITLE':'PVS1','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS1_LABEL})
 
         tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS2')
-        autogenControls.append(self.autogenControl(TITLE='PVS2',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS2_LABEL))
+        autogenControls.append({'TITLE':'PVS2','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS2_LABEL})
 
         tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS3')
-        autogenControls.append(self.autogenControl(TITLE='PVS3',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='V',TOOLTIP='Programmable Voltage Source ',LINK=self.updatePVS3_LABEL))
+        autogenControls.append({'TITLE':'PVS3','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS3_LABEL})
 
         tmpfunc = lambda x: self.I.DAC.__setRawVoltage__('PCS',4095-x)
-        autogenControls.append(self.autogenControl(TITLE='PCS',MIN=0,MAX=4095,FUNC=tmpfunc,TYPE='dial',UNITS='mA',TOOLTIP='Programmable Current Source ',SCALE_FACTOR = 1e3,LINK=self.updatePCS_LABEL))
+        autogenControls.append({'TITLE':'PCS','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'mA','TOOLTIP':'Programmable Current Source ','SCALE_FACTOR' : 1e3,'LINK':self.updatePCS_LABEL})
 
-        autogenControls.append(self.autogenControl(TITLE='CAPACITANCE',FUNC=self.I.get_capacitance,TYPE='button',UNITS='F',TOOLTIP='Read Capacitance connected to CAP input '))
+        autogenControls.append({'TITLE':'CAPACITANCE','FUNC':self.I.get_capacitance,'TYPE':'button','UNITS':'F','TOOLTIP':'Read Capacitance connected to CAP input '})
 
         tmpfunc = functools.partial(self.I.get_average_voltage,samples=100)
-        autogenControls.append(self.autogenControl(TITLE='VOLTMETER',FUNC=tmpfunc,TYPE='selectButton',UNITS='V',TOOLTIP='Voltmeter',OPTIONS=self.I.allAnalogChannels))
-        autogenControls.append(self.autogenControl(TITLE='Low Frequency',FUNC=self.I.get_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequency. Minimum 40Hz',OPTIONS=self.I.allDigitalChannels))
-        autogenControls.append(self.autogenControl(TITLE='High Frequency',FUNC=self.I.get_high_freq,TYPE='selectButton',UNITS='Hz',TOOLTIP='Measure Frequencies over 1MHz with 10Hz resolution',OPTIONS=self.I.allDigitalChannels))
+        autogenControls.append({'TITLE':'VOLTMETER','FUNC':tmpfunc,'TYPE':'selectButton','UNITS':'V','TOOLTIP':'Voltmeter','OPTIONS':self.I.allAnalogChannels})
+        autogenControls.append({'TITLE':'Low Frequency','FUNC':self.I.get_freq,'TYPE':'selectButton','UNITS':'Hz','TOOLTIP':'Measure Frequency. Minimum 40Hz','OPTIONS':self.I.allDigitalChannels})
+        autogenControls.append({'TITLE':'High Frequency','FUNC':self.I.get_high_freq,'TYPE':'selectButton','UNITS':'Hz','TOOLTIP':'Measure Frequencies over 1MHz with 10Hz resolution','OPTIONS':self.I.allDigitalChannels})
+
+        autogenControls.append({'TITLE':'SR-04 Distance','FUNC':self.I.estimateDistance,'TYPE':'button','UNITS':'m','TOOLTIP':'Measure Distance using an HCSR04 sensor. TRIG-SQR1  , ECHO-ID1'})
+
         self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
 
         for C in autogenControls:
-            if C.TYPE=='dial':
-                self.funcs.append(C.FUNC)
-                self.WidgetLayout.addWidget(self.dialIcon(C),row,col)
-            elif C.TYPE=='button':
-                self.funcs.append(C.FUNC)
-                self.WidgetLayout.addWidget(self.buttonIcon(C),row,col)
-            elif C.TYPE=='selectButton':
-                self.funcs.append(C.FUNC)
-                self.WidgetLayout.addWidget(self.selectAndButtonIcon(C),row,col)
+            if C['TYPE']=='dial':
+                self.funcs.append(C.get('FUNC',None))
+                self.WidgetLayout.addWidget(self.dialIcon(**C),row,col)
+            elif C['TYPE']=='button':
+                self.funcs.append(C.get('FUNC',None))
+                self.WidgetLayout.addWidget(self.buttonIcon(**C),row,col)
+            elif C['TYPE']=='selectButton':
+                self.funcs.append(C.get('FUNC',None))
+                self.WidgetLayout.addWidget(self.selectAndButtonIcon(**C),row,col)
 
             col+=1
             if(col==colLimit):
                 col=0;row+=1
-                
+
+        self.WidgetLayout.addWidget(self.setStateIcon(I=self.I),row,col)
+        col+=1
+        if(col==colLimit):
+                col=0;row+=1
 
         self.menu_entries=[]
         self.menu_group=None
@@ -357,67 +376,20 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
             pass
         print ('bye')
 
-    ############################Section for setting up control widgets#################################
+    ############################Section for correlating control widgets#################################
     
-        
-    def setPVS1(self,val):
-        val=self.I.DAC.setVoltage('PVS1',val)
-        self.PVS1_LABEL.setText('%.3f V'%(val))
-
-    def setPVS2(self,val):
-        val=self.I.DAC.setVoltage('PVS2',val)
-        self.PVS2_LABEL.setText('%.3f V'%(val))
-
-    def setPVS3(self,val):
-        val=self.I.DAC.setVoltage('PVS3',val)
-        self.PVS3_LABEL.setText('%.3f V'%(val))
-
-    def setPCS(self,val):
-        val=3.3e-3-self.I.DAC.setVoltage('PCS',val/1.e3)
-        self.PCS_LABEL.setText('%.3f mA'%(val*1e3))
-
-    def setSINE1(self,val):
-        f=self.I.set_sine1(val)
-        self.WAVE1_FREQ.setText('%.2f'%(f))
-
-    def setSINE2(self,val):
-        f=self.I.set_sine2(val)
-        self.WAVE2_FREQ.setText('%.2f'%(f))
-
-    def setSinePhase(self):
-        freq1 = self.SINE1BOX.value()
-        freq2 = self.SINE2BOX.value()
-        phase = self.SINEPHASE.value()
-        f=self.I.set_sine_phase(freq1,phase,freq2)
-        self.WAVE1_FREQ.setText('%.2f'%(f))
-        self.WAVE2_FREQ.setText('%.2f'%(f))
-
-
-    def setSQRS(self):
-        P2=self.SQR2P.value()/360.
-        P3=self.SQR3P.value()/360.
-        P4=self.SQR4P.value()/360.
-        D1=self.SQR1DC.value()
-        D2=self.SQR2DC.value()
-        D3=self.SQR3DC.value()
-        D4=self.SQR4DC.value()
-        
-        self.I.sqr4_continuous(self.SQRSF.value(),D1,P2,D2,P3,D3,P4,D4)
-
-
     def updateWAVE1_FREQ(self,value,units=''):
-        self.WAVE1_FREQ.setText('%.3f %s '%(value,units))
+        self.sineSection.WAVE1_FREQ.setText('%.3f %s '%(value,units))
     def updateWAVE2_FREQ(self,value,units=''):
-        self.WAVE2_FREQ.setText('%.3f %s '%(value,units))
+        self.sineSection.WAVE2_FREQ.setText('%.3f %s '%(value,units))
     def updatePVS1_LABEL(self,value,units=''):
-        self.PVS1_LABEL.setText('%.3f %s '%(value,units))
+        self.supplySection.PVS1_LABEL.setText('%.3f %s '%(value,units))
     def updatePVS2_LABEL(self,value,units=''):
-        self.PVS2_LABEL.setText('%.3f %s '%(value,units))
+        self.supplySection.PVS2_LABEL.setText('%.3f %s '%(value,units))
     def updatePVS3_LABEL(self,value,units=''):
-        self.PVS3_LABEL.setText('%.3f %s '%(value,units))
+        self.supplySection.PVS3_LABEL.setText('%.3f %s '%(value,units))
     def updatePCS_LABEL(self,value,units=''):
-        self.PCS_LABEL.setText('%.3f %s '%(value,units))
-
+        self.supplySection.PCS_LABEL.setText('%.3f %s '%(value,units))
 
     def measure_dcycle(self):
         inp = self.timing_input.currentText()
@@ -430,10 +402,6 @@ class MyMainWindow(QtGui.QMainWindow, single_col_exp.Ui_MainWindow,utilitiesClas
         t = self.I.MeasureInterval(self.edge1chan.currentText(),self.edge2chan.currentText(),self.edge1edge.currentText(),self.edge2edge.currentText())
         self.time_interval_label.setText('time: %.2e S'%(t))
     
-    def loadSineTable(self):
-        self.launchFunc('SEEL.utilityApps.loadSineTable')
-
-                
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     myapp = MyMainWindow(app=app)

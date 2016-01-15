@@ -26,7 +26,7 @@ class HMC5883L():
 	#--------------Parameters--------------------
 	#This must be defined in order to let GUIs automatically create menus
 	#for changing various options of this sensor
-	#It's a dictionary of the string represetations of functions matched with an array
+	#It's a dictionary of the string representations of functions matched with an array
 	#of options that each one can accept
 	params={	'init':['Now'],
 	'setSamplesToAverage':samplesToAverage_choices,
@@ -49,7 +49,7 @@ class HMC5883L():
 		'''
 		self.init('')
 
-	def init(self,dummy_variable_to_circumvent_framework_limitation):
+	def init(self,dummy_variable_to_circumvent_framework_limitation):  # I know how to fix this now. remind me.
 		self.__writeCONFA__()
 		self.__writeCONFB__()
 		self.I2C.writeBulk(self.ADDRESS,[self.MODE,0]) #enable continuous measurement mode
@@ -86,3 +86,17 @@ class HMC5883L():
 		else:
 			return False
 		
+
+if __name__ == "__main__":
+ from SEEL import interface
+ I= interface.connect()
+ I.set_sine1(.5)
+ A = connect(I.I2C) 
+ A.setGain(2)
+ t,x,y,z = I.I2C.capture(A.ADDRESS,0x03,6,400,10000,'int') 
+ #print (t,x,y,z)
+ from pylab import *
+ plot(t,x)
+ plot(t,y)
+ plot(t,z)
+ show()

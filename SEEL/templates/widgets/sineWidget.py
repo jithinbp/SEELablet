@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sineWidget.ui'
 #
-# Created: Mon Jan 11 16:19:55 2016
+# Created: Thu Jan 14 10:15:39 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,7 +102,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SINE1BOX.sizePolicy().hasHeightForWidth())
         self.SINE1BOX.setSizePolicy(sizePolicy)
-        self.SINE1BOX.setMinimum(5.0)
+        self.SINE1BOX.setMinimum(0.2)
         self.SINE1BOX.setMaximum(5000.0)
         self.SINE1BOX.setProperty("value", 500.0)
         self.SINE1BOX.setObjectName(_fromUtf8("SINE1BOX"))
@@ -132,7 +132,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SINE2BOX.sizePolicy().hasHeightForWidth())
         self.SINE2BOX.setSizePolicy(sizePolicy)
-        self.SINE2BOX.setMinimum(5.0)
+        self.SINE2BOX.setMinimum(0.2)
         self.SINE2BOX.setMaximum(5000.0)
         self.SINE2BOX.setProperty("value", 500.0)
         self.SINE2BOX.setObjectName(_fromUtf8("SINE2BOX"))

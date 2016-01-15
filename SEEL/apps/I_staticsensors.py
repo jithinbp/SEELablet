@@ -14,14 +14,14 @@ Currently Supports:\n
 
 '''
 from __future__ import print_function
-from SEEL.templates import sensorGrid
 
+from SEEL.utilitiesClass import utilitiesClass
 from SEEL.SENSORS.supported import supported
 from SEEL.sensorlist import sensors as sensorHints
 from SEEL.templates.widgets import sensorWidget
+from SEEL.templates import sensorGrid
 
 
-from SEEL.utilitiesClass import utilitiesClass
 import pyqtgraph as pg
 import time,random,functools,sys
 import numpy as np
@@ -100,6 +100,7 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 		for a in self.sensorWidgets:
 			a.setParent(None)
 		self.sensorWidgets=[]
+		print (lst)
 		
 		row=0;col=0;colLimit=3
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
@@ -130,6 +131,6 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 if __name__ == "__main__":
 	from SEEL import interface
 	app = QtGui.QApplication(sys.argv)
-	myapp = AppWindow(I=interface.connect(port = '/dev/ttyACM7'))
+	myapp = AppWindow(I=interface.connect())
 	myapp.show()
 	sys.exit(app.exec_())

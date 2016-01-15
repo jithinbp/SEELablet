@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'analogScope.ui'
 #
-# Created: Sat Jan  9 23:35:18 2016
+# Created: Thu Jan 14 19:50:33 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -302,15 +302,21 @@ class Ui_MainWindow(object):
         self.trigger_select_box.addItem(_fromUtf8(""))
         self.trigger_select_box.addItem(_fromUtf8(""))
         self.trigger_select_box.addItem(_fromUtf8(""))
-        self.label_48 = QtGui.QLabel(self.frame)
-        self.label_48.setGeometry(QtCore.QRect(10, 10, 141, 21))
+        self.triggerBox = QtGui.QCheckBox(self.frame)
+        self.triggerBox.setGeometry(QtCore.QRect(10, 1, 131, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
         font.setItalic(True)
         font.setWeight(75)
-        self.label_48.setFont(font)
-        self.label_48.setObjectName(_fromUtf8("label_48"))
+        self.triggerBox.setFont(font)
+        self.triggerBox.setChecked(True)
+        self.triggerBox.setObjectName(_fromUtf8("triggerBox"))
+        self.highresBox = QtGui.QCheckBox(self.frame)
+        self.highresBox.setGeometry(QtCore.QRect(280, 0, 20, 22))
+        self.highresBox.setMaximumSize(QtCore.QSize(20, 16777215))
+        self.highresBox.setText(_fromUtf8(""))
+        self.highresBox.setObjectName(_fromUtf8("highresBox"))
         self.verticalLayout_2.addWidget(self.frame)
         self.label_2 = QtGui.QLabel(self.frame_4)
         font = QtGui.QFont()
@@ -536,7 +542,7 @@ class Ui_MainWindow(object):
         self.trigger_select_box.setItemText(1, _translate("MainWindow", "CH2", None))
         self.trigger_select_box.setItemText(2, _translate("MainWindow", "CH3", None))
         self.trigger_select_box.setItemText(3, _translate("MainWindow", "MIC", None))
-        self.label_48.setText(_translate("MainWindow", "TRIGGER", None))
+        self.triggerBox.setText(_translate("MainWindow", "TRIGGER", None))
         self.label_2.setText(_translate("MainWindow", "Data Analysis", None))
         self.frame_6.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.fit_select_box.setItemText(0, _translate("MainWindow", "CH1", None))

@@ -68,12 +68,8 @@ class NRF24L01():
 	NODELIST_MAXLENGTH=15
 	def __init__(self,H):
 		self.H = H
-		self.init()
-		self.selectAddress(self.CURRENT_ADDRESS)
-		#self.write_register(self.RF_SETUP,0x06)
-		self.rxmode()
-		time.sleep(0.1)
-		self.flush()
+		if self.H.connected:
+				self.init()
 	"""
 	routines for the NRFL01 radio
 	"""
@@ -82,6 +78,11 @@ class NRF24L01():
 		self.H.__sendByte__(NRF_SETUP)
 		self.H.__get_ack__()
 		time.sleep(0.015) #15 mS settling time
+		self.selectAddress(self.CURRENT_ADDRESS)
+		#self.write_register(self.RF_SETUP,0x06)
+		self.rxmode()
+		time.sleep(0.1)
+		self.flush()
 		
 	def rxmode(self):
 		'''

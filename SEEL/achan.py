@@ -1,7 +1,5 @@
 from __future__ import print_function
 import numpy as np
-TEN_BIT=10
-TWELVE_BIT=12
 gains=[1,2,4,5,8,10,16,32]
 
 #-----------------------Classes for input sources----------------------
@@ -152,7 +150,7 @@ class analogAcquisitionChannel:
 		self.channel_names=allAnalogChannels
 		#REFERENCE VOLTAGE = 3.3 V
 		self.calibration_ref196=1.#measured reference voltage/3.3
-		self.resolution=TEN_BIT
+		self.resolution=10
 		self.xaxis=np.zeros(10000)
 		self.yaxis=np.zeros(10000)
 		self.length=100
@@ -162,7 +160,8 @@ class analogAcquisitionChannel:
 	def fix_value(self,val):
 		#val[val>1020]=np.NaN
 		#val[val<2]=np.NaN
-		if self.resolution==TWELVE_BIT:return self.calibration_ref196*self.source.calPoly12(val)
+		if self.resolution==12:
+			return self.calibration_ref196*self.source.calPoly12(val)
 		else:return self.calibration_ref196*self.source.calPoly10(val)
 
 	def set_yval(self,pos,val):

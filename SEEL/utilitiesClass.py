@@ -10,7 +10,7 @@ sip.setapi("QVariant", 2)
 from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
-from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget
+from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget,pwmWidget,supplyWidget,setStateList
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -146,34 +146,21 @@ class utilitiesClass():
 	def displayDialog(self,txt=''):
 			QtGui.QMessageBox.about(self, 'Message',  txt)
 
-
-	class autogenControl:
-		def __init__(self,**kwargs):
-			self.TYPE = kwargs.get('TYPE','dial')
-			self.TITLE = kwargs.get('TITLE','TITLE')
-			self.UNITS = kwargs.get('UNITS','')
-			self.MAX = kwargs.get('MAX',100)
-			self.MIN = kwargs.get('MIN',0)
-			self.FUNC = kwargs.get('FUNC',None)
-			self.TOOLTIP = kwargs.get('TOOLTIP',None)
-			self.SCALE_FACTOR = kwargs.get('SCALE_FACTOR',1)
-			self.options = kwargs.get('OPTIONS',[])
-			self.LINK = kwargs.get('LINK',None)
-
 	class dialIcon(QtGui.QFrame,dial.Ui_Form):
-		def __init__(self,C):
+		def __init__(self,**args):
 			super(utilitiesClass.dialIcon, self).__init__()
 			self.setupUi(self)
-			self.name = C.TITLE
+			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			self.scale = C.SCALE_FACTOR
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+			self.func = args.get('FUNC',None)
+			self.units = args.get('UNITS','')
+			if 'TOOLTIP' in args:self.widgetFrameOuter.setToolTip(args.get('TOOLTIP',''))
 
-			self.dial.setMinimum(C.MIN)
-			self.dial.setMaximum(C.MAX)
-			self.linkFunc = C.LINK
+			self.scale = args.get('SCALE_FACTOR',1)
+
+			self.dial.setMinimum(args.get('MIN',0))
+			self.dial.setMaximum(args.get('MAX',100))
+			self.linkFunc = args.get('LINK',None)
 
 		def setValue(self,val):
 			retval = self.func(val)
@@ -184,14 +171,15 @@ class utilitiesClass():
 
 
 	class buttonIcon(QtGui.QFrame,button.Ui_Form):
-		def __init__(self,C):
+		def __init__(self,**args):
 			super(utilitiesClass.buttonIcon, self).__init__()
 			self.setupUi(self)
-			self.name = C.TITLE
+			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+			self.func = args.get('FUNC',None)
+			self.units = args.get('UNITS','')
+			if 'TOOLTIP' in args:self.widgetFrameOuter.setToolTip(args.get('TOOLTIP',''))
+
 
 		def read(self):
 			retval = self.func()
@@ -199,15 +187,15 @@ class utilitiesClass():
 			else: self.value.setText('%.3e %s '%(retval,self.units))
 
 	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
-		def __init__(self,C):
+		def __init__(self,**args):
 			super(utilitiesClass.selectAndButtonIcon, self).__init__()
 			self.setupUi(self)
-			self.name = C.TITLE
+			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
-			self.func = C.FUNC
-			self.units = C.UNITS
-			self.optionBox.addItems(C.options)
-			if C.TOOLTIP:self.widgetFrameOuter.setToolTip(C.TOOLTIP)
+			self.func = args.get('FUNC',None)
+			self.units = args.get('UNITS','')
+			self.optionBox.addItems(args.get('OPTIONS',[]))
+			if 'TOOLTIP' in args:self.widgetFrameOuter.setToolTip(args.get('TOOLTIP',''))
 
 		def read(self):
 			retval = self.func(self.optionBox.currentText())
@@ -271,5 +259,63 @@ class utilitiesClass():
 			f=self.I.set_sine_phase(freq1,phase,freq2)
 			self.WAVE1_FREQ.setText('%.2f'%(f))
 			self.WAVE2_FREQ.setText('%.2f'%(f))
+
+
+
+	class pwmWidget(QtGui.QWidget,pwmWidget.Ui_Form):
+		def __init__(self,I):
+			super(utilitiesClass.pwmWidget, self).__init__()
+			self.setupUi(self)
+			self.I = I
+
+		def setSQRS(self):
+			P2=self.SQR2P.value()/360.
+			P3=self.SQR3P.value()/360.
+			P4=self.SQR4P.value()/360.
+			D1=self.SQR1DC.value()
+			D2=self.SQR2DC.value()
+			D3=self.SQR3DC.value()
+			D4=self.SQR4DC.value()
+			
+			self.I.sqr4_continuous(self.SQRSF.value(),D1,P2,D2,P3,D3,P4,D4)
+
+	class supplyWidget(QtGui.QWidget,supplyWidget.Ui_Form):
+		def __init__(self,I):
+			super(utilitiesClass.supplyWidget, self).__init__()
+			self.setupUi(self)
+			self.I = I
+
+		def setPVS1(self,val):
+			val=self.I.DAC.setVoltage('PVS1',val)
+			self.PVS1_LABEL.setText('%.3f V'%(val))
+
+		def setPVS2(self,val):
+			val=self.I.DAC.setVoltage('PVS2',val)
+			self.PVS2_LABEL.setText('%.3f V'%(val))
+
+		def setPVS3(self,val):
+			val=self.I.DAC.setVoltage('PVS3',val)
+			self.PVS3_LABEL.setText('%.3f V'%(val))
+
+		def setPCS(self,val):
+			val=3.3e-3-self.I.DAC.setVoltage('PCS',val/1.e3)
+			self.PCS_LABEL.setText('%.3f mA'%(val*1e3))
+
+
+	class setStateIcon(QtGui.QFrame,setStateList.Ui_Form):
+		def __init__(self,**args):
+			super(utilitiesClass.setStateIcon, self).__init__()
+			self.setupUi(self)
+			self.I = args.get('I',None)
+		def toggle1(self,state):
+			self.I.set_state(SQR1 = state)
+		def toggle2(self,state):
+			self.I.set_state(SQR2 = state)
+		def toggle3(self,state):
+			self.I.set_state(SQR3 = state)
+		def toggle4(self,state):
+			self.I.set_state(SQR4 = state)
+
+
 
 

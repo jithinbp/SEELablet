@@ -120,3 +120,14 @@ class MPU6050():
 		az=int16(vals[4]<<8|vals[5])
 		return [ax/65535.,ay/65535.,az/65535.]
 		
+if __name__ == "__main__":
+ from SEEL import interface
+ I= interface.connect()
+ A = connect(I.I2C) 
+ t,x,y,z = I.I2C.capture(A.ADDRESS,0x43,6,5000,1000,'int') 
+ #print (t,x,y,z)
+ from pylab import *
+ plot(t,x)
+ plot(t,y)
+ plot(t,z)
+ show()

@@ -106,14 +106,14 @@ class Interface():
 
         self.BAUD = 1000000
         self.timebase = 40
-        self.MAX_SAMPLES = 10000
+        self.MAX_SAMPLES = MAX_SAMPLES
         self.samples=self.MAX_SAMPLES
         self.triggerLevel=550
         self.triggerChannel = 0
         self.error_count=0
         self.channels_in_buffer=0
         self.digital_channels_in_buffer=0
-        self.data_splitting = kwargs.get('data_splitting',500)
+        self.data_splitting = kwargs.get('data_splitting',DATA_SPLITTING)
         self.allAnalogChannels=allAnalogChannels
         self.analogInputSources={}
         for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
@@ -127,12 +127,33 @@ class Interface():
         self.connected = self.H.connected
         if not self.H.connected:
             print ('Check hardware connections. Not connected')
-            return          
-        self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
-        
 
-        #-------Check for calibration data. And process them if found---------------
-        if kwargs.get('load_calibration',True):
+        self.streaming=False
+        self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]        
+        self.gain_values=[1,2,4,5,8,10,16,32]
+        self.buff=np.zeros(10000)
+        self.SOCKET_CAPACITANCE = 42e-12
+
+        self.digital_channel_names=['ID1','ID2','ID3','ID4','-','CH1','Fin']
+        self.allDigitalChannels = ['ID1','ID2','ID3','ID4','Fin']
+        #This array of four instances of digital_channel is used to store data retrieved from the
+        #logic analyzer section of the device.  It also contains methods to generate plottable data
+        #from the original timestamp arrays.
+        self.dchans=[digital_channel(a) for a in range(4)]
+
+        self.I2C = I2C_class.I2C(self.H)
+        #self.I2C.pullSCLLow(5000)        
+        self.SPI = SPI_class.SPI(self.H)        
+        if self.H.connected:
+            for a in ['CH1','CH2']: self.set_gain(a,0)
+            self.SPI.set_parameters(1,7,1,0)
+        
+        self.NRF = NRF24L01_class.NRF24L01(self.H)
+
+
+        self.DAC = MCP4728_class.MCP4728(self.H,3.3,0)
+        #-------Check for calibration data if connected. And process them if found---------------
+        if kwargs.get('load_calibration',True) and self.H.connected:
             polynomials = self.read_bulk_flash(self.ADC_POLYNOMIALS_LOCATION,2048)
             polyDict={}
             if polynomials[:8]=='VLABTOOL':
@@ -185,29 +206,6 @@ class Interface():
                 self.__print__( polynomials.split('>|')[0])
                 
         
-        self.digital_channel_names=['ID1','ID2','ID3','ID4','-','CH1','Fin']
-        self.allDigitalChannels = ['ID1','ID2','ID3','ID4','Fin']
-        self.dchans=[digital_channel(a) for a in range(4)]
-        #This array of four instances of digital_channel is used to store data retrieved from the
-        #logic analyzer section of the device.  It also contains methods to generate plottable data
-        #from the original timestamp arrays.
-        
-        self.streaming=False
-        self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]
-        
-        self.gain_values=[1,2,4,5,8,10,16,32]
-        self.buff=np.zeros(10000)
-
-        self.I2C = I2C_class.I2C(self.H)
-        #self.I2C.pullSCLLow(5000)
-        
-        self.SPI = SPI_class.SPI(self.H)
-        
-        self.SPI.set_parameters(1,7,1,0)
-        self.NRF = NRF24L01_class.NRF24L01(self.H)
-
-        for a in ['CH1','CH2']: self.set_gain(a,0)
-        self.SOCKET_CAPACITANCE = 42e-12
         time.sleep(0.001)
 
 
@@ -507,9 +505,7 @@ class Interface():
     
         """
         self.__capture_fullspeed__(chan,samples,tg,*args)
-        self.__print__( 'wait')
         time.sleep(1e-6*samples*tg+.01)
-        self.__print__( 'done')
         return self.__retrieveBufferData__(chan,samples,tg)
 
     def __capture_fullspeed__(self,chan,samples,tg,*args):
@@ -606,7 +602,7 @@ class Interface():
                 * Connect CH1 to the spare leg of the inductor. Also Connect OD1 to this point
                 * Connect CH2 to the junction between the capacitor and the inductor
                 * connect the spare leg of the capacitor to GND( ground )
-                * set OD1 initially high using set_state(OD1=1)
+                * set OD1 initially high using set_state(SQR1=1)
 
             ::
 
@@ -649,7 +645,7 @@ class Interface():
             if(self.timebase<1.5):self.timebase=int(1.5*8)/8.
             if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
 
-            self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=TEN_BIT,source=self.analogInputSources[channel_one_input])
+            self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
             self.H.__sendByte__(CAPTURE_ONE)        #read 1 channel
             self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
 
@@ -657,8 +653,8 @@ class Interface():
             if(self.timebase<1.75):self.timebase=int(1.75*8)/8.
             if(samples>self.MAX_SAMPLES/2):samples=self.MAX_SAMPLES/2
 
-            self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=TEN_BIT,source=self.analogInputSources[channel_one_input])
-            self.achans[1].set_params(channel='CH2',length=samples,timebase=self.timebase,resolution=TEN_BIT,source=self.analogInputSources['CH2'])
+            self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
+            self.achans[1].set_params(channel='CH2',length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources['CH2'])
             
             self.H.__sendByte__(CAPTURE_TWO)            #capture 2 channels
             self.H.__sendByte__(CHOSA|triggerornot)             #channel 0 number
@@ -668,12 +664,12 @@ class Interface():
             if(samples>self.MAX_SAMPLES/4):samples=self.MAX_SAMPLES/4
 
             self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,\
-            resolution=TEN_BIT,source=self.analogInputSources[channel_one_input])
+            resolution=10,source=self.analogInputSources[channel_one_input])
 
             for a in range(1,4):
                 chans=['NONE','CH2','CH3','MIC']
                 self.achans[a].set_params(channel=chans[a],length=samples,timebase=self.timebase,\
-                resolution=TEN_BIT,source=self.analogInputSources[chans[a]])
+                resolution=10,source=self.analogInputSources[chans[a]])
             
             self.H.__sendByte__(CAPTURE_FOUR)           #read 4 channels
             self.H.__sendByte__(CHOSA|(CH123SA<<4)|triggerornot)        #channel number
@@ -717,7 +713,7 @@ class Interface():
         CHOSA = self.analogInputSources[channel].CHOSA
         if(self.timebase<2.8):self.timebase=2.8
         if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
-        self.achans[0].set_params(channel=channel,length=samples,timebase=self.timebase,resolution=TWELVE_BIT,source=self.analogInputSources[channel])
+        self.achans[0].set_params(channel=channel,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
 
         self.H.__sendByte__(CAPTURE_12BIT)          #read 1 channel
         self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
@@ -895,7 +891,7 @@ class Interface():
         self.H.__sendByte__(1<<chan)    #Trigger channel
         
         if resolution==12:
-            level = self.analogInputSources[name].voltToCode10(voltage)
+            level = self.analogInputSources[name].voltToCode12(voltage)
             level = np.clip(level,0,4095)
         else:
             level = self.analogInputSources[name].voltToCode10(voltage)
@@ -1070,7 +1066,7 @@ class Interface():
         experimental feature. Attempt to use fewer timers
         """
         self.H.__sendByte__(COMMON)
-        self.H.__sendByte__(20)
+        self.H.__sendByte__(GET_ALTERNATE_HIGH_FREQUENCY)
         self.H.__sendByte__(self.__calcDChan__(pin))
         scale=self.H.__getByte__()
         val = self.H.__getLong__()
@@ -2265,7 +2261,7 @@ class Interface():
         
         :return: frequency
         """
-        if freq<5:
+        if freq<0.1:
             print ('freq too low')
             return 0        
         elif freq<1100:
@@ -2275,12 +2271,23 @@ class Interface():
             HIGHRES=0
             table_size = 32
 
-        wavelength = int(round(64e6/freq/table_size))
-        freq = (64e6/wavelength/table_size)
+
+        p=[1,8,64,256]
+        prescaler=0
+        while prescaler<=3:
+            wavelength = int(round(64e6/freq/p[prescaler]/table_size))
+            freq = (64e6/wavelength/p[prescaler]/table_size)
+            if wavelength<65525: break
+            prescaler+=1
+        if prescaler==4:
+            print ('out of range')
+            return 0
+
+
 
         self.H.__sendByte__(WAVEGEN)
         self.H.__sendByte__(SET_SINE1)
-        self.H.__sendByte__(HIGHRES)    #use larger table for low frequencies
+        self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
         self.H.__sendInt__(wavelength-1)        
         self.H.__get_ack__()
         return freq
@@ -2301,7 +2308,7 @@ class Interface():
         
         :return: frequency
         """
-        if freq<5:
+        if freq<0.1:
             print ('freq too low')
             return 0        
         elif freq<1100:
@@ -2311,12 +2318,21 @@ class Interface():
             HIGHRES=0
             table_size = 32
 
-        wavelength = int(round(64.e6/freq/table_size))
-        freq = 64.e6/wavelength/table_size
+
+        p=[1,8,64,256]
+        prescaler=0
+        while prescaler<=3:
+            wavelength = int(round(64e6/freq/p[prescaler]/table_size))
+            freq = (64e6/wavelength/p[prescaler]/table_size)
+            if wavelength<65525: break
+            prescaler+=1
+        if prescaler==4:
+            print ('out of range')
+            return 0
 
         self.H.__sendByte__(WAVEGEN)
         self.H.__sendByte__(SET_SINE2)
-        self.H.__sendByte__(HIGHRES)    #use larger table for low frequencies
+        self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
         self.H.__sendInt__(wavelength-1)        
         self.H.__get_ack__()
 
@@ -2343,7 +2359,7 @@ class Interface():
         else:
             freq2 = freq
 
-        if freq<5:
+        if freq<0.1:
             print ('freq1 too low')
             return 0        
         elif freq<1100:
@@ -2353,7 +2369,7 @@ class Interface():
             HIGHRES=0
             table_size = 32
 
-        if freq2<5:
+        if freq2<0.1:
             print ('freq2 too low')
             return 0        
         elif freq2<1100:
@@ -2362,15 +2378,32 @@ class Interface():
         else:
             HIGHRES2=0
             table_size2 = 32
+        if freq<1. or freq2<1. :
+                print ('extremely low frequencies will have reduced amplitudes due to AC coupling restrictions')
+        
 
+        p=[1,8,64,256]
+        prescaler1=0
+        while prescaler1<=3:
+            wavelength = int(round(64e6/freq/p[prescaler1]/table_size))
+            retfreq = (64e6/wavelength/p[prescaler1]/table_size)
+            if wavelength<65525: break
+            prescaler1+=1
+        if prescaler1==4:
+            print ('#1 out of range')
+            return 0
 
+        p=[1,8,64,256]
+        prescaler2=0
+        while prescaler2<=3:
+            wavelength2 = int(round(64e6/freq2/p[prescaler2]/table_size2))
+            retfreq2 = (64e6/wavelength2/p[prescaler2]/table_size2)
+            if wavelength2<65525: break
+            prescaler2+=1
+        if prescaler2==4:
+            print ('#2 out of range')
+            return 0
 
-        wavelength = int(round(64e6/freq/table_size))
-        retfreq = 64.e6/wavelength/table_size
-        wavelength2 = int(round(64e6/freq2/table_size2))
-        retfreq2 = 64.e6/wavelength2/table_size2
-
-                    
         phase_coarse = int(table_size*( phase)/360.  )
         phase_fine = int(wavelength*(phase - (phase_coarse)*360./table_size)/(360./table_size))
         
@@ -2383,7 +2416,7 @@ class Interface():
         self.H.__sendInt__(phase_coarse)    #table position for phase adjust
         self.H.__sendInt__(phase_fine)      #timer delay / fine phase adjust
 
-        self.H.__sendByte__((HIGHRES2<<1)|(HIGHRES))     #use larger table for low frequencies
+        self.H.__sendByte__((HIGHRES2<<1)|(HIGHRES)|(prescaler2<<2)|(prescaler1<<4))     #use larger table for low frequencies
         self.H.__get_ack__()
 
         return retfreq
@@ -3110,7 +3143,7 @@ class Interface():
         '''
         
         Read data from ultrasonic distance sensor HC-SR04/HC-SR05.  Sensors must have separate trigger and output pins.
-        First a 10uS pulse is output on SQR3.  SQR3 must be connected to the TRIG pin on the sensor prior to use.
+        First a 10uS pulse is output on SQR1.  SQR1 must be connected to the TRIG pin on the sensor prior to use.
 
         Upon receiving this pulse, the sensor emits a sequence of sound pulses, and the logic level of its output
         pin(which we will monitor via ID1) is also set high.  The logic level goes LOW when the sound packet
@@ -3122,11 +3155,14 @@ class Interface():
         If the reflecting object is either too far away or absorbs sound, less than 8 pulses may be received, and this
         can cause a measurement error of 25uS which corresponds to 8mm.
         
+        Ensure 5V supply.
+        
+        returns 0 upon timeout
         '''
         self.H.__sendByte__(NONSTANDARD_IO)
         self.H.__sendByte__(HCSR04_HEADER)
 
-        timeout_msb = int((0.1*64e6))>>16
+        timeout_msb = int((0.3*64e6))>>16
         self.H.__sendInt__(timeout_msb)
 
         A=self.H.__getLong__()
@@ -3136,7 +3172,7 @@ class Interface():
         #print (A,B)
         if(tmt >= timeout_msb or B==0):return 0
         rtime = lambda t: t/64e6
-        return rtime(B-A+20)
+        return 330.*rtime(B-A+20)/2.
 
 
     def TemperatureAndHumidity(self):
@@ -3165,7 +3201,7 @@ class Interface():
         self.H.__sendInt__(delay)
         
         self.H.__sendInt__(tp)
-        self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=TWELVE_BIT,source=self.analogInputSources['CH3'])
+        self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources['CH3'])
         self.samples=samples
         self.channels_in_buffer=1
         time.sleep(0.005)
@@ -3181,6 +3217,11 @@ class Interface():
         log  = self.H.fd.readline().strip()
         self.H.__get_ack__()
         return log
+
+
+
+
+
 
 if __name__ == "__main__":
     print ("""this is not an executable file

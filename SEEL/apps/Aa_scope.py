@@ -59,7 +59,7 @@ class MyThread(QtCore.QThread):
 
 	def run(self):
 		while 1:
-			time.sleep(0.01)  # random sleep to imitate working
+			time.sleep(0.01)
 			if(self.channels_in_buffer>=1):self.I.__fetch_channel__(1)
 			if(self.channels_in_buffer>=2):self.I.__fetch_channel__(2)
 			if(self.channels_in_buffer>=3):self.I.__fetch_channel__(3)

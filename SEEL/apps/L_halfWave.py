@@ -50,8 +50,11 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
         self.curveCH1 = self.addCurve(self.plot1,'INPUT(CH1)',(255,255,255))
         self.curveCH2 = self.addCurve(self.plot1,'OUTPUT(CH2)',(0,255,255))
         self.WidgetLayout.setAlignment(QtCore.Qt.AlignLeft)
-        self.WidgetLayout.addWidget(self.dialIcon(self.autogenControl(TITLE='Wave 1',MIN=10,MAX=5000,FUNC=self.I.set_sine1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #1')))
-        self.WidgetLayout.addWidget(self.dialIcon(self.autogenControl(TITLE='Wave 2',MIN=10,MAX=5000,FUNC=self.I.set_sine2,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #2')))
+
+        a1={'TITLE':'Wave 1','MIN':10,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1'}
+        a2={'TITLE':'Wave 2','MIN':10,'MAX':5000,'FUNC':self.I.set_sine2,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #2'}
+        self.WidgetLayout.addWidget(self.dialIcon(**a1))
+        self.WidgetLayout.addWidget(self.dialIcon(**a2))
 
         self.WidgetLayout.addWidget(self.controlIcon('outputs',self.launchOutputs))
         

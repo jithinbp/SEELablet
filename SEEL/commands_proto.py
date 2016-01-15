@@ -8,6 +8,8 @@ ShortInt = struct.Struct("H") # size 2
 Integer=   struct.Struct("I") # size 4
 
 ACKNOWLEDGE = Byte.pack(254)
+MAX_SAMPLES = 10000
+DATA_SPLITTING = 200
 
 #/*----flash memory----*/
 FLASH =Byte.pack(1)
@@ -61,6 +63,8 @@ I2C_WRITE_BULK   = Byte.pack(12)
 I2C_ENABLE_SMBUS = Byte.pack(13)
 I2C_INIT         = Byte.pack(14)
 I2C_PULLDOWN_SCL = Byte.pack(15)
+I2C_DISABLE_SMBUS= Byte.pack(16)
+I2C_START_SCOPE  = Byte.pack(17)
 
 #/*------UART2--------*/
 UART_2       = Byte.pack(5)

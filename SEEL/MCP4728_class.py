@@ -34,7 +34,6 @@ class MCP4728:
 		self.addr = 0x60|self.devid		#0x60 is the base address
 		self.H=H
 		self.I2C = I2C_class.I2C(self.H)
-		print (int( (1./2e6-1./1e7)*64e6-1 ))
 		self.SWITCHEDOFF=[0,0,0,0]
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
 		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PVS3':DACCHAN('PVS3',[0,3.3],1),'PVS2':DACCHAN('PVS2',[-3.3,3.3],2),'PVS1':DACCHAN('PVS1',[-5.,5.],3)}

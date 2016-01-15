@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'icon.ui'
 #
-# Created: Mon Jan 11 16:19:54 2016
+# Created: Mon Jan 11 20:20:06 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

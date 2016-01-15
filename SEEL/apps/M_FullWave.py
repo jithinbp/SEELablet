@@ -38,7 +38,7 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
         self.plot1.setLabel('left','Voltage -->', units='V',**labelStyle)
         self.plot1.setLabel('bottom','Time -->', units='S',**labelStyle)
         self.plot1.setYRange(-3.3,3.3)
-        #self.plot1.setLimits(yMax=3.3,yMin=-3.3,xMin=0)
+        self.plot1.setLimits(yMax=3.3,yMin=-3.3,xMin=0)
         self.I.set_gain('CH1',2)
         self.I.set_gain('CH2',2)
         self.I.configure_trigger(0,'CH1',0)
@@ -49,10 +49,14 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
         self.curveCH2 = self.addCurve(self.plot1,'INPUT 2(CH2)',(0,255,255))
         self.curveCH3 = self.addCurve(self.plot1,'OUTPUT(CH3)',(0,255,0))
 
-        self.WidgetLayout.setAlignment(QtCore.Qt.AlignLeft)
-        self.WidgetLayout.addWidget(self.sineWidget(self.I))
-        self.WidgetLayout.addWidget(self.dialIcon(self.autogenControl(TITLE='Wave 1',MIN=10,MAX=5000,FUNC=self.I.set_sine1,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #1')))
-        self.WidgetLayout.addWidget(self.dialIcon(self.autogenControl(TITLE='Wave 2',MIN=10,MAX=5000,FUNC=self.I.set_sine2,TYPE='dial',UNITS='Hz',TOOLTIP='Frequency of waveform generator #2')))
+        self.WidgetLayout.setAlignment(QtCore.Qt.AlignLeft)        
+        self.sineSection = self.sineWidget(self.I)
+        self.WidgetLayout.addWidget(self.sineSection)
+
+        a1={'TITLE':'Wave 1','MIN':10,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1','LINK':self.updateWAVE1_FREQ}
+        a2={'TITLE':'Wave 2','MIN':10,'MAX':5000,'FUNC':self.I.set_sine2,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #2','LINK':self.updateWAVE2_FREQ}
+        self.WidgetLayout.addWidget(self.dialIcon(**a1))
+        self.WidgetLayout.addWidget(self.dialIcon(**a2))
 
  
         self.timer.singleShot(100,self.run)
@@ -78,6 +82,12 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
         self.curveCH2.setData(self.I.achans[1].get_xaxis()*1e-6,self.I.achans[1].get_yaxis(),connect='finite')
         self.curveCH3.setData(self.I.achans[2].get_xaxis()*1e-6,self.I.achans[2].get_yaxis(),connect='finite')
         self.timer.singleShot(100,self.run)
+
+    def updateWAVE1_FREQ(self,value,units=''):
+        self.sineSection.WAVE1_FREQ.setText('%.3f %s '%(value,units))
+    def updateWAVE2_FREQ(self,value,units=''):
+        self.sineSection.WAVE2_FREQ.setText('%.3f %s '%(value,units))
+
 
     def setTimebase(self,T):
         self.tgs = [0.5,1,2,4,6,8,10,25,50,100]
