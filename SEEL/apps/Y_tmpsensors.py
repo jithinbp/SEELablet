@@ -9,7 +9,6 @@ Currently Supports:\n
 	BMP180 - Temperature, Pressure, Altitude \n
 	MLX90614 - Passive IR base temperature sensor (Thermopile) \n
 	SHT21 - Temperature. humidity. \n
-	please refer to SENSORS.supported for more...
 
 
 
@@ -34,7 +33,7 @@ from PyQt4 import QtCore, QtGui
 
 params = {
 'image' : 'sensors.png',
-'name':'Sensor\nData Logger'
+'name':'Sensor\ntmp Logger'
 }
 
 class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
@@ -74,6 +73,7 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 
 		self.deviceMenus=[]
 		self.sensorWidgets=[]
+		self.availableClasses=[0x68,0x1E,0x5A,0x77,0x39,0x40]
 
 	class plotItem:
 		def __init__(self,handle,ydata,curves):
@@ -81,36 +81,49 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 			self.ydata = ydata
 			self.curves=curves
 
-	def addPlot(self,cls,addr):
-		bridge = cls.connect(self.I.I2C,address = addr)
-		if bridge:
-			if hasattr(bridge,'name'):	label = bridge.name
+	def addPlot(self,param):
+		cls=False
+		cls_module = supported.get(param,None)
+		if cls_module:
+			cls = cls_module.connect(self.I.I2C)
+		else:
+			cls=None
+
+		if cls:
+			if hasattr(cls,'name'):	label = cls.name
 			else: label =''
-			cols=[self.random_color() for a in bridge.PLOTNAMES]
-			if not self.active_device_counter:
-				if len(label):self.plot.setLabel('left', label)
-				curves=[self.addCurve(self.plot,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
-			else:
-				if label:
-					colStr = lambda col: hex(col[0])[2:]+hex(col[1])[2:]+hex(col[2])[2:]
-					newplt = self.addAxis(self.plot,label=label,color='#'+colStr(cols[0].getRgb()))
-				else: newplt = self.addAxis(self.plot)
+			cols=[self.random_color() for a in cls.PLOTNAMES]
+			if cls.ADDRESS==0x68: #accelerometer, gyro. split plots
+				curvesA=[self.addCurve(self.plot,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(4)]
+				newplt = self.addAxis(self.plot)
 				self.right_axes.append(newplt)
-				curves=[self.addCurve(newplt ,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
-				for a in range(bridge.NUMPLOTS):
-					self.plotLegend.addItem(curves[a],'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]))
+				curvesB=[self.addCurve(newplt ,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(4,7)]
+				curves = curvesA+curvesB
+			else:
+				if not self.active_device_counter:
+					if len(label):self.plot.setLabel('left', label)
+					curves=[self.addCurve(self.plot,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(cls.NUMPLOTS)]
+				else:
+					if label:
+						colStr = lambda col: hex(col[0])[2:]+hex(col[1])[2:]+hex(col[2])[2:]
+						newplt = self.addAxis(self.plot,label=label,color='#'+colStr(cols[0].getRgb()))
+					else: newplt = self.addAxis(self.plot)
+					self.right_axes.append(newplt)
+					curves=[self.addCurve(newplt ,'%s[%s]'%(label[:10],cls.PLOTNAMES[a]),cols[a]) for a in range(cls.NUMPLOTS)]
+					for a in range(cls.NUMPLOTS):
+						self.plotLegend.addItem(curves[a],'%s[%s]'%(label[:10],cls.PLOTNAMES[a]))
 			
-			self.createMenu(bridge)
-			for a in range(bridge.NUMPLOTS):
+			self.createMenu(cls,param)
+			for a in range(cls.NUMPLOTS):
 				curves[a].checked=True
 				Callback = functools.partial(self.setTraceVisibility,curves[a])		
-				action=QtGui.QCheckBox('%s'%(bridge.PLOTNAMES[a])) #self.curveMenu.addAction('%s[%d]'%(label[:12],a)) 
+				action=QtGui.QCheckBox('%s'%(cls.PLOTNAMES[a])) #self.curveMenu.addAction('%s[%d]'%(label[:12],a)) 
 				action.toggled[bool].connect(Callback)
 				action.setChecked(True)
 				action.setStyleSheet("background-color:rgb%s;"%(str(cols[a].getRgb())))
 				self.paramMenus.insertWidget(1,action)
 				self.actions.append(action)
-			self.acquireList.append(self.plotItem(bridge,np.zeros((bridge.NUMPLOTS,self.POINTS)), curves)) 
+			self.acquireList.append(self.plotItem(cls,np.zeros((cls.NUMPLOTS,self.POINTS)), curves)) 
 			self.active_device_counter+=1
 
 
@@ -123,15 +136,15 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 		def hideEvent(self, event):
 			self.show()
         
-	def createMenu(self,bridge):
+	def createMenu(self,cls,addr):
 		menu = self.PermanentMenu()
 		menu.setMinimumHeight(25)
-		sub_menu = QtGui.QMenu('%s:%s'%(hex(bridge.ADDRESS),bridge.name[:15]))
-		for i in bridge.params: 
+		sub_menu = QtGui.QMenu('%s:%s'%(hex(addr),cls.name[:15]))
+		for i in cls.params: 
 			mini=sub_menu.addMenu(i) 
-			for a in bridge.params[i]:
-				Callback = functools.partial(getattr(bridge,i),a)
-				mini.addAction(str(a),Callback)
+			for a in cls.params[i]:
+				Callback = functools.partial(getattr(cls,i),a)		
+				mini.addAction(str(a),Callback) 
 		menu.addMenu(sub_menu)
 		self.paramMenus.insertWidget(0,menu)
 		self.deviceMenus.append(menu)
@@ -139,21 +152,19 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 	
 
 	class senHandler(QtGui.QFrame,Ui_Clicking):
-		def __init__(self,cls,addr,evaluator):
+		def __init__(self,addr,evaluator):
 			super(AppWindow.senHandler, self).__init__()
 			self.setupUi(self)
 			self.label.setText(hex(addr)+':'+str(sensorHints.get(addr,['Unknown'])[0]+'?'))
 			self.label.setToolTip(str(sensorHints.get(addr,'Unknown')))
-			#self.label.setText(hex(cls.BRIDGE.ADDRESS)+':'+cls.BRIDGE.name)
-			#self.label.setToolTip(hex(cls.BRIDGE.ADDRESS)+':'+cls.BRIDGE.name)
 			self.addr=addr
-			self.cls = cls
-			self.evaluator = evaluator
+			self.cmd = evaluator
 			self.button.setText('GO!')
 
 		def clicked(self):
-			self.evaluator(self.cls,self.addr)
-			
+			self.cmd(self.addr)
+
+
 
 	def scan(self):
 		lst = self.I.I2C.scan()
@@ -161,8 +172,8 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 			a.setParent(None)
 		self.sensorWidgets=[]
 		for a in lst:
-			if a in supported:
-				newSensor=self.senHandler(supported[a],a,self.addPlot)
+			if a in self.availableClasses:
+				newSensor=self.senHandler(a,self.addPlot)
 				self.nodeArea.insertWidget(0,newSensor)
 				self.sensorWidgets.append(newSensor)
 
@@ -203,11 +214,3 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 		self.looptimer.stop()
 		self.finished=True
 		
-
-if __name__ == "__main__":
-	from SEEL import interface
-	import sys
-	app = QtGui.QApplication(sys.argv)
-	myapp = AppWindow(I=interface.connect())
-	myapp.show()
-	sys.exit(app.exec_())

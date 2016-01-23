@@ -66,10 +66,11 @@ class NRF24L01():
 	nodelist={}
 	nodepos=0
 	NODELIST_MAXLENGTH=15
+	connected=False
 	def __init__(self,H):
 		self.H = H
 		if self.H.connected:
-				self.init()
+				self.connected=self.init()
 	"""
 	routines for the NRFL01 radio
 	"""
@@ -78,11 +79,16 @@ class NRF24L01():
 		self.H.__sendByte__(NRF_SETUP)
 		self.H.__get_ack__()
 		time.sleep(0.015) #15 mS settling time
+		stat = self.get_status()
+		if stat &0x80:
+			print ("Radio transceiver not installed/not found")
+			return False
 		self.selectAddress(self.CURRENT_ADDRESS)
 		#self.write_register(self.RF_SETUP,0x06)
 		self.rxmode()
 		time.sleep(0.1)
 		self.flush()
+		return True
 		
 	def rxmode(self):
 		'''
@@ -210,6 +216,10 @@ class NRF24L01():
 		self.H.__get_ack__()
 
 	def selectAddress(self,address):
+		'''
+		Sets RX_ADDR_P0 and TX_ADDR to the specified address.
+		
+		'''
 		self.H.__sendByte__(NRFL01)
 		self.H.__sendByte__(NRF_WRITEADDRESSES)
 		self.H.__sendByte__(address&0xFF);self.H.__sendByte__((address>>8)&0xFF);

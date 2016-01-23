@@ -193,20 +193,4 @@ class Handler():
         self.inputQueueSize=0
         return [Byte.unpack(a)[0] for a in acks]
 
-    def send_char(self,c):
-        """
-        Relays a character through the second UART(9-bit mode)
-        
-        ==============	============================================================================================
-        **Arguments** 
-        ==============	============================================================================================
-        c		value to transmit
-        ==============	============================================================================================
-
-        :return: nothing
-        """
-        self.__sendByte__(UART_2)
-        self.__sendByte__(SEND_CHAR)
-        self.__sendByte__(c)
-        self.__get_ack__()
                 

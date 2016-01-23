@@ -40,7 +40,7 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
         self.plot1.setYRange(-8.5,8.5)
         self.I.set_gain('CH1',1)
         self.I.set_gain('CH2',1)
-        self.plot1.setLimits(yMax=8,yMin=-8,xMin=0)
+        self.plot1.setLimits(yMax=8,yMin=-8,xMin=0,xMax=4e-3)
 
 
         self.I.configure_trigger(0,'CH1',0)

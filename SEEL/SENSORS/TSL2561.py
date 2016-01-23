@@ -36,6 +36,7 @@ class TSL2561:
 	timing = INTEGRATIONTIME_13MS
 	gain = GAIN_16X
 	name = 'TSL2561 Luminosity'
+	ADDRESS = 0x39
 	NUMPLOTS=3
 	PLOTNAMES = ['Full','IR','Visible']
 	def __init__(self, I2C,**args):

@@ -1,124 +1,100 @@
 #!/usr/bin/python
-'''
-Study Simple Pendulums
-'''
+
+"""
+
+::
+
+"""
 
 from __future__ import print_function
-import os
-
 from SEEL.utilitiesClass import utilitiesClass
+from SEEL.analyticsClass import analyticsClass
 
-from PyQt4 import QtCore, QtGui
-import time,sys
-from SEEL.templates import simplePendulum
-
-import sys
-
-import pyqtgraph as pg
+from SEEL.templates import template_transient
 
 import numpy as np
+from PyQt4 import QtGui,QtCore
+import pyqtgraph as pg
+import sys
 
 params = {
 'image' : 'transient.png',
-'helpfile': 'diodeIV.html',
+#'helpfile': 'https://en.wikipedia.org/wiki/LC_circuit',
 'name':'Simple Pendulum'
 }
 
-class AppWindow(QtGui.QMainWindow, simplePendulum.Ui_MainWindow,utilitiesClass):
+class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesClass):
 	def __init__(self, parent=None,**kwargs):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
-		self.I.set_gain('CH1',7)
-
+		self.CC = analyticsClass()
+		
 		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
-		self.plot=self.add2DPlot(self.plot_area)
+		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
-		self.plot.setLabel('left','Velocity -->', **labelStyle)
-		self.plot.setLabel('bottom','Time -->', units='S',**labelStyle)
+		self.plot1.setLabel('left','Voltage -->', units='V',**labelStyle)
+		self.plot1.setLabel('bottom','Time -->', units='S',**labelStyle)
 
-		self.totalpoints=2000
-		self.X=[]
-		self.Y=[]
-		self.plotnum=0
-				
-		self.curves=[]
-		self.curveLabels=[]
-		self.looptimer = QtCore.QTimer()
-		self.looptimer.timeout.connect(self.acquire)
+		self.plot1.setYRange(-8.5,8.5)
+		self.tg=100
+		self.tgLabel.setText(str(5000*self.tg*1e-3)+'S')
+		self.x=[]
 
-		self.start_time = time.time()
-		self.acquisitionPeriod = 10 # ten seconds
-		self.pos=0
-		self.state = 0
-
+		self.looptimer=QtCore.QTimer()
+		self.curveCH1 = self.addCurve(self.plot1,'CH3',(255,255,255))
+		self.CH1Fit = self.addCurve(self.plot1,'CH3 Fit',(0,255,255))
+		self.region = pg.LinearRegionItem([self.tg*50*1e-6,self.tg*800*1e-6])
+		self.region.setZValue(-10)
+		self.plot1.addItem(self.region)		
+		self.lognum=0
+		self.msg.setText("Fitting fn :\noff+amp*exp(-damp*x)*sin(x*freq+ph)")
+		self.Params=[]
+		
 	def run(self):
-		self.looptimer.stop()
-		self.X=[];self.Y=[]
-		self.plotnum+=1; self.pos=0
-		self.curves.append( self.addCurve(self.plot ,'%.3f'%(self.plotnum),[255,255,255])  )
-		P=self.plot.getPlotItem()
-		P.enableAutoRange(True,True)
-		self.acquisitionPeriod = self.timeBox.value() #  seconds
-		self.plot.setXRange(0,self.acquisitionPeriod)
-		self.start_time = time.time()
-		self.looptimer.start(self.delayBox.value())   #mS
+		self.I.__capture_fullspeed__('CH3',5000,self.tg)
+		self.CH1Fit.setData([],[])
+		self.loop=self.delayedTask(5000*self.I.timebase*1e-3+10,self.plotData)
 
-	def acquire(self):
-		AMP =  self.I.get_average_voltage('CH1')
+	def plotData(self):	
+		self.x,self.VMID=self.I.__retrieveBufferData__('CH3',self.I.samples,self.I.timebase)#self.I.fetch_trace(1)
+		self.curveCH1.setData(self.x*1e-6,self.VMID)
 
-		if self.driveBox.isChecked():
-			if AMP<0.025:
-					self.state=1
-			elif AMP>0.028 and self.state==1:
-					self.I.set_state(SQR1=1)
-					time.sleep(0.05)
-					self.I.set_state(SQR1=0)
-					time.sleep(0.02)
-					print ('hit')
-					self.state=0
-					return
+	def setTimebase(self,T):
+		self.tgs = [100,200,300,500,800,1000,2000,3000,5000,10000]
+		self.tg = self.tgs[T]
+		self.tgLabel.setText(str(5000*self.tg*1e-3)+'mS')
 
-		T = time.time()-self.start_time
-		self.X.append(T)
-		self.Y.append(AMP)
-		self.pos+=1
-		if self.pos<500:
-				self.curves[-1].setData(self.X,self.Y)
-		self.pointCount.setText('%d'%self.pos)
-		if T>self.acquisitionPeriod:
-			self.looptimer.stop()
-			txt='<div style="text-align: center"><span style="color: #FFF;font-size:8pt;"># %d</span></div>'%(self.plotnum)
-			text = pg.TextItem(html=txt, anchor=(0,0), border='w', fill=(0, 0, 255, 100))
-			self.plot.addItem(text)
-			text.setPos(self.X[-1],self.Y[-1])
-			self.curveLabels.append(text)
-			self.tracesBox.addItem('#%d'%(self.plotnum))
+	def fit(self):
+		if(not len(self.x)):return
+		start,end=self.region.getRegion()
+		print (start,end,self.I.timebase)
+		if(start>0):start = int(round(1.e6*start/self.I.timebase ))
+		else: start=0
+		if(end>0):end = int(round(1.e6*end/self.I.timebase ))
+		else:end=0
+		guess = self.CC.getGuessValues(self.x[start:end]-self.x[start],self.VMID[start:end],func='damped sine')
+		Csuccess,Cparams,chisq = self.CC.arbitFit(self.x[start:end]-self.x[start],self.VMID[start:end],self.CC.dampedSine,guess=guess)
 
-	def refreshGraph(self):
-			self.curves[-1].setData(self.X,self.Y)
-
-	def delete_curve(self):
-		c = self.tracesBox.currentIndex()
-		if c>-1:
-			self.tracesBox.removeItem(c)
-			self.plot.removeItem(self.curves[c]);self.plot.removeItem(self.curveLabels[c]);
-			self.curves.pop(c);self.curveLabels.pop(c);
+		if Csuccess:
+			self.CLabel.setText("CH1:\nA:%.2f V\tF:%.4f Hz\tDamp:%.3e"%(Cparams[0],1e6*abs(Cparams[1])/(2*np.pi),Cparams[4]))
+			self.CH1Fit.setData(self.x[start:end]*1e-6,self.CC.dampedSine(self.x[start:end]-self.x[start],*Cparams))
+			self.CParams=Cparams
+		else:
+			self.CLabel.setText("CH1:\nFit Failed. Change selected region.")
+			self.CH1Fit.clear()
 
 
-	def __del__(self):
-		self.looptimer.stop()
-		print ('bye')
-
-	def closeEvent(self, event):
-		self.looptimer.stop()
-		self.finished=True
-
-
+	def showData(self):
+		self.lognum+=1
+		b=self.CParams
+		res =  'FIT:\nAmp:%.1fV\tFreq:%.1fHz\tPhase:%.1f\nOffset:%.2fV\tDamping:%.2e'%(b[0],1e6*abs(b[1])/(2*np.pi),b[2]*180/np.pi,b[3],b[4])
+		self.displayDialog(res)
+		
 if __name__ == "__main__":
-    from SEEL import interface
-    app = QtGui.QApplication(sys.argv)
-    myapp = AppWindow(I=interface.connect())
-    myapp.show()
-    sys.exit(app.exec_())
+	from SEEL import interface
+	app = QtGui.QApplication(sys.argv)
+	myapp = AppWindow(I=interface.connect())
+	myapp.show()
+	sys.exit(app.exec_())
 

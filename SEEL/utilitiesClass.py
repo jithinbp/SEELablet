@@ -86,6 +86,45 @@ class utilitiesClass():
 		return plot.addLegend(offset=(-10,30))
 
 
+	def fetchColumns(self,qtablewidget,*args):
+		data = [[] for a in range(len(args))]
+		pos=0
+		for col in args:
+			for row in range(50):
+				item = qtablewidget.item(row,col)
+				if item:
+					try:
+						data[pos].append(float(item.text()))
+					except:
+						break
+				else:
+					break
+			pos+=1
+		return data
+
+	def saveTableData(self,qtablewidget,filename):
+		data = [[] for a in range(len(args))]
+		pos=0
+		for col in args:
+			for row in range(50):
+				item = qtablewidget.item(row,col)
+				if item:
+					try:
+						data[pos].append(float(item.text()))
+					except:
+						break
+				else:
+					break
+			pos+=1
+		return data
+
+
+
+	def newPlot(self,x,y,**args):
+		self.plot_ext = pg.GraphicsWindow(title=args.get('title',''))
+		self.curve_ext = self.plot_ext.addPlot(title=args.get('title',''), x=x,y=y,connect='finite')
+		self.curve_ext.setLabel('bottom',args.get('xLabel',''))
+		self.curve_ext.setLabel('left',args.get('yLabel',''))
 
 	def addAxis(self,plot,**args):
 		p3 = pg.ViewBox()

@@ -4,13 +4,7 @@ Stream data acquired from supported I2C sensors.
 
 Currently Supports:\n
 
-	MPU6050 - 3-Axis Accelerometer. 3-Axis Gyro  . Temperature sensor.\n
-	HMC5883L - 3-Axis Magnetometer \n
-	BMP180 - Temperature, Pressure, Altitude \n
-	MLX90614 - Passive IR base temperature sensor (Thermopile) \n
-	SHT21 - Temperature. humidity. \n
-
-
+refer to SENSORS.supported
 
 '''
 from __future__ import print_function
@@ -71,7 +65,7 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 				mini=self.sub_menu.addMenu(i) 
 				for a in cls.params[i]:
 					Callback = functools.partial(getattr(cls,i),a)		
-					mini.addAction(str(a),Callback) 
+					mini.addAction(str(a),Callback)
 			self.menu.addMenu(self.sub_menu)
 			self.formLayout.insertWidget(0,self.menu)
 
@@ -104,7 +98,6 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 		
 		row=0;col=0;colLimit=3
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
-
 		for a in lst:
 			cls=False
 			cls_module = supported.get(a,None)

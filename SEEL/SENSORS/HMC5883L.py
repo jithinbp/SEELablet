@@ -33,12 +33,13 @@ class HMC5883L():
 	'setDataOutputRate':dataOutputRate_choices,
 	'setGain':gain_choices,
 	}
-	
+	ADDRESS = 0x1E
+	name = 'Magnetometer'
 	NUMPLOTS=3	
 	PLOTNAMES = ['Bx','By','Bz']
-	def __init__(self,I2C):
+	def __init__(self,I2C,**args):
 		self.I2C=I2C
-		self.ADDRESS = 0x1E
+		self.ADDRESS = args.get('address',self.ADDRESS)
 		self.name = 'Magnetometer'
 		'''
 		try:

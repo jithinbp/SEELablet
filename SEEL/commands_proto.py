@@ -68,11 +68,14 @@ I2C_START_SCOPE  = Byte.pack(17)
 
 #/*------UART2--------*/
 UART_2       = Byte.pack(5)
-SEND_CHAR    = Byte.pack(1)
+SEND_BYTE    = Byte.pack(1)
 SEND_INT     = Byte.pack(2)
 SEND_ADDRESS = Byte.pack(3)
 SET_BAUD     = Byte.pack(4)
 SET_MODE     = Byte.pack(5)
+READ_BYTE     = Byte.pack(6)
+READ_INT     = Byte.pack(7)
+READ_UART2_STATUS     = Byte.pack(8)
 
 #/*-----------DAC--------*/
 DAC                = Byte.pack(6)

@@ -652,11 +652,14 @@ font-weight: bold;
             <widget class="QDial" name="dial_11">
              <property name="geometry">
               <rect>
-               <x>160</x>
-               <y>10</y>
-               <width>111</width>
-               <height>71</height>
+               <x>200</x>
+               <y>0</y>
+               <width>71</width>
+               <height>61</height>
               </rect>
+             </property>
+             <property name="toolTip">
+              <string>Scroll to change trigger level</string>
              </property>
              <property name="minimum">
               <number>0</number>
@@ -677,9 +680,9 @@ font-weight: bold;
             <widget class="QDoubleSpinBox" name="trigger_level_box">
              <property name="geometry">
               <rect>
-               <x>10</x>
+               <x>190</x>
                <y>60</y>
-               <width>141</width>
+               <width>91</width>
                <height>21</height>
               </rect>
              </property>
@@ -699,9 +702,9 @@ font-weight: bold;
             <widget class="QComboBox" name="trigger_select_box">
              <property name="geometry">
               <rect>
-               <x>10</x>
+               <x>100</x>
                <y>30</y>
-               <width>141</width>
+               <width>71</width>
                <height>21</height>
               </rect>
              </property>
@@ -735,9 +738,9 @@ font-weight: bold;
             <widget class="QCheckBox" name="triggerBox">
              <property name="geometry">
               <rect>
-               <x>10</x>
+               <x>0</x>
                <y>1</y>
-               <width>131</width>
+               <width>101</width>
                <height>31</height>
               </rect>
              </property>
@@ -774,6 +777,70 @@ font-weight: bold;
              <property name="text">
               <string/>
              </property>
+            </widget>
+            <widget class="QLabel" name="label_4">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>30</y>
+               <width>91</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Channel</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_5">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>60</y>
+               <width>91</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>Extend Trigger Waiting time.
+Useful for low frequencies</string>
+             </property>
+             <property name="text">
+              <string>Extend Wait</string>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="trigWaitBox">
+             <property name="geometry">
+              <rect>
+               <x>100</x>
+               <y>60</y>
+               <width>71</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>Extend Trigger Waiting time.
+Useful for low frequencies</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>No</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2x</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>4x</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>8x</string>
+              </property>
+             </item>
             </widget>
            </widget>
           </item>

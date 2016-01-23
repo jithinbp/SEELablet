@@ -1,8 +1,8 @@
 from numpy import int16,std
 from SEEL.SENSORS.Kalman import KalmanFilter
 
-def connect(route):
-	return MPU6050(route)
+def connect(route,**args):
+	return MPU6050(route,**args)
 
 class MPU6050():
 	'''
@@ -24,10 +24,11 @@ class MPU6050():
 	GR=3
 	NUMPLOTS=7
 	PLOTNAMES = ['Ax','Ay','Az','Temp','Gx','Gy','Gz']
-
-	def __init__(self,I2C):
+	ADDRESS = 0x68
+	name = 'Accel/gyro'
+	def __init__(self,I2C,**args):
 		self.I2C=I2C
-		self.ADDRESS = 0x68
+		self.ADDRESS = args.get('address',self.ADDRESS)
 		self.name = 'Accel/gyro'
 		self.params={'powerUp':['Go'],'setGyroRange':[250,500,1000,2000],'setAccelRange':[2,4,8,16],'KalmanFilter':[.01,.1,1,10,100,1000,10000,'OFF']}
 		self.setGyroRange(2000)

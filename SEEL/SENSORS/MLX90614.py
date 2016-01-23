@@ -6,9 +6,11 @@ def connect(route,**args):
 class MLX90614():
 	NUMPLOTS=1
 	PLOTNAMES=['Temp']
+	ADDRESS = 0x5A
+	name = 'PIR temperature'
 	def __init__(self,I2C,**args):
 		self.I2C=I2C
-		self.ADDRESS = args.get('address',0x5A)
+		self.ADDRESS = args.get('address',self.ADDRESS)
 		self.OBJADDR=0x07
 		self.AMBADDR=0x06
 

@@ -17,7 +17,9 @@ class BMP180:
 	oversampling=0
 	NUMPLOTS=3
 	PLOTNAMES = ['Temperature','Pressure','Altitude']
-	def __init__(self,I2C):
+	name = 'Altimeter BMP180'
+	def __init__(self,I2C,**args):
+		self.ADDRESS = args.get('address',self.ADDRESS)
 		
 		self.I2C = I2C
 

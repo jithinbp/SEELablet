@@ -118,6 +118,8 @@ class Interface():
         self.analogInputSources={}
         for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
 
+        self.sine1freq = 0
+        self.sine2freq = 0
 
         #--------------------------Initialize communication handler, and subclasses-----------------
         self.H = packet_handler.Handler(**kwargs)
@@ -853,7 +855,7 @@ class Interface():
 
 
         
-    def configure_trigger(self,chan,name,voltage,resolution=10):
+    def configure_trigger(self,chan,name,voltage,resolution=10,**kwargs):
         """
         configure trigger parameters for 10-bit capture commands
         The capture routines will wait till a rising edge of the input signal crosses the specified level.
@@ -886,9 +888,10 @@ class Interface():
             :func:`capture_traces` , adc_example_
 
         """
+        prescaler = kwargs.get('prescaler',0)
         self.H.__sendByte__(ADC)
         self.H.__sendByte__(CONFIGURE_TRIGGER)
-        self.H.__sendByte__(1<<chan)    #Trigger channel
+        self.H.__sendByte__((prescaler<<4)|(1<<chan))    #Trigger channel (4lsb) , trigger timeout prescaler (4msb)
         
         if resolution==12:
             level = self.analogInputSources[name].voltToCode12(voltage)
@@ -2290,6 +2293,7 @@ class Interface():
         self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
         self.H.__sendInt__(wavelength-1)        
         self.H.__get_ack__()
+        self.sine1freq = freq
         return freq
 
 
@@ -2335,6 +2339,7 @@ class Interface():
         self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
         self.H.__sendInt__(wavelength-1)        
         self.H.__get_ack__()
+        self.sine2freq = freq
 
         return freq
 
@@ -2418,6 +2423,8 @@ class Interface():
 
         self.H.__sendByte__((HIGHRES2<<1)|(HIGHRES)|(prescaler2<<2)|(prescaler1<<4))     #use larger table for low frequencies
         self.H.__get_ack__()
+        self.sine1freq = retfreq
+        self.sine2freq = retfreq2
 
         return retfreq
 
@@ -3206,6 +3213,30 @@ class Interface():
         self.channels_in_buffer=1
         time.sleep(0.005)
         self.H.__get_ack__()
+
+    def setUART2(self,BAUD):
+        self.H.__sendByte__(UART_2)
+        self.H.__sendByte__(SET_BAUD)
+        self.H.__sendInt__(int( round(((64e6/BAUD)/4)-1) ))
+        print ('BRG2VAL:',int( round(((64e6/BAUD)/4)-1) ))
+        self.H.__get_ack__()
+
+    def writeUART2(self,character):
+        self.H.__sendByte__(UART_2)
+        self.H.__sendByte__(SEND_BYTE)
+        self.H.__sendByte__(character)
+        self.H.__get_ack__()
+
+    def readUART2(self):
+        self.H.__sendByte__(UART_2)
+        self.H.__sendByte__(READ_BYTE)
+        return self.H.__getByte__()
+
+    def readUART2Status(self):
+        self.H.__sendByte__(UART_2)
+        self.H.__sendByte__(READ_UART2_STATUS)
+        return self.H.__getByte__()
+
 
     def readLog(self):
         '''

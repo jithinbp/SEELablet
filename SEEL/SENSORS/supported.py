@@ -1,9 +1,10 @@
-import SEEL.SENSORS.HMC5883L as HMC5883L
-import SEEL.SENSORS.MPU6050 as MPU6050
-import SEEL.SENSORS.MLX90614 as MLX90614
-import SEEL.SENSORS.BMP180 as BMP180
-import SEEL.SENSORS.TSL2561 as TSL2561
-import SEEL.SENSORS.SHT21 as SHT21
+from SEEL.SENSORS import HMC5883L
+from SEEL.SENSORS import MPU6050
+from SEEL.SENSORS import MLX90614
+from SEEL.SENSORS import BMP180
+from SEEL.SENSORS import TSL2561
+from SEEL.SENSORS import SHT21
+from SEEL.SENSORS import BH1750
 
 supported={
 0x68:MPU6050,  #3-axis gyro,3-axis accel,temperature
@@ -12,4 +13,5 @@ supported={
 0x77:BMP180,   #Pressure, Temperature, altitude
 0x39:TSL2561,  #Luminosity
 0x40:SHT21,    #Temperature, Humidity
+0x23:BH1750,    #Luminosity
 }
