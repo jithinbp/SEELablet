@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'template_xl.ui'
 #
-# Created: Sat Jan 23 18:45:05 2016
+# Created: Sun Jan 24 10:32:21 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -272,6 +272,7 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
         MainWindow.setMenuBar(self.menubar)
         self.actionSave_as = QtGui.QAction(MainWindow)
+        self.actionSave_as.setAutoRepeat(False)
         self.actionSave_as.setObjectName(_fromUtf8("actionSave_as"))
         self.menuFile.addAction(self.actionSave_as)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -303,4 +304,6 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Plot:", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.actionSave_as.setText(_translate("MainWindow", "save as", None))
+        self.actionSave_as.setToolTip(_translate("MainWindow", "save data contained in the table", None))
+        self.actionSave_as.setShortcut(_translate("MainWindow", "Ctrl+S", None))
 

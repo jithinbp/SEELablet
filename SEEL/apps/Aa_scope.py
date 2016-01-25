@@ -38,7 +38,8 @@ from SEEL.commands_proto import *
 
 params = {
 'image' : 'scope.png',
-'name':'Threaded\nScope(beta)'
+'name':'Threaded\nScope(beta)',
+'hint':'A temporary oscilloscope application that uses thread based processing for a smoother GUI'
 }
 
 

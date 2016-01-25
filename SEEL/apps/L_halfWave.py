@@ -23,7 +23,16 @@ import sys,functools
 params = {
 'image' : 'halfwave.png',
 'helpfile': 'http://hyperphysics.phy-astr.gsu.edu/hbase/electronic/rectifiers.html',
-'name':'Half Wave\nRectifier'
+'name':'Half Wave\nRectifier',
+'hint':'''
+	Study halfwave rectifiers.<br>
+	Connect Wavegen 1 to a diode as well as CH1.<br>
+	connect the other end of the diode to CH2.<br>
+	Provide a load resistor(1K) from CH2 to ground.<br>
+	Observe Half wave rectification.
+	
+	'''
+
 }
 
 class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):

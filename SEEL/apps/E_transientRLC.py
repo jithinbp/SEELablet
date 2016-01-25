@@ -52,7 +52,11 @@ import pyqtgraph as pg
 params = {
 'image' : 'transient.png',
 #'helpfile': 'https://en.wikipedia.org/wiki/LC_circuit',
-'name':'Transient RLC\nResponse'
+'name':'Transient RLC\nResponse',
+'hint':'''
+	Study transient response of RLC circuits.<br>
+	<i>SQR1</i> is used to provide the transient, and the midpoint of L and C is monitored via <i>CH1</i>'
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesClass):

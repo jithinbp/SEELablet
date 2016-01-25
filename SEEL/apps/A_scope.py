@@ -39,7 +39,8 @@ from SEEL.commands_proto import *
 
 params = {
 'image' : 'scope.png',
-'name':'Oscilloscope'
+'name':'Oscilloscope',
+'hint':'4-Channel oscilloscope with basic configuration options such as vertical and horizontal scales, trigger selection, and XY mode.\n Also includes curve fitting routines for data analysis'
 }
 
 

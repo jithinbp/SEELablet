@@ -235,7 +235,7 @@ color: black;
             </property>
             <widget class="QFrame" name="frame_3">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -359,7 +359,7 @@ color: black;
               <item>
                <widget class="QFrame" name="frame_6">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -398,6 +398,12 @@ color: black;
              </layout>
             </widget>
             <widget class="QScrollArea" name="scrollArea">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
@@ -406,7 +412,7 @@ color: black;
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>461</width>
+                <width>76</width>
                 <height>348</height>
                </rect>
               </property>
@@ -442,7 +448,22 @@ color: black;
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave_as"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>save as</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -469,8 +490,8 @@ color: black;
    <slot>plotA()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>249</x>
-     <y>497</y>
+     <x>492</x>
+     <y>507</y>
     </hint>
     <hint type="destinationlabel">
      <x>281</x>
@@ -485,12 +506,28 @@ color: black;
    <slot>plotB()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>491</y>
+     <x>736</x>
+     <y>507</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
      <y>541</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_as</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>415</x>
+     <y>259</y>
     </hint>
    </hints>
   </connection>
@@ -500,5 +537,6 @@ color: black;
   <slot>fit()</slot>
   <slot>plotA()</slot>
   <slot>plotB()</slot>
+  <slot>saveFile()</slot>
  </slots>
 </ui>

@@ -20,7 +20,15 @@ import sys
 params = {
 'image' : 'transient.png',
 #'helpfile': 'https://en.wikipedia.org/wiki/LC_circuit',
-'name':'Simple Pendulum'
+'name':'Simple Pendulum',
+'hint':'''
+	Study Simple pendulum's velocity oscillations.<br>
+	Connect a pendulum to the shaft of a simple DC motor.<br>
+	Connect one terminal of the motor to GND, and the other to CH3.<br>
+	The voltage output from the motor due to the rotating shaft has low amplitude, so connect a 100 ohm resistor from Rg to GND.<br>
+	This sets a gain of around 100x, and allows clear visualization of oscillations
+	'''
+
 }
 
 class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesClass):

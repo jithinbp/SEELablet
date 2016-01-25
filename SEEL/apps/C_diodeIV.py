@@ -20,7 +20,8 @@ import numpy as np
 params = {
 'image' : 'diodeIV.png',
 'helpfile': 'diodeIV.html',
-'name':'Diode IV\nCharacteristics'
+'name':'Diode IV\nCharacteristics',
+'hint':"Study Current-Voltage Characteristics of PN junctions.\n uses PVS1 as the voltage source for sweeping voltage via a 1K current limiting resistor connected in series. \nThe voltage drop across the diode is monitored via CH1. "
 }
 
 class AppWindow(QtGui.QMainWindow, diodeIV.Ui_MainWindow,utilitiesClass):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'setStateList.ui'
+# Form implementation generated from reading ui file 'doubleSpinBox.ui'
 #
 # Created: Sun Jan 24 10:32:22 2016
 #      by: PyQt4 UI code generator 4.11.3
@@ -34,6 +34,11 @@ class Ui_Form(object):
         Form.setSizePolicy(sizePolicy)
         Form.setMinimumSize(QtCore.QSize(100, 105))
         Form.setMaximumSize(QtCore.QSize(104, 105))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        Form.setFont(font)
         Form.setStyleSheet(_fromUtf8("QFrame.PeripheralCollection{\n"
 "border-top-left-radius: 10px;\n"
 "border-top-right-radius: 10px;\n"
@@ -44,19 +49,18 @@ class Ui_Form(object):
 "stop: 0 rgb(97, 146, 121), stop: 0.5 rgb(65, 89, 111));\n"
 "\n"
 "}\n"
-"\n"
-"QLabel,QCheckBox {\n"
+" QLabel {\n"
 "color: white;\n"
-"font-weight: bold;\n"
 "background:transparent;\n"
 "}\n"
+"\n"
 ""))
         self.verticalLayout = QtGui.QVBoxLayout(Form)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.widgetFrameOuter = QtGui.QFrame(Form)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widgetFrameOuter.sizePolicy().hasHeightForWidth())
@@ -98,35 +102,31 @@ class Ui_Form(object):
         self.gridLayout_3.setHorizontalSpacing(0)
         self.gridLayout_3.setVerticalSpacing(2)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
-        self.B1 = QtGui.QCheckBox(self.ImageFrame)
-        self.B1.setObjectName(_fromUtf8("B1"))
-        self.gridLayout_3.addWidget(self.B1, 0, 0, 1, 1)
-        self.B3 = QtGui.QCheckBox(self.ImageFrame)
-        self.B3.setObjectName(_fromUtf8("B3"))
-        self.gridLayout_3.addWidget(self.B3, 2, 0, 1, 1)
-        self.B4 = QtGui.QCheckBox(self.ImageFrame)
-        self.B4.setObjectName(_fromUtf8("B4"))
-        self.gridLayout_3.addWidget(self.B4, 3, 0, 1, 1)
-        self.B2 = QtGui.QCheckBox(self.ImageFrame)
-        self.B2.setObjectName(_fromUtf8("B2"))
-        self.gridLayout_3.addWidget(self.B2, 1, 0, 1, 1)
+        self.value = QtGui.QLabel(self.ImageFrame)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setWeight(50)
+        self.value.setFont(font)
+        self.value.setAlignment(QtCore.Qt.AlignCenter)
+        self.value.setObjectName(_fromUtf8("value"))
+        self.gridLayout_3.addWidget(self.value, 1, 0, 1, 1)
+        self.doubleSpinBox = QtGui.QDoubleSpinBox(self.ImageFrame)
+        self.doubleSpinBox.setDecimals(3)
+        self.doubleSpinBox.setMinimum(-16777215.0)
+        self.doubleSpinBox.setMaximum(16777215.0)
+        self.doubleSpinBox.setObjectName(_fromUtf8("doubleSpinBox"))
+        self.gridLayout_3.addWidget(self.doubleSpinBox, 0, 0, 1, 1)
         self.verticalLayout_3.addWidget(self.ImageFrame)
         self.verticalLayout.addWidget(self.widgetFrameOuter)
 
         self.retranslateUi(Form)
-        QtCore.QObject.connect(self.B1, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle1)
-        QtCore.QObject.connect(self.B2, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle2)
-        QtCore.QObject.connect(self.B3, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle3)
-        QtCore.QObject.connect(self.B4, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), Form.toggle4)
+        QtCore.QObject.connect(self.doubleSpinBox, QtCore.SIGNAL(_fromUtf8("valueChanged(double)")), Form.setValue)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
-        self.widgetFrameOuter.setToolTip(_translate("Form", "Disable square waves and set them to High/Low", None))
         self.widgetFrameOuter.setProperty("class", _translate("Form", "PeripheralCollection", None))
-        self.title.setText(_translate("Form", "Digital Outputs", None))
-        self.B1.setText(_translate("Form", "SQR1", None))
-        self.B3.setText(_translate("Form", "SQR3", None))
-        self.B4.setText(_translate("Form", "SQR4", None))
-        self.B2.setText(_translate("Form", "SQR2", None))
+        self.title.setText(_translate("Form", "title", None))
+        self.value.setText(_translate("Form", "value", None))
 

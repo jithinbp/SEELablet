@@ -20,7 +20,10 @@ import sys
 params = {
 'image' : 'transient.png',
 #'helpfile': 'https://en.wikipedia.org/wiki/LC_circuit',
-'name':'MPU6050 IMU\nPendulum'
+'name':'MPU6050 IMU\nPendulum',
+'hint':'''
+	Use an accelerometer and gyroscope(MPU6050) to study position versus time, and velocity versus time of pendulums.
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesClass):

@@ -526,6 +526,15 @@ both XL(Freq dependent ), and R.
    <property name="text">
     <string>save as</string>
    </property>
+   <property name="toolTip">
+    <string>save data contained in the table</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
   </action>
  </widget>
  <resources/>

@@ -25,7 +25,12 @@ from PyQt4 import QtCore, QtGui
 
 params = {
 'image' : 'sensors.png',
-'name':'Sensor\nQuickView'
+'name':'Sensor\nQuickView',
+'hint':'''
+	Display values returned by sensors connected to the I2C input.</br>
+	Supported sensors include MPU6050(3-axis Accel/gyro), TSL2561(luminosity),<br>
+	HMC5883L(3-axis magnetometer), SHT21(humidity), BMP180(Pressure,Altitude) etc.
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):

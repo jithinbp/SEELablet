@@ -6,14 +6,13 @@
 
     This experiment is used to study Half wave rectifiers
 
-
 """
 
 from __future__ import print_function
 from SEEL.utilitiesClass import utilitiesClass
 from SEEL.analyticsClass import analyticsClass
 
-from SEEL.templates import template_xc
+from SEEL.templates import template_xl
 
 import numpy as np
 from PyQt4 import QtGui,QtCore
@@ -23,14 +22,13 @@ import sys,functools,time
 params = {
 'image' : 'halfwave.png',
 'helpfile': 'http://www.electronics-tutorials.ws/capacitor/cap_8.html',
-'name':'Capacitive\nReactance',
+'name':'LCR Steady State',
 'hint':'''
-	Calculate Capacitive reactance(XC) by analysing input and output waveforms of an RC network.<br>
-	Plot frequency vs 1/XC, and verify its linear nature
+	Study the phase shifts in an LCR circuit, and also note that the sum of VL and VC goes to zero at resonance.
 	'''
 }
 
-class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
+class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 	def __init__(self, parent=None,**kwargs):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
@@ -40,7 +38,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot1.setLabel('bottom','Time -->', units='S',**labelStyle)
-
+		self.p1legend = self.plot1.addLegend(offset=(-1,1))
 		self.p2=self.enableRightAxis(self.plot1)
 
 		self.plot1.getAxis('left').setLabel('Vc -->>', color='#ffffff')
@@ -49,8 +47,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.I.set_gain('CH1',1)
 		self.I.set_gain('CH2',1)
 		self.plot1.setYRange(-8.5,8.5)
-
-		self.p2.setYRange(-8.5/self.resistance.value(),8.5/self.resistance.value())
+		self.p2.setYRange(-3.3/self.resistance.value(),3.3/self.resistance.value())
 
 
 		self.CC = analyticsClass()
@@ -61,8 +58,14 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.setTimeGap(20)
 		self.timer = QtCore.QTimer()
 
-		self.curveCH1 = self.addCurve(self.plot1,'VC(CH1-CH2)',(255,255,255))
-		self.curveCH2 = self.addCurve(self.p2,'Current',(0,255,255))
+		self.curveVL = self.addCurve(self.plot1,'VL(CH1-CH2)',(255,255,255))
+		self.curveVC = self.addCurve(self.plot1,'VC(CH2-CH3)',(255,255,0))
+		self.curveVLC = self.addCurve(self.plot1,'VLC(VL + VC)',(255,0,0))
+		self.curveVR = self.addCurve(self.plot1,'VR(CH3)',(0,255,0))
+		self.curveI = self.addCurve(self.p2,'Current',(0,255,255))
+		self.p1legend.addItem(self.curveI,'current')
+
+
 		self.WidgetLayout.setAlignment(QtCore.Qt.AlignLeft)
 
 		a1={'TITLE':'Wave 1','MIN':0,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1','LINK':self.updateLabels}
@@ -105,7 +108,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		if self.I.sine1freq < 150: self.prescaler = 3
 		else: self.prescaler = 0
 		self.I.configure_trigger(0,'CH1',0,resolution=10,prescaler=self.prescaler)
-		self.I.capture_traces(2,self.samples,self.tg)
+		self.I.capture_traces(3,self.samples,self.tg)
 		self.timer.singleShot(self.samples*self.I.timebase*1e-3+50,self.plotData)
 
 	def plotData(self): 
@@ -118,13 +121,21 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 				return
 		self.I.__fetch_channel__(1)
 		self.I.__fetch_channel__(2)
+		self.I.__fetch_channel__(3)
 		T = self.I.achans[0].get_xaxis()*1e-6
 		VCH1 = self.I.achans[0].get_yaxis()
 		VCH2 = self.I.achans[1].get_yaxis()
-		I = VCH2/self.resistance.value()
-		VC = VCH1-VCH2
-		self.curveCH1.setData(T,VC,connect='finite')
-		self.curveCH2.setData(T,I,connect='finite')
+		VCH3 = self.I.achans[2].get_yaxis()
+		I = VCH3/self.resistance.value()   
+		VR = VCH3
+		VL = VCH1-VCH2 - (VR*self.resistanceInductor.value()/self.resistance.value())
+		VC = VCH2-VCH3
+		self.curveVL.setData(T,VL,connect='finite')
+		self.curveVC.setData(T,VC,connect='finite')
+		self.curveVR.setData(T,VR,connect='finite')
+		self.curveVLC.setData(T,VL+VC,connect='finite')
+
+		self.curveI.setData(T,I,connect='finite')
 		if self.acquireParams:
 			pars1 = self.CC.sineFit(T,VC)
 			pars2 = self.CC.sineFit(T,I)#,freq=self.frq)

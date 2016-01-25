@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NFC.ui'
 #
-# Created: Sat Jan 23 18:45:06 2016
+# Created: Sun Jan 24 10:32:22 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

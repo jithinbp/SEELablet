@@ -33,7 +33,10 @@ from PyQt4 import QtCore, QtGui
 
 params = {
 'image' : 'sensors.png',
-'name':'Sensor\ntmp Logger'
+'name':'Sensor\ntmp Logger',
+'hint':'''
+	Temporary application to monitor MPU6050 and other I2C sensors
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):

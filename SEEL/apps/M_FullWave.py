@@ -23,7 +23,18 @@ import sys,functools
 params = {
 'image' : 'fullwave.png',
 'helpfile': 'http://hyperphysics.phy-astr.gsu.edu/hbase/electronic/rectifiers.html',
-'name':'Full Wave\nRectifier'
+'name':'Full Wave\nRectifier',
+'hint':'''
+	Study Full Wave rectifiers.<br>
+	Connect Wavegen 1 to a diode as well as CH1.<br>
+	Connect Wavegen 2 to a reversed diode as well as CH2.<br>
+	connect the other end of both the diodes to CH3.<br>
+	Provide a load resistor(1K) from CH2 to ground.<br>
+	Set 180 phase difference between the wave generators and Observe full wave rectification.<br>
+	Add a capacitor in parallel to the load resistor and observe filter effects.
+	
+	'''
+
 }
 
 class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):

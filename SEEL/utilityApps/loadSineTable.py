@@ -72,6 +72,28 @@ class AppWindow(QtGui.QMainWindow, loadSineTable.Ui_MainWindow):
             item.setText('%.5f'%y1[a])
         QtGui.QMessageBox.about(self, 'Sine Wave','Table Contents set to sine')
 
+
+    def setTria1(self):
+        for a in range(512):
+            item =self.table.item(a,0)
+            if item==None:
+                item = QtGui.QTableWidgetItem()
+                self.table.setItem(a,0,item)
+            item.setText('%d'%abs(a-256))
+        self.loadSine1()
+        QtGui.QMessageBox.about(self, 'Triangular Wave','Table Contents set to Triangular')
+
+    def setTria2(self):
+        for a in range(512):
+            item =self.table.item(a,1)
+            if item==None:
+                item = QtGui.QTableWidgetItem()
+                self.table.setItem(a,1,item)
+            item.setText('%d'%abs(a-256))
+        self.loadSine2()
+        QtGui.QMessageBox.about(self, 'Triangular Wave','Table Contents set to Triangular')
+
+
     def loadSine1(self):
         tbl = []
         for a in range(512):

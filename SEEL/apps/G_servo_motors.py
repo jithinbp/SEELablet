@@ -10,7 +10,12 @@ from PyQt4 import QtGui, QtCore
 params = {
 'image' : 'servo.jpg',
 'helpfile': 'servos.html',
-'name':'Servo Motors'
+'name':'Servo Motors',
+'hint':'''
+	Control servo motors such as SG-90.<br>
+	Up to 4 servo motors may be driven with signals present at SQR1-4.
+	This utility allows setting the angle via sliders
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow):

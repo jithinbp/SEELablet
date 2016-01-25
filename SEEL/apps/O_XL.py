@@ -23,7 +23,11 @@ import sys,functools,time
 params = {
 'image' : 'halfwave.png',
 'helpfile': 'http://www.electronics-tutorials.ws/inductor/ac-inductors.html',
-'name':'Inductive\nReactance'
+'name':'Inductive\nReactance',
+'hint':'''
+	Calculate Inductive reactance(XL) by analysing input and output waveforms of an RC network.<br>
+	Plot frequency vs XL, and verify its linear nature
+	'''
 }
 
 class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
@@ -53,6 +57,7 @@ class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 		self.I.configure_trigger(0,'CH1',0)
 		self.tg=20
 		self.samples = 2000
+		self.prescaler = 0
 		self.setTimeGap(20)
 		self.timer = QtCore.QTimer()
 
@@ -60,9 +65,13 @@ class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 		self.curveCH2 = self.addCurve(self.p2,'Current',(0,255,255))
 		self.WidgetLayout.setAlignment(QtCore.Qt.AlignLeft)
 
-		a1={'TITLE':'Wave 1','MIN':10,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1'}
+		a1={'TITLE':'Wave 1','MIN':0,'MAX':5000,'FUNC':self.I.set_sine1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #1','LINK':self.updateLabels}
 		self.fdial = self.dialIcon(**a1)
 		self.WidgetLayout.addWidget(self.fdial)
+		self.fspin = self.doubleSpinIcon(**a1)
+		self.WidgetLayout.addWidget(self.fspin)
+	
+	
 		self.timer.singleShot(100,self.run)
 		self.resultsTable.setRowCount(50)
 		self.resultsTable.setColumnCount(4)
@@ -72,21 +81,19 @@ class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 		self.plotAButton.setText('F vs XL')
 		self.plotBButton.setParent(None)#Text('F vs 1/XL')
 
+	def updateLabels(self,value,units=''):
+		self.fdial.value.setText('%.3f %s '%(value,units))
+		self.fspin.value.setText('%.3f %s '%(value,units))
+		if value:self.tg = 1e6*(5./value)/self.samples
+		if self.tg<2:self.tg=2
+		elif self.tg>200:self.tg=200
+		self.setTimeGap(self.tg)
+        
 	def setTimeGap(self,tg):
 		self.tg = tg
+		self.plot1.setXRange(0,self.samples*self.tg*1e-6)
 		self.plot1.setLimits(yMax=8,yMin=-8,xMin=0,xMax=self.samples*self.tg*1e-6)
 		self.p2.setLimits(yMax=8/self.resistance.value(),yMin=-8/self.resistance.value(),xMin=0,xMax=self.samples*self.tg*1e-6)
-
-
-	def launchOutputs(self):
-		if self.I:
-			from SEEL.controls import outputs
-			inst = outputs.AppWindow(self,I=self.I)
-			inst.show()
-			size = inst.geometry()
-			inst.setGeometry(300, 50,size.width(), size.height())
-		else:
-			print (self.setWindowTitle('Device Not Connected!'))
 
 
 	def fit(self):
@@ -94,7 +101,9 @@ class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 		self.acquireParams = True
 		
 	def run(self):
-		self.I.configure_trigger(0,'CH1',0,resolution=10,prescaler=3)
+		if self.I.sine1freq < 150: self.prescaler = 3
+		else: self.prescaler = 0
+		self.I.configure_trigger(0,'CH1',0,resolution=10,prescaler=self.prescaler)
 		self.I.capture_traces(2,self.samples,self.tg)
 		self.timer.singleShot(self.samples*self.I.timebase*1e-3+50,self.plotData)
 
@@ -156,9 +165,7 @@ class AppWindow(QtGui.QMainWindow, template_xl.Ui_MainWindow,utilitiesClass):
 		#self.newPlot(F,1./np.array(XC),title = "F vs 1/XL: ",xLabel = 'F',yLabel='1/XL')        
 
 	def saveFile(self):
-		fileName = QtGui.QFileDialog.getSaveFileName(self, 'this Title', '~/')#, filter='*.txt')
-		if fileName:
-			print (fileName)
+		self.saveToCSV(self.resultsTable)
 
 	def setTimebase(self,T):
 		self.tgs = [0.5,1,2,4,6,8,10,25,50,100]

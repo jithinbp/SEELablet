@@ -23,7 +23,8 @@ import numpy as np
 params = {
 'image' : 'transistorCE.png',
 'helpfile': 'transistorCE.html',
-'name':'Transistor CE\nCharacteristics'
+'name':'Transistor CE\nCharacteristics',
+'hint':'Study the dependence of common emitter Characteristics of NPN transistors on base current .\n uses PVS2 as the voltage source for setting collector voltage,\n and PVS3 with a 200K resistor connected in series as the base current source.\nThe collector voltage is monitored via CH3. '
 }
 
 class AppWindow(QtGui.QMainWindow, transistorCE.Ui_MainWindow,utilitiesClass):

@@ -11,6 +11,7 @@ from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget,pwmWidget,supplyWidget,setStateList
+from SEEL.templates.widgets import spinBox,doubleSpinBox
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -102,23 +103,6 @@ class utilitiesClass():
 			pos+=1
 		return data
 
-	def saveTableData(self,qtablewidget,filename):
-		data = [[] for a in range(len(args))]
-		pos=0
-		for col in args:
-			for row in range(50):
-				item = qtablewidget.item(row,col)
-				if item:
-					try:
-						data[pos].append(float(item.text()))
-					except:
-						break
-				else:
-					break
-			pos+=1
-		return data
-
-
 
 	def newPlot(self,x,y,**args):
 		self.plot_ext = pg.GraphicsWindow(title=args.get('title',''))
@@ -185,6 +169,54 @@ class utilitiesClass():
 	def displayDialog(self,txt=''):
 			QtGui.QMessageBox.about(self, 'Message',  txt)
 
+
+	class spinIcon(QtGui.QFrame,spinBox.Ui_Form):
+		def __init__(self,**args):
+			super(utilitiesClass.spinIcon, self).__init__()
+			self.setupUi(self)
+			self.name = args.get('TITLE','')
+			self.title.setText(self.name)
+			self.func = args.get('FUNC',None)
+			self.units = args.get('UNITS','')
+			if 'TOOLTIP' in args:self.widgetFrameOuter.setToolTip(args.get('TOOLTIP',''))
+			self.linkFunc = args.get('LINK',None)
+
+			self.scale = args.get('SCALE_FACTOR',1)
+
+			self.spinBox.setMinimum(args.get('MIN',0))
+			self.spinBox.setMaximum(args.get('MAX',100))
+
+		def setValue(self,val):
+			retval = self.func(val)
+			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			if self.linkFunc:
+				self.linkFunc(retval*self.scale,self.units)
+				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
+
+	class doubleSpinIcon(QtGui.QFrame,doubleSpinBox.Ui_Form):
+		def __init__(self,**args):
+			super(utilitiesClass.doubleSpinIcon, self).__init__()
+			self.setupUi(self)
+			self.name = args.get('TITLE','')
+			self.title.setText(self.name)
+			self.func = args.get('FUNC',None)
+			self.units = args.get('UNITS','')
+			if 'TOOLTIP' in args:self.widgetFrameOuter.setToolTip(args.get('TOOLTIP',''))
+			self.linkFunc = args.get('LINK',None)
+
+			self.scale = args.get('SCALE_FACTOR',1)
+
+			self.doubleSpinBox.setMinimum(args.get('MIN',0))
+			self.doubleSpinBox.setMaximum(args.get('MAX',100))
+
+		def setValue(self,val):
+			retval = self.func(val)
+			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			if self.linkFunc:
+				self.linkFunc(retval*self.scale,self.units)
+				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
+
+
 	class dialIcon(QtGui.QFrame,dial.Ui_Form):
 		def __init__(self,**args):
 			super(utilitiesClass.dialIcon, self).__init__()
@@ -207,6 +239,7 @@ class utilitiesClass():
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
+
 
 
 	class buttonIcon(QtGui.QFrame,button.Ui_Form):
@@ -242,16 +275,30 @@ class utilitiesClass():
 			else: self.value.setText('%.3e %s '%(retval,self.units))
 
 	class experimentIcon(QtGui.QPushButton):
+		mouseHover = QtCore.pyqtSignal(str)
 		def __init__(self,name,launchfunc):
 			super(utilitiesClass.experimentIcon, self).__init__()
+			self.setMouseTracking(True)
 			self.name = name
 			tmp = importlib.import_module('SEEL.apps.'+name)
-			self.setText(tmp.params.get('name',name))
+			genName = tmp.params.get('name',name)
+			self.setText(genName)
+			self.hintText = tmp.params.get('hint','No summary available')
+			self.hintText = '''
+			<p><strong>%s</strong>.</p>
+			%s
+			'''%(genName.replace('\n',' '), self.hintText)
 			self.func = launchfunc			
 			self.clicked.connect(self.func)
 			self.setMinimumHeight(70)
 			self.setMaximumWidth(170)
 			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.params.get('image','') ))))
+
+		def enterEvent(self, event):
+			self.mouseHover.emit(self.hintText)
+
+		def leaveEvent(self, event):
+			self.mouseHover.emit('')
 
 
 
@@ -355,6 +402,22 @@ class utilitiesClass():
 		def toggle4(self,state):
 			self.I.set_state(SQR4 = state)
 
-
+	def saveToCSV(self,table):
+		path = QtGui.QFileDialog.getSaveFileName(
+				self, 'Save File', '~/', 'CSV(*.csv)')
+		if path:
+			import csv
+			with open(unicode(path), 'wb') as stream:
+				writer = csv.writer(stream)
+				for row in range(table.rowCount()):
+					rowdata = []
+					for column in range(table.columnCount()):
+						item = table.item(row, column)
+						if item is not None:
+							rowdata.append(
+								unicode(item.text()).encode('utf8'))
+						else:
+							rowdata.append('')
+					writer.writerow(rowdata)
 
 

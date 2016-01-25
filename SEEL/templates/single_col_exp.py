@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Sat Jan 23 18:45:05 2016
+# Created: Mon Jan 25 17:11:09 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(405, 659)
+        MainWindow.resize(434, 667)
         MainWindow.setMinimumSize(QtCore.QSize(0, 0))
         MainWindow.setMaximumSize(QtCore.QSize(16777215, 16777215))
         MainWindow.setStyleSheet(_fromUtf8("QPushButton{\n"
@@ -106,7 +106,10 @@ class Ui_MainWindow(object):
 "border: none;\n"
 "border-top: 1px solid black;\n"
 "}\n"
-"\n"
+"QTextBrowser{\n"
+"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"stop: 0 #cdf, stop: 0.7 #cdc);\n"
+"}\n"
 "\n"
 "\n"
 "QWidget.PeripheralCollectionInner {\n"
@@ -150,8 +153,21 @@ class Ui_MainWindow(object):
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.scrollArea_4 = QtGui.QScrollArea(self.tab)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
+        self.frame = QtGui.QFrame(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
+        self.frame.setSizePolicy(sizePolicy)
+        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setObjectName(_fromUtf8("frame"))
+        self.verticalLayout_4 = QtGui.QVBoxLayout(self.frame)
+        self.verticalLayout_4.setSpacing(0)
+        self.verticalLayout_4.setMargin(0)
+        self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
+        self.scrollArea_4 = QtGui.QScrollArea(self.frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollArea_4.sizePolicy().hasHeightForWidth())
@@ -162,8 +178,8 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.SCF1 = QtGui.QWidget()
-        self.SCF1.setGeometry(QtCore.QRect(0, 0, 373, 632))
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        self.SCF1.setGeometry(QtCore.QRect(0, 0, 400, 444))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SCF1.sizePolicy().hasHeightForWidth())
@@ -175,7 +191,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.setSpacing(0)
         self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
         self.frame_5 = QtGui.QFrame(self.SCF1)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_5.sizePolicy().hasHeightForWidth())
@@ -195,7 +211,35 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addWidget(self.frame_5, 0, 0, 1, 1)
         self.gridLayout_5.setColumnStretch(0, 1)
         self.scrollArea_4.setWidget(self.SCF1)
-        self.verticalLayout.addWidget(self.scrollArea_4)
+        self.verticalLayout_4.addWidget(self.scrollArea_4)
+        self.verticalLayout.addWidget(self.frame)
+        self.frame_3 = QtGui.QFrame(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
+        self.frame_3.setSizePolicy(sizePolicy)
+        self.frame_3.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame_3.setObjectName(_fromUtf8("frame_3"))
+        self.verticalLayout_5 = QtGui.QVBoxLayout(self.frame_3)
+        self.verticalLayout_5.setSpacing(0)
+        self.verticalLayout_5.setMargin(0)
+        self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
+        self.hintText = QtGui.QTextBrowser(self.frame_3)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.hintText.sizePolicy().hasHeightForWidth())
+        self.hintText.setSizePolicy(sizePolicy)
+        self.hintText.setMinimumSize(QtCore.QSize(0, 30))
+        self.hintText.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.hintText.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.hintText.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.hintText.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse)
+        self.hintText.setObjectName(_fromUtf8("hintText"))
+        self.verticalLayout_5.addWidget(self.hintText)
+        self.verticalLayout.addWidget(self.frame_3)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName(_fromUtf8("tab_2"))
@@ -216,14 +260,14 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollArea_5.sizePolicy().hasHeightForWidth())
         self.scrollArea_5.setSizePolicy(sizePolicy)
-        self.scrollArea_5.setMinimumSize(QtCore.QSize(350, 0))
+        self.scrollArea_5.setMinimumSize(QtCore.QSize(400, 0))
         self.scrollArea_5.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.scrollArea_5.setStyleSheet(_fromUtf8(""))
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollArea_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.SCF2 = QtGui.QWidget()
-        self.SCF2.setGeometry(QtCore.QRect(0, 0, 373, 603))
+        self.SCF2.setGeometry(QtCore.QRect(0, 0, 402, 600))
         self.SCF2.setStyleSheet(_fromUtf8(""))
         self.SCF2.setObjectName(_fromUtf8("SCF2"))
         self.gridLayout_6 = QtGui.QGridLayout(self.SCF2)
@@ -279,7 +323,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 405, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 434, 25))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuUtilities = QtGui.QMenu(self.menubar)
         self.menuUtilities.setObjectName(_fromUtf8("menuUtilities"))
@@ -308,6 +352,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "SEELablet: Control Panel", None))
         self.SCF1.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
+        self.hintText.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Experiments ", None))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Icons for launching experiments", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Help", None))

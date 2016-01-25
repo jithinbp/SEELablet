@@ -24,7 +24,14 @@ import numpy as np
 params = {
 'image' : 'bodeplot.jpg',
 'helpfile': 'transistorCE.html',
-'name':'Filter\nCharacteristics'
+'name':'Filter\nCharacteristics',
+'hint':'''
+	Study frequency responses of filters.<br>
+	Wavegen 1 is connected to the input and simultaneously monitored via CH1.<br>
+	The output of the filter is connected to CH2.<br>
+	Curve fitting routines extract data and plot the dependence of amplitude and phase on input frequency.
+	'''
+
 }
 
 class AppWindow(QtGui.QMainWindow, template_bandpass.Ui_MainWindow,utilitiesClass):

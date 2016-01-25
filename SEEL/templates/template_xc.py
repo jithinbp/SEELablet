@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'template_xc.ui'
 #
-# Created: Sat Jan 23 18:45:05 2016
+# Created: Sun Jan 24 10:32:21 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -160,7 +160,7 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName(_fromUtf8("splitter"))
         self.frame_3 = QtGui.QFrame(self.splitter)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
@@ -192,7 +192,7 @@ class Ui_MainWindow(object):
         self.resultsTable.verticalHeader().setStretchLastSection(True)
         self.verticalLayout_2.addWidget(self.resultsTable)
         self.frame_6 = QtGui.QFrame(self.frame_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Preferred)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_6.sizePolicy().hasHeightForWidth())
@@ -215,10 +215,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.plotBButton)
         self.verticalLayout_2.addWidget(self.frame_6)
         self.scrollArea = QtGui.QScrollArea(self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
+        self.scrollArea.setSizePolicy(sizePolicy)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 461, 348))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 76, 348))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.gridLayout_4 = QtGui.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_4.setMargin(2)
@@ -235,12 +240,19 @@ class Ui_MainWindow(object):
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 832, 25))
         self.menubar.setObjectName(_fromUtf8("menubar"))
+        self.menuFile = QtGui.QMenu(self.menubar)
+        self.menuFile.setObjectName(_fromUtf8("menuFile"))
         MainWindow.setMenuBar(self.menubar)
+        self.actionSave_as = QtGui.QAction(MainWindow)
+        self.actionSave_as.setObjectName(_fromUtf8("actionSave_as"))
+        self.menuFile.addAction(self.actionSave_as)
+        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.fit)
         QtCore.QObject.connect(self.plotAButton, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.plotA)
         QtCore.QObject.connect(self.plotBButton, QtCore.SIGNAL(_fromUtf8("clicked()")), MainWindow.plotB)
+        QtCore.QObject.connect(self.actionSave_as, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.saveFile)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -253,4 +265,7 @@ class Ui_MainWindow(object):
         self.frame_2.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
         self.resultsTable.setSortingEnabled(False)
         self.label_3.setText(_translate("MainWindow", "Plot:", None))
+        self.menuFile.setTitle(_translate("MainWindow", "File", None))
+        self.actionSave_as.setText(_translate("MainWindow", "save as", None))
+        self.actionSave_as.setShortcut(_translate("MainWindow", "Ctrl+S", None))
 

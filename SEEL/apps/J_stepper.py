@@ -22,7 +22,12 @@ import sys
 
 params = {
 'image' : 'servo.jpg',
-'name' : 'Stepper\nMotors'
+'name' : 'Stepper\nMotors',
+'hint':'''
+	Control 4-wire stepper motors via SQR1-4.<br>
+	Do not connect high loads to SQR outputs. Use a push pull driver IC such as L293B with an external power supply.
+	'''
+
 }
 
 class AppWindow(QtGui.QMainWindow, stepper.Ui_MainWindow):
