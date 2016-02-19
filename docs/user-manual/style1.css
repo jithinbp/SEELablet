@@ -17,3 +17,36 @@ h2 {
 math{
     display: inline !important;
 }
+
+/* links to the table of contents */
+a.retButton{
+    background: wheat;
+    border: 1px orange solid;
+    border-radius: 6px;
+    padding: 3px;
+    display: inline-block;
+    cursor: pointer;
+    color: brown;
+    font-size: 120%;
+}
+a.retButton:link {text-decoration: none;}
+a.retButton:hover {
+    color: #3366CC;
+    background: lightcyan;
+    border: 1px solid navy;
+    font-size: 160%;
+}
+
+/* styles inside the table of contents */
+
+a[href*=__Toc] {
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 120%;
+}
+
+a[href*=__Toc]:hover {
+    font-size: 125%;
+    margin-left: -1em;
+    color: red;
+}
