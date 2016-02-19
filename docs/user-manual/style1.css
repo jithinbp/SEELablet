@@ -51,9 +51,3 @@ a[href*=__Toc]:hover {
     color: red;
 }
 
-/* fix the useless text exported from img alt attribute by odt2xhtml */
-
-div[class^=fr]img:after{
-    color: rgba(0,0,0,0); /* transparent */
-}
-
