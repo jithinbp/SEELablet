@@ -1,0 +1,19 @@
+
+h1{
+    font-size: 32px !important;
+}
+
+h2 {
+    margin-left: 0px !important;
+    padding-left: 2.8cm;
+    background-image: url(blue-bar.png);
+    background-repeat: no-repeat;
+    background-position: 0px 20px;
+    background-color: white !important;
+    color: #33a3a3;
+    font-size: 24px !important;
+}
+
+math{
+    display: inline !important;
+}
