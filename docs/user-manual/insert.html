@@ -7,7 +7,6 @@
 	    var imgAndText = div.html();
 	    /* deletes after img tag event in multiline context */
 	    var img=imgAndText.replace(/>[\s\S]*/, ">");
-	    console.log(img);
 	    /* keep the image only */
 	    div.html(img);
 	  }
