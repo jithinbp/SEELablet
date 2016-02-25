@@ -10,9 +10,6 @@ refer to SENSORS.supported
 from __future__ import print_function
 
 from SEEL.utilitiesClass import utilitiesClass
-from SEEL.SENSORS.supported import supported
-from SEEL.sensorlist import sensors as sensorHints
-from SEEL.templates.widgets import sensorWidget
 from SEEL.templates import sensorGrid
 
 
@@ -29,7 +26,8 @@ params = {
 'hint':'''
 	Display values returned by sensors connected to the I2C input.</br>
 	Supported sensors include MPU6050(3-axis Accel/gyro), TSL2561(luminosity),<br>
-	HMC5883L(3-axis magnetometer), SHT21(humidity), BMP180(Pressure,Altitude) etc.
+	HMC5883L(3-axis magnetometer), SHT21(humidity), BMP180(Pressure,Altitude),
+	MLX90614(PAssive IR based thermometer) etc,
 	'''
 }
 
@@ -41,6 +39,12 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 		if self.I:
 			self.I.I2C.init()
 			self.I.I2C.config(400e3)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
+		from SEEL.SENSORS.supported import supported
+		self.supported = supported
+		#from SEEL.sensorlist import sensors as sensorHints
+		#self.hints = sensorHints
 
 		self.foundSensors=[]
 		
@@ -49,47 +53,11 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 		self.looptimer.start(20)
 		self.deviceMenus=[]
 		self.sensorWidgets=[]
-		self.availableClasses=[0x68,0x1E,0x5A,0x77,0x39,0x40]
 
 	def updateData(self):
 		for a in self.sensorWidgets:
 			if a.autoRefresh.isChecked():
 				a.read()
-
-	class sensorIcon(QtGui.QFrame,sensorWidget.Ui_Form):
-		def __init__(self,cls):
-			super(AppWindow.sensorIcon, self).__init__()
-			self.cls = cls
-			self.setupUi(self)
-			self.func = cls.getRaw
-			self.plotnames = cls.PLOTNAMES
-			self.menu = self.PermanentMenu()
-			self.menu.setMinimumHeight(25)
-			self.sub_menu = QtGui.QMenu('%s:%s'%(hex(cls.ADDRESS),cls.name[:15]))
-			for i in cls.params: 
-				mini=self.sub_menu.addMenu(i) 
-				for a in cls.params[i]:
-					Callback = functools.partial(getattr(cls,i),a)		
-					mini.addAction(str(a),Callback)
-			self.menu.addMenu(self.sub_menu)
-			self.formLayout.insertWidget(0,self.menu)
-
-		class PermanentMenu(QtGui.QMenu):
-			def hideEvent(self, event):
-				self.show()
-
-
-		def read(self):
-			retval = self.func()
-			if not retval:
-				self.resultLabel.setText('err')
-				return
-			res = ''
-			for a in range(len(retval)):
-				res+=self.plotnames[a]+'\t%.3e\n'%(retval[a])
-			self.resultLabel.setText(res)
-
-
 
 	def autoScan(self):
 		self.scan()
@@ -105,18 +73,16 @@ class AppWindow(QtGui.QMainWindow, sensorGrid.Ui_MainWindow,utilitiesClass):
 		self.ExperimentLayout.setAlignment(QtCore.Qt.AlignTop)
 		for a in lst:
 			cls=False
-			cls_module = supported.get(a,None)
+			cls_module = self.supported.get(a,None)
 			if cls_module:
 				cls = cls_module.connect(self.I.I2C)
-			else:
-				cls=None
-			if cls:
-				if col==colLimit:
-					col=0;row+=1
-				newSensor=self.sensorIcon(cls)
-				self.ExperimentLayout.addWidget(newSensor,row,col)
-				self.sensorWidgets.append(newSensor)
-				col+=1
+				if cls:
+					if col==colLimit:
+						col=0;row+=1
+					newSensor=self.sensorIcon(cls)
+					self.ExperimentLayout.addWidget(newSensor,row,col)
+					self.sensorWidgets.append(newSensor)
+					col+=1
 			
 	def __del__(self):
 		self.looptimer.stop()

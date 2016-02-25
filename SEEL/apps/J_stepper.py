@@ -35,8 +35,8 @@ class AppWindow(QtGui.QMainWindow, stepper.Ui_MainWindow):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 
-		self.setWindowTitle('Stepper Motor Control: '+self.I.H.version_string.decode("utf-8"))
 
 	def takeSteps(self):
 		steps = self.steps.value()

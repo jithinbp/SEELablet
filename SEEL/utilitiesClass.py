@@ -1,5 +1,4 @@
 import time,random,functools,pkgutil,importlib,functools,pkg_resources
-import numpy as np
 
 import os
 os.environ['QT_API'] = 'pyqt'
@@ -9,9 +8,9 @@ sip.setapi("QVariant", 2)
 
 from PyQt4 import QtCore, QtGui
 import pyqtgraph as pg
-import pyqtgraph.opengl as gl
-from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget,pwmWidget,supplyWidget,setStateList
+from SEEL.templates.widgets import dial,button,selectAndButton,sineWidget,pwmWidget,supplyWidget,setStateList,sensorWidget
 from SEEL.templates.widgets import spinBox,doubleSpinBox
+import numpy as np
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -33,36 +32,74 @@ class utilitiesClass():
 	plots3D=[]
 	plots2D=[]
 	axisItems=[]
+	curves=[]
 	total_plot_areas=0
 	funcList=[]
+	gl=None
+	properties={'colorScheme':'black'}
 	def __init__(self):
 		pass
+
+	def __importGL__(self):
+		print ('importing opengl')
+		import pyqtgraph.opengl as gl
+		self.gl = gl
 
 	def updateViews(self,plot):
 		for a in plot.viewBoxes:
 			a.setGeometry(plot.getViewBox().sceneBoundingRect())
 			a.linkedViewChanged(plot.plotItem.vb, a.XAxis)
 
+	def setColorSchemeWhite(self):
+		self.properties['colorScheme']='white'
+		for curve in self.curves:
+			curve.setShadowPen(color=(0,0,0,100), width=3)
+		for plot in self.plots2D:
+			plot.setBackground((252,252,245, 255))
+			for a in ['left','bottom','right']:
+				try:
+					axis = plot.getAxis(a)
+					axis.setPen('k')
+				except:
+					pass
+
+
+	def setColorSchemeBlack(self):
+		self.properties['colorScheme']='black'
+		for plot in self.plots2D:
+			plot.setBackground((0,0,0,255))
+			for a in ['left','bottom','right']:
+				try:
+					axis = plot.getAxis(a)
+					axis.setPen('w')
+				except:
+					pass
+
+
+		
 	def random_color(self):
 		c=QtGui.QColor(random.randint(20,255),random.randint(20,255),random.randint(20,255))
 		if np.average(c.getRgb())<150:
 			c=self.random_color()
 		return c
 
-	def add2DPlot(self,plot_area):
-		plot=pg.PlotWidget()
+	def add2DPlot(self,plot_area,**args):
+		plot=pg.PlotWidget(**args)
 		plot.setMinimumHeight(250)
 		plot_area.addWidget(plot)
 		plot.viewBoxes=[]
 		self.plots2D.append(plot)
+		if self.properties['colorScheme']=='white':
+			self.setColorSchemeWhite()
 		return plot
 
 
 	def add3DPlot(self,plot_area):
-		plot3d = gl.GLViewWidget()
-		#gx = gl.GLGridItem();gx.rotate(90, 0, 1, 0);gx.translate(-10, 0, 0);self.plot.addItem(gx)
-		#gy = gl.GLGridItem();gy.rotate(90, 1, 0, 0);gy.translate(0, -10, 0);self.plot.addItem(gy)
-		gz = gl.GLGridItem();#gz.translate(0, 0, -10);
+		if not self.gl : self.__importGL__()
+		plot3d = self.gl.GLViewWidget()
+		#gx = self.gl.GLGridItem();gx.rotate(90, 0, 1, 0);gx.translate(-10, 0, 0);self.plot.addItem(gx)
+		#gy = self.gl.GLGridItem();gy.rotate(90, 1, 0, 0);gy.translate(0, -10, 0);self.plot.addItem(gy)
+		gz = self.gl.GLGridItem();#gz.translate(0, 0, -10);
 		plot3d.addItem(gz);
 		plot3d.opts['distance'] = 40
 		plot3d.opts['elevation'] = 5
@@ -81,6 +118,7 @@ class utilitiesClass():
 		else:curve = pg.PlotCurveItem()
 		plot.addItem(curve)
 		curve.setPen(color=col, width=1)
+		self.curves.append(curve)
 		return curve
 
 	def rebuildLegend(self,plot):
@@ -140,6 +178,8 @@ class utilitiesClass():
 		plot.viewBoxes.append(p)
 		Callback = functools.partial(self.updateViews,plot)		
 		plot.getViewBox().sigStateChanged.connect(Callback)
+		if self.properties['colorScheme']=='white':
+			self.setColorSchemeWhite()
 		return p
 
 
@@ -235,7 +275,7 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			self.value.setText('%.2f %s '%(retval*self.scale,self.units))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
@@ -347,6 +387,40 @@ class utilitiesClass():
 			self.WAVE2_FREQ.setText('%.2f'%(f))
 
 
+	class sensorIcon(QtGui.QFrame,sensorWidget.Ui_Form):
+		def __init__(self,cls):
+			super(utilitiesClass.sensorIcon, self).__init__()
+			self.cls = cls
+			self.setupUi(self)
+			self.func = cls.getRaw
+			self.plotnames = cls.PLOTNAMES
+			self.menu = self.PermanentMenu()
+			self.menu.setMinimumHeight(25)
+			self.sub_menu = QtGui.QMenu('%s:%s'%(hex(cls.ADDRESS),cls.name[:15]))
+			for i in cls.params: 
+				mini=self.sub_menu.addMenu(i) 
+				for a in cls.params[i]:
+					Callback = functools.partial(getattr(cls,i),a)		
+					mini.addAction(str(a),Callback)
+			self.menu.addMenu(self.sub_menu)
+			self.formLayout.insertWidget(0,self.menu)
+
+		class PermanentMenu(QtGui.QMenu):
+			def hideEvent(self, event):
+				self.show()
+
+
+		def read(self):
+			retval = self.func()
+			if not retval:
+				self.resultLabel.setText('err')
+				return
+			res = ''
+			for a in range(len(retval)):
+				res+=self.plotnames[a]+'\t%.3e\n'%(retval[a])
+			self.resultLabel.setText(res)
+
+
 
 	class pwmWidget(QtGui.QWidget,pwmWidget.Ui_Form):
 		def __init__(self,I):
@@ -388,6 +462,8 @@ class utilitiesClass():
 			self.PCS_LABEL.setText('%.3f mA'%(val*1e3))
 
 
+
+
 	class setStateIcon(QtGui.QFrame,setStateList.Ui_Form):
 		def __init__(self,**args):
 			super(utilitiesClass.setStateIcon, self).__init__()
@@ -403,8 +479,7 @@ class utilitiesClass():
 			self.I.set_state(SQR4 = state)
 
 	def saveToCSV(self,table):
-		path = QtGui.QFileDialog.getSaveFileName(
-				self, 'Save File', '~/', 'CSV(*.csv)')
+		path = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '~/', 'CSV(*.csv)')
 		if path:
 			import csv
 			with open(unicode(path), 'wb') as stream:

@@ -19,7 +19,7 @@
 
 #from __future__ import print_function
 from SEEL import interface
-
+import time
 def connect(I,cs):
 	return MF522(I,cs)
 
@@ -161,7 +161,9 @@ class MF522:
 		self.cs=cs
 		self.I = I
 		self.I.SPI.set_parameters(2,1,1,0)
-		self.reset()
+		if not self.reset():
+			self.connected=False
+			return None
 		self.write(self.TModeReg, 0x80)			
 		self.write(self.TPrescalerReg, 0xA9)
 		self.write(self.TReloadRegH, 0x03)		
@@ -172,6 +174,7 @@ class MF522:
 		
 		#Enable the antenna
 		self.enableAntenna()
+		self.connected = True
 
 	def MFRC522_Init(self):
 		GPIO.output(self.NRSTPD, 1)
@@ -192,8 +195,12 @@ class MF522:
 
 	def reset(self):
 		self.write(self.CommandReg,self.PCD_SoftReset)
+		s=time.time()
 		while (self.read(self.CommandReg) & (1<<4)):
 			print ('wait')
+			time.sleep(0.1)
+			if time.time() - s > .5: return False
+		return True
 
 	def write(self,register,val):
 		self.I.SPI.set_cs(self.cs,0)

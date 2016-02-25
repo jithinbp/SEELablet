@@ -1,7 +1,10 @@
 #pyuic4 icon.ui -o icon.py
 #pyuic4 analogScope.ui -o analogScope.py
+#pyuic4 digitalScope.ui -o digitalScope.py
+#pyuic4 calibrator.ui -o calibrator.py
+#pyuic4 aboutDevice.ui -o aboutDevice.py
 #pyuic4 transistorCE.ui -o transistorCE.py
-#pyuic4 sensorTemplate.ui -o sensorTemplate.py
+pyuic4 sensorTemplate.ui -o sensorTemplate.py
 #pyuic4 wirelessTemplate.ui -o wirelessTemplate.py
 #pyuic4 diodeIV.ui -o diodeIV.py
 #pyuic4 rectifier.ui -o rectifier.py
@@ -11,11 +14,11 @@
 #pyuic4 template_xl.ui -o template_xl.py
 #pyuic4 template_bandpass.ui -o template_bandpass.py
 #pyuic4 arbitStream.ui -o arbitStream.py
-pyuic4 single_col_exp.ui -o single_col_exp.py
+#pyuic4 single_col_exp.ui -o single_col_exp.py
 #pyuic4 controlWidgets.ui -o controlWidgets.py
 #pyuic4 simplePendulum.ui -o simplePendulum.py
 #pyuic4 sensorGrid.ui -o sensorGrid.py
-pyuic4 loadSineTable.ui -o loadSineTable.py
+#pyuic4 loadSineTable.ui -o loadSineTable.py
 #pyuic4 NFC.ui -o NFC.py
 
 cd widgets/

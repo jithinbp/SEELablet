@@ -6,17 +6,11 @@ Also Includes XY plotting mode, and fitting against standard Sine/Square functio
 '''
 
 from __future__ import print_function
-import os
-os.environ['QT_API'] = 'pyqt'
-import sip
-sip.setapi("QString", 2)
-sip.setapi("QVariant", 2)
-
+from SEEL.utilitiesClass import utilitiesClass
 
 from PyQt4 import QtCore, QtGui
 import time,sys
 from SEEL.templates import analogScope
-from SEEL.analyticsClass import analyticsClass
 
 import sys,os,string
 import time
@@ -45,28 +39,32 @@ params = {
 
 
 
-class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
+class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 	def __init__(self, parent=None,**kwargs):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
+		from SEEL.analyticsClass import analyticsClass
 		self.math = analyticsClass()
 
-		self.setWindowTitle(self.I.generic_name + ' : ' +self.I.H.version_string.decode("utf-8"))
-		self.plot=pg.PlotWidget()
-
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+		self.plot=self.add2DPlot(self.plot_area,enableMenu=False)
+		self.plot.hideButtons()
+	
 		#cross hair
 		self.vLine = pg.InfiniteLine(angle=90, movable=True)
 		#self.vLine.setPen(color=(135,44,64,150), width=3)
 		self.plot.addItem(self.vLine, ignoreBounds=False)
 
-		self.midLine = pg.InfiniteLine(angle=0, movable=False)
-		self.plot.addItem(self.midLine, ignoreBounds=False)
+		#self.midLine = pg.InfiniteLine(angle=0, movable=False)
+		#self.plot.addItem(self.midLine, ignoreBounds=False)
 
 		self.proxy = pg.SignalProxy(self.vLine.scene().sigMouseMoved, rateLimit=60, slot=self.readCursor)
-		
+		self.plot.getPlotItem().setMouseEnabled(True,False)
+
 		self.fps=0
-		self.max_samples_per_channel=[0,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4,self.I.MAX_SAMPLES/4]
+		self.MAX_SAMPLES=2000
+		self.max_samples_per_channel=[0,self.MAX_SAMPLES/4,self.MAX_SAMPLES/4,self.MAX_SAMPLES/4,self.MAX_SAMPLES/4]
 		self.liss_win=None
 		self.liss_ready=False
 		self.liss_animate_arrow1=None
@@ -75,7 +73,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.liss_anim1=None
 		self.liss_anim2=None
 		self.liss_anim3=None
-		self.samples=self.I.MAX_SAMPLES/4#self.sample_slider.value()
+		self.samples=self.max_samples_per_channel[1]
 		self.active_channels=1
 		self.channel_states=np.array([1,0,0,0])
 		self.channels_in_buffer=1
@@ -85,45 +83,34 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.timebase = g
 		self.lastTime=time.time()
 
-		self.trace_colors=[(0,255,20),(255,255,0),(255,10,100),(10,255,255)]
+		self.trace_colors=[(0,255,20),(255,0,0),(255,255,100),(10,255,255)]
 
 		self.plot.setLabel('bottom', 'Time -->>', units='S')
 		self.LlabelStyle = {'color': 'rgb%s'%(str(self.trace_colors[0])), 'font-size': '11pt'}
 		self.plot.setLabel('left','CH1', units='V',**self.LlabelStyle)
-		self.plot.addLegend(offset=(-10,30))
+		self.legend = self.plot.addLegend(offset=(-10,30))
 
-		self.plot2 = pg.ViewBox()
-		self.ax2 = pg.AxisItem('right')
-		self.plot.plotItem.layout.addItem(self.ax2, 2, 3)
-		self.plot.plotItem.scene().addItem(self.plot2)
-		self.ax2.linkToView(self.plot2)
-		self.plot2.setXLink(self.plot.plotItem)
-		self.ax2.setZValue(-10000)
-		
-		self.ax2.setWidth(40)
+		self.plot2 = self.enableRightAxis(self.plot)#pg.ViewBox(enableMenu=False)
 		
 		labelStyle = {'color': 'rgb%s'%(str(self.trace_colors[1])), 'font-size': '13pt'}
-		self.ax2.setLabel('CH2', units='V', **labelStyle)
+		self.plot.getAxis('right').setLabel('CH2', units='V', **labelStyle)
 
 		self.plot2.setGeometry(self.plot.plotItem.vb.sceneBoundingRect())
 		self.plot2.linkedViewChanged(self.plot.plotItem.vb, self.plot2.XAxis)
 		## Handle view resizing 
 		self.plot.getViewBox().sigStateChanged.connect(self.updateViews)
 
-		self.curve1 = self.plot.plot(name='CH1'); self.curve1.setPen(color=self.trace_colors[0], width=1)
-		self.curve2 = self.plot.plot(name='CH2'); self.curve2.setPen(color=self.trace_colors[1], width=1)
-		self.curve3 = self.plot.plot(name='CH3'); self.curve3.setPen(color=self.trace_colors[2], width=1)
-		self.curve4 = self.plot.plot(name='CH4'); self.curve4.setPen(color=self.trace_colors[3], width=1)
-		self.curve_lis = self.plot.plot(); self.curve_lis.setPen(color=(255,255,255), width=1)
+		self.curve1 = self.addCurve(self.plot,name='CH1'); self.curve1.setPen(color=self.trace_colors[0], width=2)
+		self.curve2 = self.addCurve(self.plot2,name='CH2');self.curve2.setPen(color=self.trace_colors[1], width=2)
+		self.curve3 = self.addCurve(self.plot,name='CH3'); self.curve3.setPen(color=self.trace_colors[2], width=2)
+		self.curve4 = self.addCurve(self.plot,name='CH4'); self.curve4.setPen(color=self.trace_colors[3], width=2)
+		self.curve_lis = self.plot.plot(); self.curve_lis.setPen(color=(255,255,255), width=2)
+		self.legend.addItem(self.curve2,'CH2')
 
 		self.curveF=[]
 		for a in range(2):
-			self.curveF.append( self.plot.plot() ); self.curveF[-1].setPen(color=(255,255,255), width=1)
-
-
-		self.curveB = pg.PlotDataItem(name='CH2')
-		self.plot2.addItem(self.curveB)
-		self.curveB.setPen(color=self.trace_colors[1], width=1)
+			self.curveF.append( self.addCurve(self.plot));
+			self.curveF[-1].setPen(color=(255,255,255), width=2)
 
 		self.curveFR = pg.PlotDataItem()
 		self.plot2.addItem(self.curveFR); self.curveFR.setPen(color=(255,255,255), width=1)
@@ -156,8 +143,10 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		self.timer = QtCore.QTimer()
 		self.finished=False
 		self.timer.singleShot(500,self.start_capture)
+
+
 		
-	def updateViews(self):
+	def updateViews(self,*args):
 			self.plot2.setGeometry(self.plot.getViewBox().sceneBoundingRect())
 			self.plot2.linkedViewChanged(self.plot.plotItem.vb, self.plot2.XAxis)
 		
@@ -174,42 +163,45 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 			self.timer.singleShot(200,self.start_capture)
 			return
 
-		temperature=self.I.get_temperature()
-		self.plot.setTitle('%0.2f fps, 	%0.1f ^C' % (self.fps,temperature ) )
-		self.channels_in_buffer=self.active_channels
+		try:
+			temperature=self.I.get_temperature()
+			self.plot.setTitle('%0.2f fps, 	%0.1f ^C' % (self.fps,temperature ) )
+			self.channels_in_buffer=self.active_channels
 
-		a = self.CH1_ENABLE.isChecked()
-		b = self.CH2_ENABLE.isChecked()
-		c = self.CH3_ENABLE.isChecked()
-		d = self.MIC_ENABLE.isChecked()
-		if c or d:
-			self.active_channels=4
-		elif b:
-			self.active_channels=2
-		elif a:
-			self.active_channels=1
-		else:
-			self.active_channels=0
-
-		self.channels_in_buffer=self.active_channels
-		self.channel_states[0]=a
-		self.channel_states[1]=b
-		self.channel_states[2]=c
-		self.channel_states[3]=d
-		
-		if self.active_channels:
-			self.prescalerValue=self.trigWaitBox.currentIndex()
-			if self.highresBox.isChecked():
-				self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=12,prescaler=self.prescalerValue)
-				self.I.capture_highres_traces(self.chan1remap,self.samples,self.timebase,trigger=self.triggerBox.isChecked())
+			a = self.CH1_ENABLE.isChecked()
+			b = self.CH2_ENABLE.isChecked()
+			c = self.CH3_ENABLE.isChecked()
+			d = self.MIC_ENABLE.isChecked()
+			if c or d:
+				self.active_channels=4
+			elif b:
+				self.active_channels=2
+			elif a:
+				self.active_channels=1
 			else:
-				self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10,prescaler=self.prescalerValue)
-				self.I.capture_traces(self.active_channels,self.samples,self.timebase,self.chan1remap,self.ch123sa,trigger=self.triggerBox.isChecked())
+				self.active_channels=0
+
+			self.channels_in_buffer=self.active_channels
+			self.channel_states[0]=a
+			self.channel_states[1]=b
+			self.channel_states[2]=c
+			self.channel_states[3]=d
+			
+			if self.active_channels:
+				if self.highresBox.isChecked():
+					self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=12,prescaler=self.prescalerValue)
+					self.I.capture_highres_traces(self.chan1remap,self.samples,self.timebase,trigger=self.triggerBox.isChecked())
+				else:
+					self.I.configure_trigger(self.trigger_channel,self.triggerChannelName,self.trigger_level,resolution=10,prescaler=self.prescalerValue)
+					self.I.capture_traces(self.active_channels,self.samples,self.timebase,self.chan1remap,self.ch123sa,trigger=self.triggerBox.isChecked())
+		except:
+			pass
 
 		self.timer.singleShot(self.samples*self.I.timebase*1e-3+10+self.prescalerValue*20,self.update)
 
 	def update(self):
 		n=0
+
 		while(not self.I.oscilloscope_progress()[0]):
 			time.sleep(0.1)
 			print (self.timebase,'correction required',n)
@@ -217,16 +209,14 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 			if n>10:
 				self.timer.singleShot(100,self.start_capture)
 				return
-		if(self.channels_in_buffer>=1):self.I.__fetch_channel__(1)
-		if(self.channels_in_buffer>=2):self.I.__fetch_channel__(2)
-		if(self.channels_in_buffer>=3):self.I.__fetch_channel__(3)
-		if(self.channels_in_buffer>=4):self.I.__fetch_channel__(4)
-
+		try:
+			for a in range(self.channels_in_buffer): self.I.__fetch_channel__(a+1)
+		except:
+			pass
 		self.curve1.clear()
 		self.curve2.clear()
 		self.curve3.clear()
 		self.curve4.clear()
-		self.curveB.clear()
 		self.curveF[0].clear()
 		self.curveF[1].clear()
 		self.curveFR.clear()
@@ -272,7 +262,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 		else:
 			self.curve_lis.clear()
-			for a in [self.curve1,self.curveB,self.curve3,self.curve4]:
+			for a in [self.curve1,self.curve2,self.curve3,self.curve4]:
 				if self.channel_states[pos]: a.setData(self.I.achans[pos].get_xaxis()*1e-6,self.I.achans[pos].get_yaxis(),connect='finite')
 				pos+=1
 
@@ -418,8 +408,8 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 	def setTimeBase(self,g):
 		timebases = [1.75,2,4,8,16,32,128,256,512,1024,1024]
+		self.prescalerValue=[0,0,0,0,1,1,2,2,3,3,3][g]
 		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.1,0.1]
-		#print (g,len(timebases),len(samplescaling))
 		self.timebase=timebases[g]
 		'''
 		if(self.active_channels==1 and self.timebase<1.0):
@@ -498,12 +488,13 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
 			R[0]=R[0]*.9;R[1]=R[1]*.9
 			#print (R)
-			self.plot.setYRange(min(R),max(R))
+			#self.plot.setYRange(min(R),max(R))
 			chan = self.I.analogInputSources['CH2']
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
 			R[0]=R[0]*.9;R[1]=R[1]*.9
 			self.plot2.setYRange(min(R),max(R))
-			self.plot.setXRange(0,self.timebase*self.samples*1e-6)
+			self.plot.setLimits(yMax=max(R),yMin=min(R),xMin=0,xMax=self.timebase*self.samples*1e-6)
+			#self.plot.setXRange(0,self.timebase*self.samples*1e-6)
 			#self.plot.setRange(QtCore.QRectF(0, -16.5, self.samples*self.timebase*1e-6, 2*16.5)) 
 
 	def enableXY(self,state):
@@ -561,10 +552,13 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 
 	def closeEvent(self, event):
 		self.timer.stop()
+		self.running =False
 		self.finished=True
 		
 
 	def __del__(self):
+		self.running =False
+		self.finished=True
 		self.timer.stop()
 		print ('bye')
 
@@ -574,5 +568,4 @@ if __name__ == "__main__":
 	app = QtGui.QApplication(sys.argv)
 	myapp = AppWindow(I=interface.connect())
 	myapp.show()
-	sys.exit(app.exec_())
-
+	app.exec_()

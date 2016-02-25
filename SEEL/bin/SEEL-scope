@@ -27,7 +27,6 @@ import SEEL.interface as interface
 from PyQt4 import QtCore, QtGui
 import time,sys
 from SEEL.templates import template_scope
-from SEEL.customui_rc import *
 
 import sys,os,string
 import time
@@ -311,6 +310,7 @@ class MyMainWindow(QtGui.QMainWindow, template_scope.Ui_MainWindow):
 			if(self.channels_in_buffer>=4):self.I.__fetch_channel__(4)
 		else:			#Logic analyzer mode [digital mode]
 			self.I.fetch_LA_channels()
+			print(self.I.dchans[0].get_yaxis())
 			if len(self.I.dchans[0].timestamps)>2:
 				offset = self.I.dchans[0].timestamps[0]
 				txt = 'CH1: Offset:\t%.3euS\ttimestamps(uS):\t'%(offset/64.)

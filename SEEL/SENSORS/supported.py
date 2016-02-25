@@ -5,6 +5,7 @@ from SEEL.SENSORS import BMP180
 from SEEL.SENSORS import TSL2561
 from SEEL.SENSORS import SHT21
 from SEEL.SENSORS import BH1750
+from SEEL.SENSORS import SSD1306
 
 supported={
 0x68:MPU6050,  #3-axis gyro,3-axis accel,temperature
@@ -14,4 +15,5 @@ supported={
 0x39:TSL2561,  #Luminosity
 0x40:SHT21,    #Temperature, Humidity
 0x23:BH1750,    #Luminosity
+0x3C:SSD1306,    #OLED display
 }

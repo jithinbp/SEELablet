@@ -26,6 +26,7 @@ sensors={
 0x25:['MCP23008','MCP23017'],
 0x26:['MCP23008','MCP23017'],
 0x27:['MCP23008','MCP23017'],
+0x40:['SHT21(Temp/RH)'],
 0x60:['MCP4725A0 4 chan DAC (onBoard)'],
 0x61:['MCP4725A0 4 chan DAC'],
 0x62:['MCP4725A1 4 chan DAC'],

@@ -41,7 +41,6 @@
 
 from __future__ import print_function
 from SEEL.utilitiesClass import utilitiesClass
-from SEEL.analyticsClass import analyticsClass
 
 from SEEL.templates import template_transient
 
@@ -64,9 +63,11 @@ class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesCla
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
+		from SEEL.analyticsClass import analyticsClass
 		self.CC = analyticsClass()
 		
-		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
 		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot1.setLabel('left','Voltage -->', units='V',**labelStyle)

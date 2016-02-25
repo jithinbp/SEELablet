@@ -26,6 +26,7 @@ class AppWindow(QtGui.QMainWindow):
 		self.Holder=QtGui.QVBoxLayout()
 		self.Frame.setLayout(self.Holder)
 		self.setCentralWidget(self.Frame)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 
 		self.slds = [QtGui.QSlider(QtCore.Qt.Horizontal) for a in range(4)]
 		for sld in self.slds:

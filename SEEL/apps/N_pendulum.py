@@ -38,7 +38,8 @@ class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesCla
 		self.I=kwargs.get('I',None)
 		self.CC = analyticsClass()
 		
-		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
 		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot1.setLabel('left','Voltage -->', units='V',**labelStyle)
@@ -57,9 +58,11 @@ class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesCla
 		self.plot1.addItem(self.region)		
 		self.lognum=0
 		self.msg.setText("Fitting fn :\noff+amp*exp(-damp*x)*sin(x*freq+ph)")
+		self.running=True
 		self.Params=[]
 		
 	def run(self):
+		if not self.running:return
 		self.I.__capture_fullspeed__('CH3',5000,self.tg)
 		self.CH1Fit.setData([],[])
 		self.loop=self.delayedTask(5000*self.I.timebase*1e-3+10,self.plotData)
@@ -92,6 +95,8 @@ class AppWindow(QtGui.QMainWindow, template_transient.Ui_MainWindow,utilitiesCla
 			self.CLabel.setText("CH1:\nFit Failed. Change selected region.")
 			self.CH1Fit.clear()
 
+	def closeEvent(self, event):
+		self.running=False
 
 	def showData(self):
 		self.lognum+=1

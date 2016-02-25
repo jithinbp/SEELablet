@@ -13,13 +13,9 @@ sip.setapi("QVariant", 2)
 
 
 from PyQt4 import QtCore, QtGui
-import time,sys
 from SEEL.templates import analogScope
-from SEEL.analyticsClass import analyticsClass
 
-import sys,os,string
-import time
-import sys
+import sys,os,string,time
 
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
@@ -79,9 +75,10 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
+		from SEEL.analyticsClass import analyticsClass
 		self.math = analyticsClass()
 
-		self.setWindowTitle(self.I.generic_name + ' : ' +self.I.H.version_string)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 		self.plot=pg.PlotWidget()
 
 		#cross hair

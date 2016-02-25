@@ -51,13 +51,13 @@ border-bottom-left-radius: 5px;
 padding-top: 15px;padding-bottom:15px;
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #aaa);
+radius: 1.2, stop: 0 #fff, stop: 1 #aaa);
 width: 30px;
-font-weight: bold;
+font-size: 13px;
 }
 QTabBar::tab:selected {
 color: #000;
-border-top-left-radius: 5px;
+border-top-left-radius: 20px;
 border-bottom-left-radius: 5px;
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
@@ -427,7 +427,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>402</width>
-             <height>600</height>
+             <height>611</height>
             </rect>
            </property>
            <property name="styleSheet">
@@ -571,16 +571,32 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Utilities</string>
     </property>
+    <widget class="QMenu" name="menuColor_scheme">
+     <property name="title">
+      <string>color scheme</string>
+     </property>
+     <addaction name="actionWhite"/>
+     <addaction name="actionBlack"/>
+    </widget>
     <addaction name="actionReset_Device"/>
+    <addaction name="actionAbout_device"/>
+    <addaction name="menuColor_scheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionIPython"/>
+   </widget>
+   <widget class="QMenu" name="menuLevel">
+    <property name="title">
+     <string>level</string>
+    </property>
+    <addaction name="actionBasic"/>
+    <addaction name="actionAdvanced"/>
    </widget>
    <addaction name="menuUtilities"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuLevel"/>
   </widget>
   <action name="actionIPython_Console">
    <property name="text">
@@ -595,6 +611,31 @@ p, li { white-space: pre-wrap; }
   <action name="actionReset_Device">
    <property name="text">
     <string>Reset Device</string>
+   </property>
+  </action>
+  <action name="actionAbout_device">
+   <property name="text">
+    <string>about device</string>
+   </property>
+  </action>
+  <action name="actionWhite">
+   <property name="text">
+    <string>white</string>
+   </property>
+  </action>
+  <action name="actionBlack">
+   <property name="text">
+    <string>black</string>
+   </property>
+  </action>
+  <action name="actionBasic">
+   <property name="text">
+    <string>Basic</string>
+   </property>
+  </action>
+  <action name="actionAdvanced">
+   <property name="text">
+    <string>Advanced</string>
    </property>
   </action>
  </widget>
@@ -655,12 +696,92 @@ p, li { white-space: pre-wrap; }
    <slot>selectDevice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>640</y>
+     <x>124</x>
+     <y>664</y>
     </hint>
     <hint type="destinationlabel">
      <x>294</x>
      <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout_device</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>launchAboutDevice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionWhite</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setColorSchemeWhite()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBlack</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setColorSchemeBlack()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBasic</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadBasicExperiments()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdvanced</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadAdvancedExperiments()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
     </hint>
    </hints>
   </connection>
@@ -681,5 +802,10 @@ p, li { white-space: pre-wrap; }
   <slot>setSQRS()</slot>
   <slot>setSinePhase()</slot>
   <slot>loadSineTable()</slot>
+  <slot>launchAboutDevice()</slot>
+  <slot>setColorSchemeWhite()</slot>
+  <slot>setColorSchemeBlack()</slot>
+  <slot>loadBasicExperiments()</slot>
+  <slot>loadAdvancedExperiments()</slot>
  </slots>
 </ui>

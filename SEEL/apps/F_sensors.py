@@ -15,16 +15,14 @@ Currently Supports:\n
 
 '''
 from __future__ import print_function
-
-from SEEL.widgets.clicking import Ui_Form as Ui_Clicking
-from SEEL.templates.template_sensors import Ui_Form
-from SEEL.templates import sensorTemplate
-
+from SEEL.utilitiesClass import utilitiesClass
 from SEEL.SENSORS.supported import supported
 from SEEL.sensorlist import sensors as sensorHints
 
+from SEEL.templates import sensorTemplate
+from SEEL.widgets.clicking import Ui_Form as Ui_Clicking
+from SEEL.templates.template_sensors import Ui_Form
 
-from SEEL.utilitiesClass import utilitiesClass
 import pyqtgraph as pg
 import time,random,functools
 import numpy as np
@@ -53,7 +51,7 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 
 		print (self.I.readLog()	)
 		self.plot=self.add2DPlot(self.plot_area)
-		self.plotLegend=self.plot.addLegend(offset=(-1,1))
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 
 		self.axisItems=[]
 
@@ -89,34 +87,35 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 	def addPlot(self,cls,addr):
 		bridge = cls.connect(self.I.I2C,address = addr)
 		if bridge:
-			if hasattr(bridge,'name'):	label = bridge.name
-			else: label =''
-			cols=[self.random_color() for a in bridge.PLOTNAMES]
-			if not self.active_device_counter:
-				if len(label):self.plot.setLabel('left', label)
-				curves=[self.addCurve(self.plot,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
-			else:
-				if label:
-					colStr = lambda col: hex(col[0])[2:]+hex(col[1])[2:]+hex(col[2])[2:]
-					newplt = self.addAxis(self.plot,label=label,color='#'+colStr(cols[0].getRgb()))
-				else: newplt = self.addAxis(self.plot)
-				self.right_axes.append(newplt)
-				curves=[self.addCurve(newplt ,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
-				for a in range(bridge.NUMPLOTS):
-					self.plotLegend.addItem(curves[a],'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]))
-			
 			self.createMenu(bridge)
-			for a in range(bridge.NUMPLOTS):
-				curves[a].checked=True
-				Callback = functools.partial(self.setTraceVisibility,curves[a])		
-				action=QtGui.QCheckBox('%s'%(bridge.PLOTNAMES[a])) #self.curveMenu.addAction('%s[%d]'%(label[:12],a)) 
-				action.toggled[bool].connect(Callback)
-				action.setChecked(True)
-				action.setStyleSheet("background-color:rgb%s;"%(str(cols[a].getRgb())))
-				self.paramMenus.insertWidget(1,action)
-				self.actions.append(action)
-			self.acquireList.append(self.plotItem(bridge,np.zeros((bridge.NUMPLOTS,self.POINTS)), curves)) 
-			self.active_device_counter+=1
+			if bridge.NUMPLOTS:
+				if hasattr(bridge,'name'):	label = bridge.name
+				else: label =''
+				cols=[self.random_color() for a in bridge.PLOTNAMES]
+				if not self.active_device_counter:
+					if len(label):self.plot.setLabel('left', label)
+					curves=[self.addCurve(self.plot,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
+				else:
+					if label:
+						colStr = lambda col: hex(col[0])[2:]+hex(col[1])[2:]+hex(col[2])[2:]
+						newplt = self.addAxis(self.plot,label=label,color='#'+colStr(cols[0].getRgb()))
+					else: newplt = self.addAxis(self.plot)
+					self.right_axes.append(newplt)
+					curves=[self.addCurve(newplt ,'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]),cols[a]) for a in range(bridge.NUMPLOTS)]
+					for a in range(bridge.NUMPLOTS):
+						self.plotLegend.addItem(curves[a],'%s[%s]'%(label[:10],bridge.PLOTNAMES[a]))
+				
+				for a in range(bridge.NUMPLOTS):
+					curves[a].checked=True
+					Callback = functools.partial(self.setTraceVisibility,curves[a])		
+					action=QtGui.QCheckBox('%s'%(bridge.PLOTNAMES[a])) #self.curveMenu.addAction('%s[%d]'%(label[:12],a)) 
+					action.toggled[bool].connect(Callback)
+					action.setChecked(True)
+					action.setStyleSheet("background-color:rgb%s;"%(str(cols[a].getRgb())))
+					self.paramMenus.insertWidget(1,action)
+					self.actions.append(action)
+				self.acquireList.append(self.plotItem(bridge,np.zeros((bridge.NUMPLOTS,self.POINTS)), curves)) 
+				self.active_device_counter+=1
 
 
 	def setTraceVisibility(self,curve,status):

@@ -20,7 +20,7 @@ import pyqtgraph as pg
 import sys,time
 
 params = {
-'image' : 'halfwave.png',
+'image' : 'RCd.png',
 'helpfile': 'http://www.physics.ucla.edu/demoweb/demomanual/electricity_and_magnetism/ac_circuits/rc_integration_and_differentiation.html',
 'name':'RC Integrals,\nDerivatives',
 'hint':'''
@@ -34,7 +34,8 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
 		
-		self.setWindowTitle(self.I.generic_name + ' : RC Integrals and Derivatives')
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
 		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot1.setLabel('left','Voltage -->', units='V',**labelStyle)
@@ -60,6 +61,7 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
 		a1={'TITLE':'SQR1','MIN':10,'MAX':5000,'FUNC':self.I.sqr1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of square wave generator #1','LINK':self.updateLabels}
 		self.WidgetLayout.addWidget(self.dialIcon(**a1))
 
+		self.running=True
 		self.timer.singleShot(100,self.run)
 
 
@@ -75,28 +77,33 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
 		self.plot1.setLimits(yMax=8,yMin=-8,xMin=0,xMax=self.samples*self.tg*1e-6)
 		
 	def run(self):
+		if not self.running:return
 		self.I.configure_trigger(0,'CH1',0.2,resolution=10,prescaler=1)
 		self.I.capture_traces(2,self.samples,self.tg)
 		self.timer.singleShot(self.samples*self.I.timebase*1e-3+20,self.plotData)
 
 	def plotData(self): 
-		while(not self.I.oscilloscope_progress()[0]):
-			time.sleep(0.1)
-			print (self.I.timebase,'correction required',n)
-			n+=1
-			if n>10:
-				self.timer.singleShot(100,self.run)
-				return
-		self.I.__fetch_channel__(1)
-		self.I.__fetch_channel__(2)
-		self.curveCH1.setData(self.I.achans[0].get_xaxis()*1e-6,self.I.achans[0].get_yaxis(),connect='finite')
-		self.curveCH2.setData(self.I.achans[1].get_xaxis()*1e-6,self.I.achans[1].get_yaxis(),connect='finite')
-		self.timer.singleShot(100,self.run)
-
+		try:
+			while(not self.I.oscilloscope_progress()[0]):
+				time.sleep(0.1)
+				print (self.I.timebase,'correction required',n)
+				n+=1
+				if n>10:
+					self.timer.singleShot(100,self.run)
+					return
+			self.I.__fetch_channel__(1)
+			self.I.__fetch_channel__(2)
+			self.curveCH1.setData(self.I.achans[0].get_xaxis()*1e-6,self.I.achans[0].get_yaxis(),connect='finite')
+			self.curveCH2.setData(self.I.achans[1].get_xaxis()*1e-6,self.I.achans[1].get_yaxis(),connect='finite')
+			self.timer.singleShot(100,self.run)
+		except:
+			pass
 
 	def closeEvent(self, event):
 		self.timer.stop()
 		self.finished=True
+		self.running=False
+		
 		
 
 	def __del__(self):

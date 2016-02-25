@@ -47,6 +47,7 @@ class AppWindow(QtGui.QMainWindow, sensorTemplate.Ui_MainWindow,utilitiesClass):
 		if self.I:
 			self.I.I2C.init()
 			self.I.I2C.config(400e3)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 
 		print (self.I.readLog()	)
 		self.plot=self.add2DPlot(self.plot_area)

@@ -17,7 +17,6 @@ import sys
 
 import pyqtgraph as pg
 from SEEL.utilitiesClass import utilitiesClass
-from SEEL.analyticsClass import analyticsClass
 
 import numpy as np
 
@@ -41,7 +40,8 @@ class AppWindow(QtGui.QMainWindow, template_bandpass.Ui_MainWindow,utilitiesClas
 		self.I=kwargs.get('I',None)
 		self.I.set_gain('CH1',2)
 		self.I.set_gain('CH2',2)
-		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
 
 		self.plot1=self.add2DPlot(self.plot_area)
 		self.plot2=self.add2DPlot(self.plot_area)
@@ -70,6 +70,7 @@ class AppWindow(QtGui.QMainWindow, template_bandpass.Ui_MainWindow,utilitiesClas
 		self.curveLabels=[]
 
 
+		from SEEL.analyticsClass import analyticsClass
 		self.CC = analyticsClass()
 		self.I.configure_trigger(0,'CH1',0)
 

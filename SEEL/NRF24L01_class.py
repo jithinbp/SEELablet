@@ -69,6 +69,7 @@ class NRF24L01():
 	connected=False
 	def __init__(self,H):
 		self.H = H
+		self.ready=False
 		if self.H.connected:
 				self.connected=self.init()
 	"""
@@ -83,6 +84,8 @@ class NRF24L01():
 		if stat &0x80:
 			print ("Radio transceiver not installed/not found")
 			return False
+		else:
+			self.ready=True
 		self.selectAddress(self.CURRENT_ADDRESS)
 		#self.write_register(self.RF_SETUP,0x06)
 		self.rxmode()

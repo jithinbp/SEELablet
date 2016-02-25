@@ -11,7 +11,6 @@
 
 from __future__ import print_function
 from SEEL.utilitiesClass import utilitiesClass
-from SEEL.analyticsClass import analyticsClass
 
 from SEEL.templates import template_xc
 
@@ -21,7 +20,7 @@ import pyqtgraph as pg
 import sys,functools,time
 
 params = {
-'image' : 'halfwave.png',
+'image' : 'XCi.png',
 'helpfile': 'http://www.electronics-tutorials.ws/capacitor/cap_8.html',
 'name':'Capacitive\nReactance',
 'hint':'''
@@ -36,7 +35,8 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.setupUi(self)
 		self.I=kwargs.get('I',None)
 		
-		self.setWindowTitle(self.I.generic_name + ' : '+self.I.H.version_string.decode("utf-8"))
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
 		self.plot1=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot1.setLabel('bottom','Time -->', units='S',**labelStyle)
@@ -53,6 +53,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.p2.setYRange(-8.5/self.resistance.value(),8.5/self.resistance.value())
 
 
+		from SEEL.analyticsClass import analyticsClass
 		self.CC = analyticsClass()
 		self.I.configure_trigger(0,'CH1',0)
 		self.tg=20
@@ -78,6 +79,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.resultsTable.setHorizontalHeaderLabels(['F','Vc','I (mA)','Xc = Vc/I'])
 		self.acquireParams = False
 		self.currentRow=0
+		self.running=True
 		
 		self.plotAButton.setText('F vs Xc')
 		self.plotBButton.setText('F vs 1/Xc')
@@ -89,7 +91,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		if self.tg<2:self.tg=2
 		elif self.tg>200:self.tg=200
 		self.setTimeGap(self.tg)
-        
+		
 	def setTimeGap(self,tg):
 		self.tg = tg
 		self.plot1.setXRange(0,self.samples*self.tg*1e-6)
@@ -102,6 +104,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.acquireParams = True
 		
 	def run(self):
+		if not self.running:return
 		if self.I.sine1freq < 150: self.prescaler = 3
 		else: self.prescaler = 0
 		self.I.configure_trigger(0,'CH1',0,resolution=10,prescaler=self.prescaler)
@@ -172,6 +175,7 @@ class AppWindow(QtGui.QMainWindow, template_xc.Ui_MainWindow,utilitiesClass):
 		self.tgLabel.setText(str(5000*self.tg*1e-3)+'mS')
 		
 	def closeEvent(self, event):
+		self.running=False
 		self.timer.stop()
 		self.finished=True
 		

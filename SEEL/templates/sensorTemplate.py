@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sensorTemplate.ui'
 #
-# Created: Sun Nov 15 17:06:51 2015
+# Created: Wed Feb 24 11:45:13 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,12 +30,12 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
-"border-radius: 11px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
+"border-radius: 5px;\n"
+"padding: 3px;\n"
+"background: qradialgradient(cx: 0.2, cy: -0.4,\n"
+"fx: 0.3, fy: -0.5,\n"
+"radius: 1.3, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 50px;\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -103,7 +103,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollLayout = QtGui.QWidget()
-        self.scrollLayout.setGeometry(QtCore.QRect(0, 0, 745, 263))
+        self.scrollLayout.setGeometry(QtCore.QRect(0, 0, 745, 265))
         self.scrollLayout.setObjectName(_fromUtf8("scrollLayout"))
         self.nodeArea = QtGui.QVBoxLayout(self.scrollLayout)
         self.nodeArea.setSpacing(0)
@@ -118,7 +118,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scroll2layout = QtGui.QWidget()
-        self.scroll2layout.setGeometry(QtCore.QRect(0, 0, 745, 263))
+        self.scroll2layout.setGeometry(QtCore.QRect(0, 0, 745, 265))
         self.scroll2layout.setStyleSheet(_fromUtf8(""))
         self.scroll2layout.setObjectName(_fromUtf8("scroll2layout"))
         self.paramMenus = QtGui.QVBoxLayout(self.scroll2layout)

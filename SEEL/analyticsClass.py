@@ -1,25 +1,48 @@
 from __future__ import print_function
 import time
+
 import numpy as np
-import scipy.optimize as optimize
-import scipy.fftpack as fftpack
-from scipy.optimize import leastsq
-
-from scipy import signal
-
 class analyticsClass():
 	"""
 	This class contains methods that allow mathematical analysis such as curve fitting
 	
 	"""
+
 	def __init__(self):
-		pass
+		try:
+			import scipy.optimize as optimize
+		except ImportError:
+			self.optimize = None
+		else:
+			self.optimize = optimize
+
+		try:
+			import scipy.fftpack as fftpack
+		except ImportError:
+			self.fftpack = None
+		else:
+			self.fftpack = fftpack
+
+		try:
+			import scipy.leastsq as leastsq
+		except ImportError:
+			self.leastsq = None
+		else:
+			self.leastsq = leastsq
+
+		try:
+			import scipy.signal as signal
+		except ImportError:
+			self.signal = None
+		else:
+			self.signal = signal
+
 
 	def sineFunc(self,x, a1, a2, a3,a4):
 	    return a4 + a1*np.sin(abs(a2*(2*np.pi))*x + a3)
 
 	def squareFunc(self,x, amp,freq,phase,dc,offset):
-	    return offset + amp*signal.square(2 * np.pi * freq * (x - phase), duty=dc)
+	    return offset + amp*self.signal.square(2 * np.pi * freq * (x - phase), duty=dc)
 
 
 	#-------------------------- Exponential Fit ----------------------------------------
@@ -41,7 +64,7 @@ class analyticsClass():
 				halftime = xa[k]
 				break 
 		par = [maxy, -halftime,0] 					# Amp, decay, offset
-		plsq = leastsq(self.exp_erf, par,args=(ya,xa))
+		plsq = self.leastsq(self.exp_erf, par,args=(ya,xa))
 		if plsq[1] > 4:
 			return None
 		yfit = self.exp_eval(xa, plsq[0])
@@ -72,7 +95,7 @@ class analyticsClass():
 		guess = [amplitude, frequency, phase,dc,0]
 
 		try:
-			(amplitude, frequency, phase,dc,offset), pcov = optimize.curve_fit(self.squareFunc, xReal, yReal-OFFSET, guess)
+			(amplitude, frequency, phase,dc,offset), pcov = self.optimize.curve_fit(self.squareFunc, xReal, yReal-OFFSET, guess)
 			offset+=OFFSET
 
 			if(frequency<0):
@@ -92,16 +115,16 @@ class analyticsClass():
 	def sineFit(self,xReal,yReal,**kwargs):
 		N=len(xReal)
 		OFFSET = (yReal.max()+yReal.min())/2.
-		yhat = fftpack.rfft(yReal-OFFSET)
+		yhat = self.fftpack.rfft(yReal-OFFSET)
 		idx = (yhat**2).argmax()
-		freqs = fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
+		freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
 		frequency = kwargs.get('freq',freqs[idx])  
 		frequency/=(2*np.pi) #Convert angular velocity to freq
 		amplitude = kwargs.get('amp',(yReal.max()-yReal.min())/2.0)
 		phase=kwargs.get('phase',0) #.5*np.pi*((yReal[0]-offset)/amplitude)
 		guess = [amplitude, frequency, phase,0]
 		try:
-			(amplitude, frequency, phase,offset), pcov = optimize.curve_fit(self.sineFunc, xReal, yReal-OFFSET, guess)
+			(amplitude, frequency, phase,offset), pcov = self.optimize.curve_fit(self.sineFunc, xReal, yReal-OFFSET, guess)
 			offset+=OFFSET
 			ph = ((phase)*180/(np.pi))
 			if(frequency<0):
@@ -133,9 +156,9 @@ class analyticsClass():
 		if(func=='sine' or func=='damped sine'):
 			N=len(xReal)
 			offset = np.average(yReal)
-			yhat = fftpack.rfft(yReal-offset)
+			yhat = self.fftpack.rfft(yReal-offset)
 			idx = (yhat**2).argmax()
-			freqs = fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
+			freqs = self.fftpack.rfftfreq(N, d = (xReal[1]-xReal[0])/(2*np.pi))
 			frequency = freqs[idx]
 
 			amplitude = (yReal.max()-yReal.min())/2.0
@@ -149,7 +172,7 @@ class analyticsClass():
 		N=len(xReal)
 		guess=args.get('guess',[])
 		try:
-			results, pcov = optimize.curve_fit(func, xReal, yReal,guess)
+			results, pcov = self.optimize.curve_fit(func, xReal, yReal,guess)
 			pcov[0]*=1e6
 			return True,results,pcov
 		except:

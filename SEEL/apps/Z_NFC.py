@@ -26,15 +26,21 @@ class AppWindow(QtGui.QMainWindow, NFC.Ui_MainWindow):
 		self.I=kwargs.get('I',None)
 		from SEEL.SENSORS import MF522
 		self.MF = MF522.connect(self.I,'CS1')
-		ret =  self.MF.getStatus()
-		
-		self.UID = False
-		self.present =False
-		self.key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
-		
-		self.looptimer = QtCore.QTimer()
-		self.looptimer.timeout.connect(self.autoscan)
-		self.looptimer.start(500)
+		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
+
+		if not self.MF.connected:
+			QtGui.QMessageBox.about(self, 'Error', 'Card reader not detected')
+			print ("No")
+		else:
+			ret =  self.MF.getStatus()
+			
+			self.UID = False
+			self.present =False
+			self.key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+			
+			self.looptimer = QtCore.QTimer()
+			self.looptimer.timeout.connect(self.autoscan)
+			self.looptimer.start(500)
 
 
 	def read(self):

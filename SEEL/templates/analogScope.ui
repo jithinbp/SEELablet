@@ -429,7 +429,7 @@ font-weight: bold;
               <rect>
                <x>20</x>
                <y>90</y>
-               <width>31</width>
+               <width>101</width>
                <height>21</height>
               </rect>
              </property>
@@ -440,13 +440,13 @@ font-weight: bold;
               </font>
              </property>
              <property name="text">
-              <string>CH3</string>
+              <string>CH3(+/-3.3V)</string>
              </property>
             </widget>
             <widget class="QCheckBox" name="MIC_ENABLE">
              <property name="geometry">
               <rect>
-               <x>80</x>
+               <x>130</x>
                <y>90</y>
                <width>21</width>
                <height>20</height>
@@ -462,9 +462,9 @@ font-weight: bold;
             <widget class="QLabel" name="CH2_LABEL_3">
              <property name="geometry">
               <rect>
-               <x>110</x>
+               <x>150</x>
                <y>90</y>
-               <width>31</width>
+               <width>131</width>
                <height>21</height>
               </rect>
              </property>
@@ -475,7 +475,7 @@ font-weight: bold;
               </font>
              </property>
              <property name="text">
-              <string>MIC</string>
+              <string>CH4(MICrophone)</string>
              </property>
             </widget>
             <widget class="QLabel" name="CH2_LABEL_4">
@@ -652,10 +652,10 @@ font-weight: bold;
             <widget class="QDial" name="dial_11">
              <property name="geometry">
               <rect>
-               <x>200</x>
-               <y>0</y>
-               <width>71</width>
-               <height>61</height>
+               <x>190</x>
+               <y>10</y>
+               <width>91</width>
+               <height>71</height>
               </rect>
              </property>
              <property name="toolTip">
@@ -680,9 +680,9 @@ font-weight: bold;
             <widget class="QDoubleSpinBox" name="trigger_level_box">
              <property name="geometry">
               <rect>
-               <x>190</x>
+               <x>10</x>
                <y>60</y>
-               <width>91</width>
+               <width>161</width>
                <height>21</height>
               </rect>
              </property>
@@ -790,57 +790,6 @@ font-weight: bold;
              <property name="text">
               <string>Channel</string>
              </property>
-            </widget>
-            <widget class="QLabel" name="label_5">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>60</y>
-               <width>91</width>
-               <height>17</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>Extend Trigger Waiting time.
-Useful for low frequencies</string>
-             </property>
-             <property name="text">
-              <string>Extend Wait</string>
-             </property>
-            </widget>
-            <widget class="QComboBox" name="trigWaitBox">
-             <property name="geometry">
-              <rect>
-               <x>100</x>
-               <y>60</y>
-               <width>71</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>Extend Trigger Waiting time.
-Useful for low frequencies</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>No</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2x</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>4x</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>8x</string>
-              </property>
-             </item>
             </widget>
            </widget>
           </item>
@@ -1015,8 +964,8 @@ Useful for low frequencies</string>
             <widget class="QCheckBox" name="collapseButton">
              <property name="geometry">
               <rect>
-               <x>250</x>
-               <y>40</y>
+               <x>270</x>
+               <y>50</y>
                <width>21</width>
                <height>21</height>
               </rect>
@@ -1370,7 +1319,7 @@ Useful for low frequencies</string>
    <hints>
     <hint type="sourcelabel">
      <x>840</x>
-     <y>303</y>
+     <y>284</y>
     </hint>
     <hint type="destinationlabel">
      <x>867</x>
