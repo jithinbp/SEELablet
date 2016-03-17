@@ -307,15 +307,14 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 				ph=fitres[3]
 
 				frequency = freq/1e6
-				period = 1./freq/1e6
+				period = 1./frequency/1e6
 				if(self.collapseButton.isChecked()):
 					self.collapseButton.setChecked(False)
 					self.collapse_win = pg.GraphicsWindow(title="Collapsing plot")
 					xNew=[]
 					yNew=[]
-				
 					for a in range(len(xReal)):
-						x=(xReal[a]%(period*2))*1e-6
+						x=((xReal[a]*1e-6)%(period*2))
 						xNew.append(x)
 						yNew.append(yReal[a])
 					xNew=np.array(xNew)

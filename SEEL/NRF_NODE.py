@@ -16,6 +16,9 @@ class RadioLink():
 	NRF_COMMANDS = 3
 	NRF_READ_REGISTER =0<<4
 	NRF_WRITE_REGISTER =1<<4
+	
+	MISC_COMMANDS = 4
+	WS2812B_CMD = 0<<4
 
 	def __init__(self,NRF,**args):
 		self.NRF = NRF
@@ -107,6 +110,37 @@ class RadioLink():
 		self.__selectMe__()
 		print ('writing to ',reg,val)
 		return self.NRF.transaction([self.NRF_COMMANDS|self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
+
+
+
+	def WS2812B(self,cols):
+		"""
+		set shade of WS2182 LED on CS1/RC0
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		cols                2Darray [[R,G,B],[R2,G2,B2],[R3,G3,B3]...]
+							brightness of R,G,B ( 0-255  )
+		==============  ============================================================================================
+
+		example::
+		
+			>>> WS2812B([[10,0,0],[0,10,10],[10,0,10]])
+			#sets red, cyan, magenta to three daisy chained LEDs
+
+		"""
+		self.__selectMe__()
+		colarray=[]
+		for a in cols:
+			colarray.append(int('{:08b}'.format(int(a[1]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[0]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[2]))[::-1], 2))
+
+		return self.NRF.transaction([self.MISC_COMMANDS|self.WS2812B_CMD]+colarray,listen=False)
+
 
 	def read_register(self,reg):
 		self.__selectMe__()

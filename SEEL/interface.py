@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
 from __future__ import print_function
 import os,time
@@ -56,7 +55,7 @@ def connect(**kwargs):
     if obj.H.fd != None:
         return obj
     else:
-        self.__print__('Err')
+        print('Err')
         return None
     
 
@@ -114,6 +113,7 @@ class Interface():
 
 
 		self.BAUD = 1000000
+		self.DDS_CLOCK = 0
 		self.timebase = 40
 		self.MAX_SAMPLES = MAX_SAMPLES
 		self.samples=self.MAX_SAMPLES
@@ -148,7 +148,7 @@ class Interface():
 		self.buff=np.zeros(10000)
 		self.SOCKET_CAPACITANCE = 42e-12
 
-		self.digital_channel_names=['ID1','ID2','ID3','ID4','-','CH1','Fin']
+		self.digital_channel_names=['ID1','ID2','ID3','ID4','-','EXT','Fin']
 		self.allDigitalChannels = ['ID1','ID2','ID3','ID4','Fin']
 
 		#This array of four instances of digital_channel is used to store data retrieved from the
@@ -757,7 +757,7 @@ class Interface():
 		self.H.__sendByte__(ADC)
 
 		CHOSA = self.analogInputSources[channel].CHOSA
-		if(self.timebase<2.8):self.timebase=2.8
+		if(self.timebase<3):self.timebase=3
 		if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
 		self.achans[0].set_params(channel=channel,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
 
@@ -1026,7 +1026,9 @@ class Interface():
 		
 		"""
 		poly = self.analogInputSources[channel_name].calPoly12
-		val = np.average([poly(self.__get_raw_average_voltage__(channel_name,**kwargs)) for a in range(int(kwargs.get('samples',1)))])       
+		vals = [self.__get_raw_average_voltage__(channel_name,**kwargs) for a in range(int(kwargs.get('samples',1)))]
+		#if vals[0]>2052:print (vals)
+		val = np.average([poly(a) for a in vals])
 		return  val
 
 
@@ -1048,9 +1050,7 @@ class Interface():
 		chosa = self.__calcCHOSA__(channel_name)
 		self.H.__sendByte__(ADC)
 		self.H.__sendByte__(GET_VOLTAGE_SUMMED)
-		if(kwargs.get('sleep',False)):self.H.__sendByte__(chosa|0x80)#sleep mode conversion. buggy
-		else:self.H.__sendByte__(chosa) 
-		self.H.__getInt__() #2 Zeroes sent by UART. sleep or no sleep :p
+		self.H.__sendByte__(chosa) 
 		V_sum = self.H.__getInt__()
 		self.H.__get_ack__()
 		return  V_sum/16. #sum(V)/16.0  #
@@ -2010,18 +2010,6 @@ class Interface():
 		self.H.__get_ack__()
 
 
-
-	def __get_capacitor_range__(self,ctime):
-		self.H.__sendByte__(COMMON)
-		self.H.__sendByte__(GET_CAP_RANGE)
-		self.H.__sendInt__(ctime) 
-		V_sum = self.H.__getInt__()
-		self.H.__get_ack__()
-		V=V_sum*3.3/16/4095
-		C = -ctime*1e-6/1e4/np.log(1-V/3.3)
-		return  V,C
-
-
 	def autocaptrace(self,samples,tg):
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
 		if(tg<0.5):tg=int(0.5*8)/8.
@@ -2042,7 +2030,16 @@ class Interface():
 		x,y =  self.__retrieveBufferData__('CAP',samples,tg)
 		yfit,params = self.AC.fit_exp(np.array(x),y)
 		return x,y,yfit,params
-
+		
+	def __get_capacitor_range__(self,ctime):
+		self.H.__sendByte__(COMMON)
+		self.H.__sendByte__(GET_CAP_RANGE)
+		self.H.__sendInt__(ctime) 
+		V_sum = self.H.__getInt__()
+		self.H.__get_ack__()
+		V=V_sum*3.3/16/4095
+		C = -ctime*1e-6/1e4/np.log(1-V/3.3)
+		return  V,C
 
 	def get_capacitor_range(self):
 		""" 
@@ -2060,7 +2057,6 @@ class Interface():
 					P[1]=50e-12
 				break
 		return  P
-
 
 	def get_capacitance(self):  #time in uS
 		"""
@@ -2086,7 +2082,8 @@ class Interface():
 		CT=100
 		CR=1
 		iterations = 0
-		while 1:
+		start_time=time.time()
+		while (time.time()-start_time)<1:
 			V,C = self.__get_capacitance__(CR,0,CT)
 			if CT>30000 and V<0.1:
 				self.__print__('Capacitance too high for this method')
@@ -2105,6 +2102,7 @@ class Interface():
 			elif V<=0.1 and CR<3:
 				CR+=1
 			elif CR==3:
+				self.__print__('Constant voltage mode ')
 				return self.get_capacitor_range()[1]
 
 	def __get_capacitance__(self,current_range,trim, Charge_Time):  #time in uS
@@ -2255,7 +2253,7 @@ class Interface():
 		time.sleep(0.1)
 		self.H.__get_ack__()
 
-	def write_bulk_flash(self,location,bytearray):
+	def write_bulk_flash(self,location,data):
 		"""
 		write a byte array to the entire flash page. Erases any other data
 
@@ -2274,16 +2272,23 @@ class Interface():
 		================    ============================================================================================
 
 		"""
-		self.__print__('Dumping at',location,',',len(bytearray),' bytes into flash',bytearray[:10])
+		if(type(data)==str):data = [ord(a) for a in data]
+		if len(data)%2==1:data.append(0)
+		
+		#self.__print__('Dumping at',location,',',len(bytearray),' bytes into flash',bytearray[:10])
 		self.H.__sendByte__(FLASH)
 		self.H.__sendByte__(WRITE_BULK_FLASH)   #indicate a flash write coming through
-		self.H.__sendInt__(len(bytearray))  #send the length
+		self.H.__sendInt__(len(data))  #send the length
 		self.H.__sendByte__(location)
-		for n in range(len(bytearray)):
-			self.H.__sendByte__(bytearray[n])
+		for n in range(len(data)):
+			self.H.__sendByte__(data[n])
 			#Printer('Bytes written: %d'%(n+1))
-		time.sleep(0.2)
 		self.H.__get_ack__()
+		#verification by readback
+		tmp=[ord(a) for a in self.read_bulk_flash(location,len(data))]
+		print ('Verification done',tmp == data)
+		return tmp==data
+
 
 
 
@@ -2295,7 +2300,9 @@ class Interface():
 		:return: Chip Temperature in degree Celcius
 		""" 
 		V=self.get_ctmu_voltage(0b11110,3,0)
-		return (783.24-V*1000)/1.87
+		#return (646-V*1000)/1.92   #current source = 1
+		#return (442-V*1000)/1.74   #current source = 2
+		return (760-V*1000)/1.56    #current source = 3
 		
 
 
@@ -2666,7 +2673,7 @@ class Interface():
 		self.H.__get_ack__()
 		return B,R,G    
 
-	def WS2812B(self,cols):
+	def WS2812B(self,cols,output='CS1'):
 		"""
 		set shade of WS2182 LED on SQR1
 		
@@ -2688,13 +2695,21 @@ class Interface():
 
 
 		"""
+		if output=='CS1':pin = SET_RGB1
+		elif output=='CS2':pin = SET_RGB2
+		elif output=='SQR1':pin = SET_RGB3
+		else:
+			print('invalid output')
+			return
+		
 		self.H.__sendByte__(COMMON)
-		self.H.__sendByte__(SET_RGB)
+		self.H.__sendByte__(pin)
 		self.H.__sendByte__(len(cols)*3)
 		for col in cols:
 			#R=reverse_bits(int(col[0]));G=reverse_bits(int(col[1]));B=reverse_bits(int(col[2]))
 			R=col[0];G=col[1];B=col[2];
 			self.H.__sendByte__(G); self.H.__sendByte__(R);self.H.__sendByte__(B)
+			#print(col)
 		self.H.__get_ack__()
 
 
@@ -3314,13 +3329,18 @@ class Interface():
 
 
 if __name__ == "__main__":
-    print("""this is not an executable file
-    from SEEL import interface
-    I=interface.connect()
+	print("""this is not an executable file
+	from SEEL import interface
+	I=interface.connect()
+
+	You're good to go.
+
+	eg.
+
+	I.get_average_voltage('CH1')
+	""")
+	#from SEEL import interface
+	#I=interface.connect()
+	#for a in range(10000):I.get_average_voltage('CH1')
     
-    You're good to go.
     
-    eg.
-    
-    I.get_average_voltage('CH1')
-    """)

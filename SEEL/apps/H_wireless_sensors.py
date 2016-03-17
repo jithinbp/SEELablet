@@ -7,16 +7,16 @@ on the various nodes.
 '''
 from __future__ import print_function
 
-from PyQt4 import QtCore, QtGui
 
+from SEEL.utilitiesClass import utilitiesClass
 from SEEL.widgets.nodeList import Ui_Form as nodeWidget
 from SEEL.templates import wirelessTemplate
 from SEEL.SENSORS import HMC5883L,MPU6050,MLX90614,BMP180,TSL2561,SHT21
 from SEEL.SENSORS.supported import supported
 from SEEL.sensorlist import sensors as sensorHints
-from SEEL.utilitiesClass import utilitiesClass
 import pyqtgraph as pg
 import numpy as np
+from PyQt4 import QtCore, QtGui
 
 import time,sys,functools
 

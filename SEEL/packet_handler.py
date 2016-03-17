@@ -137,11 +137,11 @@ class Handler():
 		transmits a BYTE
 		val - byte to send
 		"""
+		#print (val)
 		if(type(val)==int):
 			if not self.loadBurst:self.fd.write(Byte.pack(val))
 			else:self.burstBuffer+=Byte.pack(val)
 		else:
-			#print (val)
 			if not self.loadBurst:self.fd.write(val)
 			else:self.burstBuffer+=val
 			

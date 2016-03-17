@@ -65,7 +65,7 @@ class AppWindow(QtGui.QMainWindow, template_graph.Ui_MainWindow,utilitiesClass):
 		self.WidgetLayout.addWidget(self.dialIcon(**a1))
 		self.WidgetLayout.addWidget(self.dialIcon(**a2))
 
-		self.WidgetLayout.addWidget(self.controlIcon('outputs',self.launchOutputs))
+		self.WidgetLayout.addWidget(self.experimentIcon('SEEL.controls','outputs',self.launchOutputs))
 		self.running=True
 		self.timer.singleShot(100,self.run)
 

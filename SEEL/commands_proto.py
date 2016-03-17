@@ -152,18 +152,20 @@ GET_VERSION           = Byte.pack(5)
 RETRIEVE_BUFFER       = Byte.pack(8)
 GET_HIGH_FREQUENCY    = Byte.pack(9)
 CLEAR_BUFFER          = Byte.pack(10)
-SET_RGB		      = Byte.pack(11)
+SET_RGB1		      = Byte.pack(11)
 READ_PROGRAM_ADDRESS  = Byte.pack(12)
 WRITE_PROGRAM_ADDRESS = Byte.pack(13)
 READ_DATA_ADDRESS     = Byte.pack(14)
 WRITE_DATA_ADDRESS    = Byte.pack(15)
 
 GET_CAP_RANGE	      = Byte.pack(16)
-SET_ONBOARD_RGB	      = Byte.pack(17)
+SET_RGB2		      = Byte.pack(17)
 READ_LOG              = Byte.pack(18)
 RESTORE_STANDALONE    = Byte.pack(19)
 GET_ALTERNATE_HIGH_FREQUENCY = Byte.pack(20)
 MULTIPOINT_CAPACITANCE= Byte.pack(21)
+SET_RGB3		      = Byte.pack(22)
+
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
 BAUD9600    = Byte.pack(1)
@@ -243,12 +245,7 @@ CS2  = Byte.pack(7)
 TEN_BIT    = Byte.pack(10)
 TWELVE_BIT = Byte.pack(12)
 
-class Singleton(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+
 
 def InttoString(val):
 	return	ShortInt.pack(int(val))

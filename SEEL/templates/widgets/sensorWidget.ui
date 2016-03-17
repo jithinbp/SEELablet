@@ -82,7 +82,7 @@ background:transparent;
      <property name="class" stdset="0">
       <string>PeripheralCollection</string>
      </property>
-     <layout class="QVBoxLayout" name="formLayout" stretch="1,2">
+     <layout class="QVBoxLayout" name="formLayout" stretch="1,2,0">
       <property name="spacing">
        <number>2</number>
       </property>
@@ -176,6 +176,13 @@ background:transparent;
         </property>
         <property name="wordWrap">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="hintLabel">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

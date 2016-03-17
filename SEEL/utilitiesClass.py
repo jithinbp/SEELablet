@@ -18,9 +18,6 @@ except AttributeError:
     def _fromUtf8(s):
         return s
 
-#pg.setConfigOption('background', 'w')
-#pg.setConfigOption('foreground', 'k')
-
 class utilitiesClass():
 	"""
 	This class contains methods that simplify setting up and running
@@ -29,8 +26,8 @@ class utilitiesClass():
 	"""
 	timers=[]
 	viewBoxes=[]
-	plots3D=[]
-	plots2D=[]
+	plots3D={}
+	plots2D={}
 	axisItems=[]
 	curves=[]
 	total_plot_areas=0
@@ -55,14 +52,16 @@ class utilitiesClass():
 		for curve in self.curves:
 			curve.setShadowPen(color=(0,0,0,100), width=3)
 		for plot in self.plots2D:
-			plot.setBackground((252,252,245, 255))
-			for a in ['left','bottom','right']:
-				try:
-					axis = plot.getAxis(a)
-					axis.setPen('k')
-				except:
-					pass
-
+			try:
+				plot.setBackground((252,252,245, 255))
+				for a in ['left','bottom','right']:
+					try:
+						axis = plot.getAxis(a)
+						axis.setPen('k')
+					except:
+						pass
+			except:
+				pass
 
 	def setColorSchemeBlack(self):
 		self.properties['colorScheme']='black'
@@ -88,7 +87,7 @@ class utilitiesClass():
 		plot.setMinimumHeight(250)
 		plot_area.addWidget(plot)
 		plot.viewBoxes=[]
-		self.plots2D.append(plot)
+		self.plots2D[plot]=[]
 		if self.properties['colorScheme']=='white':
 			self.setColorSchemeWhite()
 		return plot
@@ -106,7 +105,7 @@ class utilitiesClass():
 		plot3d.opts['azimuth'] = 20
 		plot3d.setMinimumHeight(250)
 		plot_area.addWidget(plot3d)
-		self.plots3D.append(plot3d)
+		self.plots3D[plot3d]=[]
 		plot3d.plotLines3D=[]
 		return plot3d
 
@@ -118,7 +117,8 @@ class utilitiesClass():
 		else:curve = pg.PlotCurveItem()
 		plot.addItem(curve)
 		curve.setPen(color=col, width=1)
-		self.curves.append(curve)
+		#self.curves.append(curve)
+		self.plots2D[plot].append(curve)
 		return curve
 
 	def rebuildLegend(self,plot):
@@ -166,6 +166,7 @@ class utilitiesClass():
 		Callback = functools.partial(self.updateViews,plot)		
 		plot.getViewBox().sigStateChanged.connect(Callback)
 		self.axisItems.append(ax3)
+		self.plots2D[p3]=[]
 		return p3
 
 	def enableRightAxis(self,plot):
@@ -180,6 +181,7 @@ class utilitiesClass():
 		plot.getViewBox().sigStateChanged.connect(Callback)
 		if self.properties['colorScheme']=='white':
 			self.setColorSchemeWhite()
+		self.plots2D[p]=[]
 		return p
 
 
@@ -316,11 +318,11 @@ class utilitiesClass():
 
 	class experimentIcon(QtGui.QPushButton):
 		mouseHover = QtCore.pyqtSignal(str)
-		def __init__(self,name,launchfunc):
+		def __init__(self,basepackage,name,launchfunc):
 			super(utilitiesClass.experimentIcon, self).__init__()
 			self.setMouseTracking(True)
 			self.name = name
-			tmp = importlib.import_module('SEEL.apps.'+name)
+			tmp = importlib.import_module(basepackage+'.'+name)
 			genName = tmp.params.get('name',name)
 			self.setText(genName)
 			self.hintText = tmp.params.get('hint','No summary available')
@@ -332,7 +334,7 @@ class utilitiesClass():
 			self.clicked.connect(self.func)
 			self.setMinimumHeight(70)
 			self.setMaximumWidth(170)
-			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.apps', _fromUtf8(tmp.params.get('image','') ))))
+			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename(basepackage, _fromUtf8(tmp.params.get('image','') ))))
 
 		def enterEvent(self, event):
 			self.mouseHover.emit(self.hintText)
@@ -340,20 +342,6 @@ class utilitiesClass():
 		def leaveEvent(self, event):
 			self.mouseHover.emit('')
 
-
-
-	class controlIcon(QtGui.QPushButton):
-		def __init__(self,name,launchfunc,**kwargs):
-			super(utilitiesClass.controlIcon, self).__init__()
-			self.name = name
-			tmp = importlib.import_module('SEEL.controls.'+name)
-			self.setText(tmp.params.get('name',name))
-			self.func = launchfunc
-			self.clicked.connect(self.func)
-			if 'tooltip' in kwargs:self.widgetFrameOuter.setToolTip(kwargs.get('tooltip',''))
-			self.setMinimumHeight(70)
-			self.setMinimumWidth(470)
-			self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename('SEEL.controls', _fromUtf8(tmp.params.get('image','') ))))
 
 	class sineWidget(QtGui.QWidget,sineWidget.Ui_Form):
 		def __init__(self,I):
@@ -388,10 +376,11 @@ class utilitiesClass():
 
 
 	class sensorIcon(QtGui.QFrame,sensorWidget.Ui_Form):
-		def __init__(self,cls):
+		def __init__(self,cls,**kwargs):
 			super(utilitiesClass.sensorIcon, self).__init__()
 			self.cls = cls
 			self.setupUi(self)
+			self.hintLabel.setText(kwargs.get('hint',''))
 			self.func = cls.getRaw
 			self.plotnames = cls.PLOTNAMES
 			self.menu = self.PermanentMenu()

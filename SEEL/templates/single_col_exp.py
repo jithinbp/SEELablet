@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Thu Feb 25 15:38:17 2016
+# Created: Mon Mar  7 23:59:44 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -141,6 +141,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.tabWidget.setFont(font)
         self.tabWidget.setTabPosition(QtGui.QTabWidget.West)
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
         self.tabWidget.setElideMode(QtCore.Qt.ElideNone)
@@ -267,7 +272,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.SCF2 = QtGui.QWidget()
-        self.SCF2.setGeometry(QtCore.QRect(0, 0, 402, 611))
+        self.SCF2.setGeometry(QtCore.QRect(0, 0, 398, 28))
         self.SCF2.setStyleSheet(_fromUtf8(""))
         self.SCF2.setObjectName(_fromUtf8("SCF2"))
         self.gridLayout_6 = QtGui.QGridLayout(self.SCF2)

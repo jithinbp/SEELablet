@@ -19,7 +19,7 @@ sip.setapi("QVariant", 2)
 from PyQt4 import QtCore, QtGui
 import time,sys
 from SEEL.templates import arbitStream
-
+from SEEL.utilitiesClass import utilitiesClass
 import sys,os,string
 import time
 import sys
@@ -42,7 +42,7 @@ params = {
 'hint':'A continuous data acquisition utility to visualize time dependent behaviour of any of the measurement functions contained in the SEELablet python library.\nThese include get_freq,get_capacitance, and get_average_voltage'
 }
 
-class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
+class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow,utilitiesClass):
 	def __init__(self, parent=None,**kwargs):
 		super(AppWindow, self).__init__(parent)
 		self.setupUi(self)
@@ -50,7 +50,7 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 
 		self.setWindowTitle(self.I.H.version_string+' : '+params.get('name','').replace('\n',' ') )
 
-		self.plot=pg.PlotWidget()
+		self.plot=self.add2DPlot(self.plot_area)
 		labelStyle = {'color': 'rgb(255,255,255)', 'font-size': '11pt'}
 		self.plot.setLabel('left','Value -->', units='',**labelStyle)
 
@@ -60,7 +60,7 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 
 		self.plot.setXRange(0,self.totalpoints)
 		self.plot.setYRange(-16,16)
-		self.curve = self.plot.plot(name='C1'); self.curve.setPen(color=[255,255,255], width=1)
+		self.curve = self.addCurve(self.plot,name='C1'); self.curve.setPen(color=[255,255,255], width=1)
 
 		self.streamfunc="I."+self.cmdlist.currentText()
 		self.start_time=time.time()

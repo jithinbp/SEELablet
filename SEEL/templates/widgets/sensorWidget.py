@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sensorWidget.ui'
 #
-# Created: Mon Jan 11 20:20:07 2016
+# Created: Wed Mar  9 11:55:08 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -112,6 +112,10 @@ class Ui_Form(object):
         self.resultLabel.setWordWrap(True)
         self.resultLabel.setObjectName(_fromUtf8("resultLabel"))
         self.formLayout.addWidget(self.resultLabel)
+        self.hintLabel = QtGui.QLabel(self.widgetFrameOuter)
+        self.hintLabel.setText(_fromUtf8(""))
+        self.hintLabel.setObjectName(_fromUtf8("hintLabel"))
+        self.formLayout.addWidget(self.hintLabel)
         self.formLayout.setStretch(0, 1)
         self.formLayout.setStretch(1, 2)
         self.verticalLayout.addWidget(self.widgetFrameOuter)
