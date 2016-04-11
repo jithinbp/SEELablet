@@ -5,7 +5,6 @@ import numpy as np
 class analyticsClass():
 	"""
 	This class contains methods that allow mathematical analysis such as curve fitting
-	
 	"""
 
 	def __init__(self):
@@ -24,7 +23,7 @@ class analyticsClass():
 			self.fftpack = fftpack
 
 		try:
-			import scipy.leastsq as leastsq
+			from scipy.optimize import leastsq
 		except ImportError:
 			self.leastsq = None
 		else:
@@ -46,30 +45,25 @@ class analyticsClass():
 
 
 	#-------------------------- Exponential Fit ----------------------------------------
-	def exp_erf(self,p,y,x):
-		return y - p[0] * np.exp(p[1]*x) + p[2]
 
-	def exp_eval(self,x,p):
-		return p[0] * np.exp(p[1]*x)  -p[2]
+	def func(self,x, a, b, c):
+		return a * np.exp(-x/ b) + c
 
-	def fit_exp(self,xlist, ylist):
-		size = len(xlist)
-		xa = np.array(xlist)
-		ya = np.array(ylist)
-		maxy = max(ya)
-		halfmaxy = maxy / 2.0
-		halftime = 1.0
-		for k in range(size):
-			if abs(ya[k] - halfmaxy) < halfmaxy/100:
-				halftime = xa[k]
-				break 
-		par = [maxy, -halftime,0] 					# Amp, decay, offset
-		plsq = self.leastsq(self.exp_erf, par,args=(ya,xa))
-		if plsq[1] > 4:
-			return None
-		yfit = self.exp_eval(xa, plsq[0])
-		return yfit,plsq[0]
-
+	def fit_exp(self,t,v):    # accepts numpy arrays
+		from scipy.optimize import curve_fit
+		size = len(t)
+		v80 = v[0] * 0.8
+		for k in range(size-1):
+			if v[k] < v80:
+				rc = t[k]/.223
+				break
+		pg = [v[0], rc, 0]
+		po, err = curve_fit(self.func, t, v, pg)
+		if abs(err[0][0]) > 0.1:
+			return None, None
+		vf = po[0] * np.exp(-t/po[1]) + po[2]
+		return po, vf	
+	
 
 	def squareFit(self,xReal,yReal):
 		N=len(xReal)
@@ -144,6 +138,58 @@ class analyticsClass():
 			return [amp, freq, offset,ph]
 		except:
 			return False
+
+
+	def find_frequency(self, v, si):  # voltages, samplimg interval is seconds
+		from numpy import fft
+		NP = len(v)
+		v = v -v.mean()			# remove DC component
+		frq = fft.fftfreq(NP, si)[:NP/2]	# take only the +ive half of the frequncy array
+		amp = abs(fft.fft(v)[:NP/2])/NP		# and the fft result
+		index =  amp.argmax()				# search for the tallest peak, the fundamental
+		return frq[index]
+
+	def sineFit2(self,x,y):
+		freq = self.find_frequency(y, x[1]-x[0])
+		amp =(y.max()-y.min())/2.0
+		guess = [amp, freq, 0, 0]  #amplituede, freq, phase,offset
+		#print (guess)
+		OS = y.mean()
+		try:
+			par, pcov = self.optimize.curve_fit(self.sineFunc, x, y-OS, guess)
+		except:
+			return None
+		vf = self.sineFunc(t, par[0], par[1], par[2], par[3])
+		diff = sum((v-vf)**2)/max(v)
+		if diff > self.error_limit:
+			guess[2] += pi/2		# try an out of phase
+			try:
+				#print 'L1: diff = %5.0f  frset= %6.3f  fr = %6.2f  phi = %6.2f'%(diff, res,par[1]*1e6,par[2])
+				par, pcov = curve_fit(self.sineFunc, x, y, guess)
+			except:
+				return None
+			vf = self.sineFunc(t, par[0], par[1], par[2], par[3])
+			diff = sum((v-vf)**2)/max(v)
+			if diff > self.error_limit:
+				#print 'L2: diff = %5.0f  frset= %6.3f  fr = %6.2f  phi = %6.2f'%(diff, res,par[1]*1e6,par[2])
+				return None
+			else:
+				pass
+				#print 'fixed ',par[1]*1e6
+		return par, vf
+
+
+	def amp_spectrum(self, v, si, nhar=8):  
+		# voltages, samplimg interval is seconds, number of harmonics to retain
+		from numpy import fft
+		NP = len(v)
+		frq = fft.fftfreq(NP, si)[:NP/2]	# take only the +ive half of the frequncy array
+		amp = abs(fft.fft(v)[:NP/2])/NP		# and the fft result
+		index =  amp.argmax()				# search for the tallest peak, the fundamental
+		if index == 0:						# DC component is dominating
+			index =  amp[4:].argmax()		# skip frequencies close to zero
+		return frq[:index*nhar], amp[:index*nhar]	# restrict to 'nhar' harmonics
+
 
 	def dampedSine(self,x, amp, freq, phase,offset,damp):
 		"""

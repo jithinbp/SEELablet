@@ -52,14 +52,14 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow,utilitiesClass):
 				autogenControls.append({'TITLE':'Wave 2','MIN':1,'MAX':5000,'FUNC':self.I.set_sine2,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of waveform generator #2','LINK':self.updateWAVE2_FREQ})
 				autogenControls.append({'TITLE':'square 1','MIN':10,'MAX':50000,'FUNC':self.I.sqr1,'TYPE':'dial','UNITS':'Hz','TOOLTIP':'Frequency of square wave generator #1'})
 
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS1')
-				autogenControls.append({'TITLE':'PVS1','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS1_LABEL})
+				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PV1')
+				autogenControls.append({'TITLE':'PV1','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePV1_LABEL})
 
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS2')
-				autogenControls.append({'TITLE':'PVS2','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS2_LABEL})
+				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PV2')
+				autogenControls.append({'TITLE':'PV2','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePV2_LABEL})
 
-				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PVS3')
-				autogenControls.append({'TITLE':'PVS3','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePVS3_LABEL})
+				tmpfunc = functools.partial(self.I.DAC.__setRawVoltage__,'PV3')
+				autogenControls.append({'TITLE':'PV3','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'V','TOOLTIP':'Programmable Voltage Source ','LINK':self.updatePV3_LABEL})
 
 				tmpfunc = lambda x: self.I.DAC.__setRawVoltage__('PCS',4095-x)
 				autogenControls.append({'TITLE':'PCS','MIN':0,'MAX':4095,'FUNC':tmpfunc,'TYPE':'dial','UNITS':'mA','TOOLTIP':'Programmable Current Source ','SCALE_FACTOR' : 1e3,'LINK':self.updatePCS_LABEL})
@@ -118,12 +118,12 @@ class AppWindow(QtGui.QMainWindow, controlWidgets.Ui_MainWindow,utilitiesClass):
         self.sineSection.WAVE1_FREQ.setText('%.3f %s '%(value,units))
     def updateWAVE2_FREQ(self,value,units=''):
         self.sineSection.WAVE2_FREQ.setText('%.3f %s '%(value,units))
-    def updatePVS1_LABEL(self,value,units=''):
-        self.supplySection.PVS1_LABEL.setText('%.3f %s '%(value,units))
-    def updatePVS2_LABEL(self,value,units=''):
-        self.supplySection.PVS2_LABEL.setText('%.3f %s '%(value,units))
-    def updatePVS3_LABEL(self,value,units=''):
-        self.supplySection.PVS3_LABEL.setText('%.3f %s '%(value,units))
+    def updatePV1_LABEL(self,value,units=''):
+        self.supplySection.PV1_LABEL.setText('%.3f %s '%(value,units))
+    def updatePV2_LABEL(self,value,units=''):
+        self.supplySection.PV2_LABEL.setText('%.3f %s '%(value,units))
+    def updatePV3_LABEL(self,value,units=''):
+        self.supplySection.PV3_LABEL.setText('%.3f %s '%(value,units))
     def updatePCS_LABEL(self,value,units=''):
         self.supplySection.PCS_LABEL.setText('%.3f %s '%(value,units))
 

@@ -53,6 +53,8 @@ class AppWindow(QtGui.QMainWindow, digitalScope.Ui_MainWindow):
 
 		self.plot=pg.PlotWidget(enableMenu=False)
 		self.plot.setTitle('Logic Analyzer' )
+		
+		self.LA1_chan.addItems(self.I.digital_channel_names)
 
 		#cross hair
 		self.vLine = pg.InfiniteLine(angle=90, movable=True)
@@ -178,7 +180,7 @@ class AppWindow(QtGui.QMainWindow, digitalScope.Ui_MainWindow):
 		self.plot.setRange(QtCore.QRectF(0, -2, self.maxT, 16)) 
 		self.readCursor()		
 		data = np.diff(self.I.dchans[0].timestamps)	
-		print(np.column_stack([range(len(data)),data]))
+		#(np.column_stack([range(len(data)),data]))
 		from SEEL.utilityApps import spreadsheet
 		info = spreadsheet.AppWindow(self,data=np.column_stack([data]))
 		info.show()

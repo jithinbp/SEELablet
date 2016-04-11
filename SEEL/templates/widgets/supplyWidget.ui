@@ -87,7 +87,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PVS3</string>
+            <string>PV3</string>
            </property>
           </widget>
          </item>
@@ -100,7 +100,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PVS2 </string>
+            <string>PV2 </string>
            </property>
           </widget>
          </item>
@@ -113,7 +113,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PVS1 </string>
+            <string>PV1 </string>
            </property>
           </widget>
          </item>
@@ -138,28 +138,28 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="PVS3_LABEL">
+          <widget class="QLabel" name="PV3_LABEL">
            <property name="text">
             <string>0 - 3.3V</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLabel" name="PVS2_LABEL">
+          <widget class="QLabel" name="PV2_LABEL">
            <property name="text">
             <string>-3.3 to 3.3V</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="PVS1_LABEL">
+          <widget class="QLabel" name="PV1_LABEL">
            <property name="text">
             <string>-5 to 5V</string>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QDoubleSpinBox" name="PVS1BOX">
+          <widget class="QDoubleSpinBox" name="PV1BOX">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -181,7 +181,7 @@
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QDoubleSpinBox" name="PVS2BOX">
+          <widget class="QDoubleSpinBox" name="PV2BOX">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -203,7 +203,7 @@
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QDoubleSpinBox" name="PVS3BOX">
+          <widget class="QDoubleSpinBox" name="PV3BOX">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -251,10 +251,10 @@
  <resources/>
  <connections>
   <connection>
-   <sender>PVS1BOX</sender>
+   <sender>PV1BOX</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Form</receiver>
-   <slot>setPVS1()</slot>
+   <slot>setPV1()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>271</x>
@@ -267,10 +267,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>PVS2BOX</sender>
+   <sender>PV2BOX</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Form</receiver>
-   <slot>setPVS2()</slot>
+   <slot>setPV2()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>221</x>
@@ -283,10 +283,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>PVS3BOX</sender>
+   <sender>PV3BOX</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Form</receiver>
-   <slot>setPVS3()</slot>
+   <slot>setPV3()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>249</x>
@@ -316,9 +316,9 @@
   </connection>
  </connections>
  <slots>
-  <slot>setPVS1()</slot>
-  <slot>setPVS2()</slot>
-  <slot>setPVS3()</slot>
+  <slot>setPV1()</slot>
+  <slot>setPV2()</slot>
+  <slot>setPV3()</slot>
   <slot>setPCS()</slot>
  </slots>
 </ui>

@@ -29,50 +29,6 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QFrame.PeripheralCollection{
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-border: 1px solid black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #6af, stop: 0.1 #689);
-}
-QFrame.PeripheralCollection QLabel {
-color: white;
-font-weight: bold;
-}
-
-QFrame.PeripheralCollectionInner {
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-border: none;
-border-top: 1px solid black;
-}
-
-QFrame.PeripheralCollectionInner QLabel{
-color: black;
-}
-
-
-</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -149,7 +105,7 @@ color: black;
            <enum>QLayout::SetNoConstraint</enum>
           </property>
           <item row="2" column="1">
-           <widget class="QLabel" name="PVS3_LABEL">
+           <widget class="QLabel" name="PV3_LABEL">
             <property name="text">
              <string>0 - 3.3V</string>
             </property>
@@ -169,7 +125,7 @@ color: black;
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="PVS2_LABEL">
+           <widget class="QLabel" name="PV2_LABEL">
             <property name="text">
              <string>-3.3 to 3.3V</string>
             </property>
@@ -297,7 +253,7 @@ color: black;
              </sizepolicy>
             </property>
             <property name="text">
-             <string>PVS3</string>
+             <string>PV3</string>
             </property>
            </widget>
           </item>
@@ -332,7 +288,7 @@ color: black;
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLabel" name="PVS1_LABEL">
+           <widget class="QLabel" name="PV1_LABEL">
             <property name="text">
              <string>-5 to 5V</string>
             </property>
@@ -360,7 +316,7 @@ color: black;
              </sizepolicy>
             </property>
             <property name="text">
-             <string>PVS1 </string>
+             <string>PV1 </string>
             </property>
            </widget>
           </item>
@@ -417,7 +373,7 @@ color: black;
              </sizepolicy>
             </property>
             <property name="text">
-             <string>PVS2 </string>
+             <string>PV2 </string>
             </property>
            </widget>
           </item>
@@ -606,7 +562,7 @@ color: black;
    <sender>horizontalSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS1(int)</slot>
+   <slot>setPV1(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>314</x>
@@ -622,7 +578,7 @@ color: black;
    <sender>horizontalSlider_2</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS2(int)</slot>
+   <slot>setPV2(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>281</x>
@@ -638,7 +594,7 @@ color: black;
    <sender>horizontalSlider_3</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS3(int)</slot>
+   <slot>setPV3(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>241</x>
@@ -765,9 +721,9 @@ color: black;
  </connections>
  <slots>
   <slot>setPCS(int)</slot>
-  <slot>setPVS1(int)</slot>
-  <slot>setPVS2(int)</slot>
-  <slot>setPVS3(int)</slot>
+  <slot>setPV1(int)</slot>
+  <slot>setPV2(int)</slot>
+  <slot>setPV3(int)</slot>
   <slot>setSINE1(double)</slot>
   <slot>setSINE2(double)</slot>
   <slot>setOffset(int)</slot>

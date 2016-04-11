@@ -69,7 +69,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Sweep Voltage(PVS2)</string>
+         <string>Sweep Voltage(PV2)</string>
         </property>
        </widget>
       </item>

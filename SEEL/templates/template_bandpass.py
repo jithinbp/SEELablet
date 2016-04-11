@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'template_bandpass.ui'
 #
-# Created: Mon Jan  4 16:48:28 2016
+# Created: Fri Apr  8 17:47:18 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,47 +27,6 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(804, 628)
-        MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 11px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
-"}\n"
-"QFrame.PeripheralCollection QLabel {\n"
-"color: white;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner QLabel{\n"
-"color: black;\n"
-"}\n"
-"\n"
-""))
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_3 = QtGui.QGridLayout(self.centralwidget)
@@ -146,13 +105,11 @@ class Ui_MainWindow(object):
         self.startFreq.setSingleStep(1.0)
         self.startFreq.setObjectName(_fromUtf8("startFreq"))
         self.gridLayout.addWidget(self.startFreq, 0, 1, 1, 1)
-        self.stepFreq = QtGui.QDoubleSpinBox(self.frame)
+        self.stepFreq = QtGui.QSpinBox(self.frame)
         self.stepFreq.setMinimumSize(QtCore.QSize(0, 30))
-        self.stepFreq.setDecimals(1)
-        self.stepFreq.setMinimum(0.1)
-        self.stepFreq.setMaximum(100.0)
-        self.stepFreq.setSingleStep(1.0)
-        self.stepFreq.setProperty("value", 10.0)
+        self.stepFreq.setMinimum(10)
+        self.stepFreq.setMaximum(5000)
+        self.stepFreq.setProperty("value", 100)
         self.stepFreq.setObjectName(_fromUtf8("stepFreq"))
         self.gridLayout.addWidget(self.stepFreq, 4, 1, 1, 1)
         self.verticalLayout_3.addWidget(self.frame)
@@ -205,7 +162,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
         self.widgetFrameOuter.setProperty("class", _translate("MainWindow", "PeripheralCollection", None))
         self.frame.setProperty("class", _translate("MainWindow", "PeripheralCollectionInner", None))
-        self.label_6.setText(_translate("MainWindow", "Step Size (Hz)", None))
+        self.label_6.setText(_translate("MainWindow", "Total Datapoints", None))
         self.label_2.setText(_translate("MainWindow", "Acquired Data", None))
         self.label_5.setText(_translate("MainWindow", "Stop Frequency", None))
         self.pushButton.setText(_translate("MainWindow", "Start Sweep", None))

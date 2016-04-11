@@ -141,6 +141,23 @@ class utilitiesClass():
 			pos+=1
 		return data
 
+	def fetchSelectedItemsFromColumns(self,qtablewidget,*args):
+		data = [[] for a in range(len(args))]
+		pos=0
+		for col in args:
+			for row in range(50):
+				item = qtablewidget.item(row,col)
+				if item:
+					if item.isSelected():
+						try:
+							data[pos].append(float(item.text()))
+						except:
+							break
+				else:
+					break
+			pos+=1
+		return data
+
 
 	def newPlot(self,x,y,**args):
 		self.plot_ext = pg.GraphicsWindow(title=args.get('title',''))
@@ -208,6 +225,8 @@ class utilitiesClass():
 
 
 
+
+
 	def displayDialog(self,txt=''):
 			QtGui.QMessageBox.about(self, 'Message',  txt)
 
@@ -216,6 +235,9 @@ class utilitiesClass():
 		def __init__(self,**args):
 			super(utilitiesClass.spinIcon, self).__init__()
 			self.setupUi(self)
+			try:from SEEL.commands_proto import applySIPrefix
+			except ImportError:	self.applySIPrefix = None
+			else:self.applySIPrefix = applySIPrefix
 			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
 			self.func = args.get('FUNC',None)
@@ -230,7 +252,9 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			#self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText('Error')
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
@@ -239,6 +263,9 @@ class utilitiesClass():
 		def __init__(self,**args):
 			super(utilitiesClass.doubleSpinIcon, self).__init__()
 			self.setupUi(self)
+			try:from SEEL.commands_proto import applySIPrefix
+			except ImportError:	self.applySIPrefix = None
+			else:self.applySIPrefix = applySIPrefix
 			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
 			self.func = args.get('FUNC',None)
@@ -253,7 +280,9 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			self.value.setText('%.3f %s '%(retval*self.scale,self.units))
+			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText('Error')
+			#self.value.setText('%.3f %s '%(retval*self.scale,self.units))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
@@ -263,6 +292,9 @@ class utilitiesClass():
 		def __init__(self,**args):
 			super(utilitiesClass.dialIcon, self).__init__()
 			self.setupUi(self)
+			try:from SEEL.commands_proto import applySIPrefix
+			except ImportError:	self.applySIPrefix = None
+			else:self.applySIPrefix = applySIPrefix
 			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
 			self.func = args.get('FUNC',None)
@@ -277,7 +309,9 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			self.value.setText('%.2f %s '%(retval*self.scale,self.units))
+			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText('Error')
+			#self.value.setText('%.2f %s '%(retval*self.scale,self.units))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
@@ -287,6 +321,9 @@ class utilitiesClass():
 	class buttonIcon(QtGui.QFrame,button.Ui_Form):
 		def __init__(self,**args):
 			super(utilitiesClass.buttonIcon, self).__init__()
+			try:from SEEL.commands_proto import applySIPrefix
+			except ImportError:	self.applySIPrefix = None
+			else:self.applySIPrefix = applySIPrefix
 			self.setupUi(self)
 			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
@@ -297,13 +334,18 @@ class utilitiesClass():
 
 		def read(self):
 			retval = self.func()
-			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
-			else: self.value.setText('%.3e %s '%(retval,self.units))
+			#if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			#else: self.value.setText('%.3e %s '%(retval,self.units))
+			if retval:self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
+			else: self.value.setText('Error')
 
 	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
 		def __init__(self,**args):
 			super(utilitiesClass.selectAndButtonIcon, self).__init__()
 			self.setupUi(self)
+			try:from SEEL.commands_proto import applySIPrefix
+			except ImportError:	self.applySIPrefix = None
+			else:self.applySIPrefix = applySIPrefix
 			self.name = args.get('TITLE','')
 			self.title.setText(self.name)
 			self.func = args.get('FUNC',None)
@@ -313,8 +355,10 @@ class utilitiesClass():
 
 		def read(self):
 			retval = self.func(self.optionBox.currentText())
-			if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
-			else: self.value.setText('%.3e %s '%(retval,self.units))
+			#if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
+			#else: self.value.setText('%.3e %s '%(retval,self.units))
+			if retval:self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
+			else: self.value.setText('Error')
 
 	class experimentIcon(QtGui.QPushButton):
 		mouseHover = QtCore.pyqtSignal(str)
@@ -370,7 +414,7 @@ class utilitiesClass():
 			freq1 = self.SINE1BOX.value()
 			freq2 = self.SINE2BOX.value()
 			phase = self.SINEPHASE.value()
-			f=self.I.set_sine_phase(freq1,phase,freq2)
+			f=self.I.set_waves(freq1,phase,freq2)
 			self.WAVE1_FREQ.setText('%.2f'%(f))
 			self.WAVE2_FREQ.setText('%.2f'%(f))
 
@@ -434,17 +478,17 @@ class utilitiesClass():
 			self.setupUi(self)
 			self.I = I
 
-		def setPVS1(self,val):
-			val=self.I.DAC.setVoltage('PVS1',val)
-			self.PVS1_LABEL.setText('%.3f V'%(val))
+		def setPV1(self,val):
+			val=self.I.DAC.setVoltage('PV1',val)
+			self.PV1_LABEL.setText('%.3f V'%(val))
 
-		def setPVS2(self,val):
-			val=self.I.DAC.setVoltage('PVS2',val)
-			self.PVS2_LABEL.setText('%.3f V'%(val))
+		def setPV2(self,val):
+			val=self.I.DAC.setVoltage('PV2',val)
+			self.PV2_LABEL.setText('%.3f V'%(val))
 
-		def setPVS3(self,val):
-			val=self.I.DAC.setVoltage('PVS3',val)
-			self.PVS3_LABEL.setText('%.3f V'%(val))
+		def setPV3(self,val):
+			val=self.I.DAC.setVoltage('PV3',val)
+			self.PV3_LABEL.setText('%.3f V'%(val))
 
 		def setPCS(self,val):
 			val=3.3e-3-self.I.DAC.setVoltage('PCS',val/1.e3)

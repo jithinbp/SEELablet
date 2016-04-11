@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>868</width>
-    <height>506</height>
+    <height>535</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -36,67 +36,7 @@
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QFrame.PeripheralCollection{
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-border: 1px solid black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #ebc, stop: 0.1 #689);
-}
-
-QFrame.PeripheralCollection QLabel {
-color: white;
-font-weight: bold;
-}
-
-QFrame.PeripheralCollectionInner {
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-border: none;
-border-top: 3px solid black;
-}
-
-QFrame.PeripheralCollectionInner QLabel{
-color: black;
-}
-
-
-#centralwidget{
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-border: 1px solid black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #6af, stop: 0.1 #689);
-}
-#centralwidget QLabel {
-color: black;
-font-weight: bold;
-}
-
-
-
-
-
-
-
-</string>
+   <string notr="true"/>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
@@ -827,7 +767,7 @@ font-weight: bold;
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QCheckBox{background-color: rgba(255, 33, 0,0);}</string>
+             <string notr="true"/>
             </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
@@ -1207,7 +1147,7 @@ font-weight: bold;
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">color: rgb(255, 255, 255);</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Msg:</string>
@@ -1430,14 +1370,14 @@ font-weight: bold;
   <slot>setGainCH1(int)</slot>
   <slot>setGainCH2(int)</slot>
   <slot>setPCS(int)</slot>
-  <slot>setPVS1(int)</slot>
-  <slot>setPVS2(int)</slot>
+  <slot>setPV1(int)</slot>
+  <slot>setPV2(int)</slot>
   <slot>setTimeBase(int)</slot>
   <slot>setTriggerLevel(int)</slot>
   <slot>setTriggerChannel(int)</slot>
   <slot>setSamples(int)</slot>
   <slot>setActiveChannels(QString)</slot>
-  <slot>setPVS3(int)</slot>
+  <slot>setPV3(int)</slot>
   <slot>setSINE1(double)</slot>
   <slot>setSINE2(double)</slot>
   <slot>start_dma_dds()</slot>

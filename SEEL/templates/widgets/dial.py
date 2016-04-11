@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dial.ui'
 #
-# Created: Mon Jan 11 20:20:07 2016
+# Created: Fri Apr  8 17:47:18 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

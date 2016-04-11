@@ -79,7 +79,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QtGui.QApplication.translate("Form", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("Form", "Sweep Voltage(PVS2)", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton.setText(QtGui.QApplication.translate("Form", "Sweep Voltage(PV2)", None, QtGui.QApplication.UnicodeUTF8))
         self.VLabel.setText(QtGui.QApplication.translate("Form", "V=", None, QtGui.QApplication.UnicodeUTF8))
         self.ILabel.setText(QtGui.QApplication.translate("Form", "I=", None, QtGui.QApplication.UnicodeUTF8))
 

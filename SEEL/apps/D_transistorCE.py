@@ -24,7 +24,7 @@ params = {
 'image' : 'transistorCE.png',
 'helpfile': 'transistorCE.html',
 'name':'Transistor CE\nCharacteristics',
-'hint':'Study the dependence of common emitter Characteristics of NPN transistors on base current .\n uses PVS2 as the voltage source for setting collector voltage,\n and PVS3 with a 200K resistor connected in series as the base current source.\nThe collector voltage is monitored via CH3. '
+'hint':'Study the dependence of common emitter Characteristics of NPN transistors on base current .\n uses PV2 as the voltage source for setting collector voltage,\n and PV3 with a 200K resistor connected in series as the base current source.\nThe collector voltage is monitored via CH3. '
 }
 
 class AppWindow(QtGui.QMainWindow, transistorCE.Ui_MainWindow,utilitiesClass):
@@ -57,7 +57,7 @@ class AppWindow(QtGui.QMainWindow, transistorCE.Ui_MainWindow,utilitiesClass):
 
 		self.curves.append( self.addCurve(self.plot ,'%.3f'%(self.base_voltage),[255,255,255])  )
 
-		self.I.set_pvs3(self.base_voltage) # set base current. PVS3+200K resistor
+		self.I.set_pvs3(self.base_voltage) # set base current. PV3+200K resistor
 
 		self.V = self.startV.value()
 		self.I.set_pvs2(self.V) 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Mon Mar  7 23:59:44 2016
+# Created: Fri Apr  8 17:47:18 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,110 +29,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(434, 667)
         MainWindow.setMinimumSize(QtCore.QSize(0, 0))
         MainWindow.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        MainWindow.setStyleSheet(_fromUtf8("QPushButton{\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 11px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QTabWidget {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"\n"
-"}\n"
-"\n"
-"\n"
-"QTabBar::tab{\n"
-"color: #000;\n"
-"border-top-left-radius: 5px;\n"
-"border-bottom-left-radius: 5px;\n"
-"padding-top: 15px;padding-bottom:15px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.2, stop: 0 #fff, stop: 1 #aaa);\n"
-"width: 30px;\n"
-"font-size: 13px;\n"
-"}\n"
-"QTabBar::tab:selected {\n"
-"color: #000;\n"
-"border-top-left-radius: 20px;\n"
-"border-bottom-left-radius: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fcc, stop: 1 #ccf);\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
-"}\n"
-"QFrame.PeripheralCollection QLabel {\n"
-"color: white;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"QFrame.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner QLabel{\n"
-"color: black;\n"
-"}\n"
-"\n"
-"QWidget.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
-"}\n"
-"QTextBrowser{\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #cdf, stop: 0.7 #cdc);\n"
-"}\n"
-"\n"
-"\n"
-"QWidget.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 1px solid black;\n"
-"}\n"
-"\n"
-"QWidget.PeripheralCollectionInner QLabel{\n"
-"color: black;\n"
-"}\n"
-"\n"
-"#SCF1,#SCF2,#tab_4\n"
-"{\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-""))
+        MainWindow.setStyleSheet(_fromUtf8(""))
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setStyleSheet(_fromUtf8(""))
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -272,7 +169,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.SCF2 = QtGui.QWidget()
-        self.SCF2.setGeometry(QtCore.QRect(0, 0, 398, 28))
+        self.SCF2.setGeometry(QtCore.QRect(0, 0, 402, 611))
         self.SCF2.setStyleSheet(_fromUtf8(""))
         self.SCF2.setObjectName(_fromUtf8("SCF2"))
         self.gridLayout_6 = QtGui.QGridLayout(self.SCF2)

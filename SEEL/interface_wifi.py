@@ -84,12 +84,12 @@ class Interface(object):
 		self.ADC_POLYNOMIALS_LOCATION=13
 
 		self.DAC_POLYNOMIALS_LOCATION=1
-		self.DAC_SHIFTS_PVS1A=14
-		self.DAC_SHIFTS_PVS1B=15
-		self.DAC_SHIFTS_PVS2A=16
-		self.DAC_SHIFTS_PVS2B=17
-		self.DAC_SHIFTS_PVS3A=18
-		self.DAC_SHIFTS_PVS3B=19
+		self.DAC_SHIFTS_PV1A=14
+		self.DAC_SHIFTS_PV1B=15
+		self.DAC_SHIFTS_PV2A=16
+		self.DAC_SHIFTS_PV2B=17
+		self.DAC_SHIFTS_PV3A=18
+		self.DAC_SHIFTS_PV3B=19
 
 
 		self.timebase = 40
@@ -147,11 +147,11 @@ class Interface(object):
                                         fits = struct.unpack('6f',S[1])
                                         slope=fits[0];intercept=fits[1]
                                         fitvals = fits[2:]
-                                        if NAME in ['PVS1','PVS2','PVS3']:
+                                        if NAME in ['PV1','PV2','PV3']:
                                                 DACX=np.linspace(self.DAC.CHANS[NAME].range[0],self.DAC.CHANS[NAME].range[1],4096)
-                                                if NAME=='PVS1':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS1A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS1B,2048)
-                                                elif NAME=='PVS2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS2B,2048)
-                                                elif NAME=='PVS3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PVS3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PVS3B,2048)
+                                                if NAME=='PV1':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV1A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV1B,2048)
+                                                elif NAME=='PV2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV2B,2048)
+                                                elif NAME=='PV3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV3B,2048)
 
                                                 OFF = np.array([Byte.unpack(data)[0] for data in OFF])
                                                 fitfn = np.poly1d(fitvals)
@@ -2436,44 +2436,44 @@ class Interface(object):
 
 	def set_pvs1(self,val):
 		"""
-		Set the voltage on PVS1
+		Set the voltage on PV1
 		12-bit DAC...  -5V to 5V
 		
 		==============	============================================================================================
 		**Arguments** 
 		==============	============================================================================================
-		val				Output voltage on PVS1. -5V to 5V
+		val				Output voltage on PV1. -5V to 5V
 		==============	============================================================================================
 
 		"""
-		return self.DAC.setVoltage('PVS1',val)
+		return self.DAC.setVoltage('PV1',val)
 
 	def set_pvs2(self,val):
 		"""
-		Set the voltage on PVS2.
+		Set the voltage on PV2.
 		12-bit DAC...  0-3.3V
 		
 		==============	============================================================================================
 		**Arguments** 
 		==============	============================================================================================
-		val				Output voltage on PVS2. 0-3.3V
+		val				Output voltage on PV2. 0-3.3V
 		==============	============================================================================================
 		"""
-		return self.DAC.setVoltage('PVS2',val)
+		return self.DAC.setVoltage('PV2',val)
 
 	def set_pvs3(self,val):
 		"""
-		Set the voltage on PVS3
+		Set the voltage on PV3
 
 		==============	============================================================================================
 		**Arguments** 
 		==============	============================================================================================
-		val				Output voltage on PVS3. 0V to 3.3V
+		val				Output voltage on PV3. 0V to 3.3V
 		==============	============================================================================================
 
 		:return: Actual value set on pvs3
 		"""
-		return self.DAC.setVoltage('PVS3',val)
+		return self.DAC.setVoltage('PV3',val)
 		
 	def set_pcs(self,val):
 		"""

@@ -296,7 +296,7 @@ class Ui_Form(object):
         self.resistance_value.setSuffix(_translate("Form", " Ohms", None))
         self.label_4.setText(_translate("Form", "Voltage Source", None))
         self.label_5.setText(_translate("Form", "-3.3->3.3V", None))
-        self.base_voltage_label.setToolTip(_translate("Form", "Set the value of PVS3 (-3.3 Volts to 3.3 Volts)", None))
+        self.base_voltage_label.setToolTip(_translate("Form", "Set the value of PV3 (-3.3 Volts to 3.3 Volts)", None))
         self.IceLabel.setToolTip(_translate("Form", "Current flowing through the emitter.", None))
         self.IceLabel.setText(_translate("Form", "I_ce=", None))
         self.VceLabel.setToolTip(_translate("Form", "Voltage across the collector and emitter", None))

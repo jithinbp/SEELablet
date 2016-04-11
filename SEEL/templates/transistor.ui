@@ -22,12 +22,6 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QTextEdit {color: rgb(0, 0, 0);}
-QLineEdit {color: rgb(0, 0, 0);}
-QLineEdit:selected {color: rgb(0, 0, 0);}
-QSpinBox{color: rgb(0, 0, 0);}</string>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
@@ -315,7 +309,7 @@ to estimate the current flow</string>
              </size>
             </property>
             <property name="toolTip">
-             <string>Set the value of PVS3 (-3.3 Volts to 3.3 Volts)</string>
+             <string>Set the value of PV3 (-3.3 Volts to 3.3 Volts)</string>
             </property>
             <property name="maximum">
              <number>4095</number>

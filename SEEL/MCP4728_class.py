@@ -36,10 +36,10 @@ class MCP4728:
 		self.I2C = I2C_class.I2C(self.H)
 		self.SWITCHEDOFF=[0,0,0,0]
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
-		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PVS3':DACCHAN('PVS3',[0,3.3],1),'PVS2':DACCHAN('PVS2',[-3.3,3.3],2),'PVS1':DACCHAN('PVS1',[-5.,5.],3)}
-		self.CHANNEL_MAP={0:'PCS',1:'PVS3',2:'PVS2',3:'PVS1'}
-		self.calibration_enabled={'PVS1':False,'PVS2':False,'PVS3':False,'PCS':False}
-		self.calibration_tables={'PVS1':[],'PVS2':[],'PVS3':[],'PCS':[]}
+		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
+		self.CHANNEL_MAP={0:'PCS',1:'PV3',2:'PV2',3:'PV1'}
+		self.calibration_enabled={'PV1':False,'PV2':False,'PV3':False,'PCS':False}
+		self.calibration_tables={'PV1':[],'PV2':[],'PV3':[],'PCS':[]}
 
 
 	def load_calibration(self,name,table):

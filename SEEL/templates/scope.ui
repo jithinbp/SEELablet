@@ -29,19 +29,6 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true"> QPushButton{ background-image: url(:/images/bt_01_off.png);
-color: rgb(255, 255, 255);}
- QPushButton:pressed {background-image:url(:/images/bt_01_on.png);}
-QFrame{background-color: rgb(21, 107, 113);}
-
-QLabel,QRadioButton,QCheckBox {color: rgb(255, 255, 255);}
-QLabel,QRadioButton,QCheckBox{background-color: rgba(0,0,0, 0);color: rgb(0,0,0);}
-QComboBox{background-color: rgba(255,255,255, 100);color: rgb(0,0,0);}
-
-border-color: rgb(29, 122, 162);
-</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
@@ -1711,7 +1698,7 @@ border-color: rgb(29, 122, 162);
                </sizepolicy>
               </property>
               <property name="text">
-               <string>PVS1 </string>
+               <string>PV1 </string>
               </property>
              </widget>
             </item>
@@ -1724,12 +1711,12 @@ border-color: rgb(29, 122, 162);
                </sizepolicy>
               </property>
               <property name="text">
-               <string>PVS2 </string>
+               <string>PV2 </string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="PVS2_LABEL">
+             <widget class="QLabel" name="PV2_LABEL">
               <property name="text">
                <string>-3.3 to 3.3V</string>
               </property>
@@ -1744,12 +1731,12 @@ border-color: rgb(29, 122, 162);
                </sizepolicy>
               </property>
               <property name="text">
-               <string>PVS3</string>
+               <string>PV3</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLabel" name="PVS3_LABEL">
+             <widget class="QLabel" name="PV3_LABEL">
               <property name="text">
                <string>0 - 3.3V</string>
               </property>
@@ -1809,7 +1796,7 @@ border-color: rgb(29, 122, 162);
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLabel" name="PVS1_LABEL">
+             <widget class="QLabel" name="PV1_LABEL">
               <property name="text">
                <string>-5 to 5V</string>
               </property>
@@ -2448,7 +2435,7 @@ border-color: rgb(29, 122, 162);
    <sender>horizontalSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS1(int)</slot>
+   <slot>setPV1(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>295</x>
@@ -2464,7 +2451,7 @@ border-color: rgb(29, 122, 162);
    <sender>horizontalSlider_2</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS2(int)</slot>
+   <slot>setPV2(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>295</x>
@@ -2480,7 +2467,7 @@ border-color: rgb(29, 122, 162);
    <sender>horizontalSlider_3</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setPVS3(int)</slot>
+   <slot>setPV3(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>295</x>
@@ -2691,14 +2678,14 @@ border-color: rgb(29, 122, 162);
   <slot>setGainCH1(int)</slot>
   <slot>setGainCH2(int)</slot>
   <slot>setPCS(int)</slot>
-  <slot>setPVS1(int)</slot>
-  <slot>setPVS2(int)</slot>
+  <slot>setPV1(int)</slot>
+  <slot>setPV2(int)</slot>
   <slot>setTimeBase(int)</slot>
   <slot>setTriggerLevel(int)</slot>
   <slot>setTriggerChannel(int)</slot>
   <slot>setSamples(int)</slot>
   <slot>setActiveChannels(QString)</slot>
-  <slot>setPVS3(int)</slot>
+  <slot>setPV3(int)</slot>
   <slot>setSINE1(double)</slot>
   <slot>setSINE2(double)</slot>
   <slot>start_dma_dds()</slot>

@@ -77,9 +77,9 @@ class AppWindow(QtGui.QMainWindow, arbitStream.Ui_MainWindow):
 		self.start_time=time.time()
 		self.averagingSamples = 1
 		self.I.set_sine2(4)
-		self.I.set_pvs1(-2)
-		self.I.set_pvs2(-1)
-		self.I.set_pvs3(1.0)
+		self.I.DAC.setVoltage('PV1',-2)
+		self.I.DAC.setVoltage('PV2',-1)
+		self.I.DAC.setVoltage('PV3',1)
 
 	def stream(self):
 		self.looptimer.stop()

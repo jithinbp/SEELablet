@@ -9,7 +9,7 @@ def timeit(arg=''):
 
 timeit('packet start')
 
-from SEEL.commands_proto import *
+import SEEL.commands_proto as CP
 import serial, subprocess
 timeit('serial,sub,comm')
 
@@ -73,8 +73,8 @@ class Handler():
 		return None,'',False
 
 	def get_version(self,fd):
-		fd.write(COMMON)
-		fd.write(GET_VERSION)
+		fd.write(CP.COMMON)
+		fd.write(CP.GET_VERSION)
 		x=fd.readline()
 		#print('remaining',[ord(a) for a in fd.read(10)])
 		if len(x):
@@ -120,7 +120,7 @@ class Handler():
 			self.inputQueueSize+=1
 			return 1
 		try:
-			return Byte.unpack(x)[0]
+			return CP.Byte.unpack(x)[0]
 		except:
 			return 3
 
@@ -129,8 +129,8 @@ class Handler():
 		transmits an integer packaged as two characters
 		:params int val: int to send
 		"""
-		if not self.loadBurst:self.fd.write(InttoString(val))
-		else: self.burstBuffer+=InttoString(val)
+		if not self.loadBurst:self.fd.write(CP.ShortInt.pack(int(val)))
+		else: self.burstBuffer+=CP.ShortInt.pack(int(val))
 
 	def __sendByte__(self,val):
 		"""
@@ -139,8 +139,8 @@ class Handler():
 		"""
 		#print (val)
 		if(type(val)==int):
-			if not self.loadBurst:self.fd.write(Byte.pack(val))
-			else:self.burstBuffer+=Byte.pack(val)
+			if not self.loadBurst:self.fd.write(CP.Byte.pack(val))
+			else:self.burstBuffer+=CP.Byte.pack(val)
 		else:
 			if not self.loadBurst:self.fd.write(val)
 			else:self.burstBuffer+=val
@@ -150,7 +150,7 @@ class Handler():
 		reads a byte from the serial port and returns it
 		"""
 		ss=self.fd.read(1)
-		if len(ss): return Byte.unpack(ss)[0]
+		if len(ss): return CP.Byte.unpack(ss)[0]
 		else:
 			print('byte communication error.',time.ctime())
 			return -1
@@ -162,7 +162,7 @@ class Handler():
 		returns an integer after combining them
 		"""
 		ss = self.fd.read(2)
-		if len(ss)==2: return ShortInt.unpack(ss)[0]
+		if len(ss)==2: return CP.ShortInt.unpack(ss)[0]
 		else:
 			print('int communication error.',time.ctime())
 			return -1
@@ -174,10 +174,17 @@ class Handler():
 		returns long
 		"""
 		ss = self.fd.read(4)
-		if len(ss)==4: return Integer.unpack(ss)[0]
+		if len(ss)==4: return CP.Integer.unpack(ss)[0]
 		else:
 			#print('.')
 			return -1
+
+	def waitForData(self,timeout=0.2):
+		start_time = time.time()
+		while time.time()-start_time<timeout:
+			time.sleep(0.02)
+			if self.fd.inWaiting():return True
+		return False
 
 
 	def sendBurst(self):

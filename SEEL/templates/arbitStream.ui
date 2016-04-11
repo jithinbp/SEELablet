@@ -35,31 +35,6 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QFrame{background-color: rgb(21, 107, 113);}
-
-QComboBox{background-color: rgba(255,255,255, 100);color: rgb(0,0,0);}
-
-border-color: rgb(29, 122, 162);
-</string>
-  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>

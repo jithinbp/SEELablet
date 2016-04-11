@@ -13,49 +13,6 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QFrame.PeripheralCollection{
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-border: 1px solid black;
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #6af, stop: 0.1 #689);
-}
-QFrame.PeripheralCollection QLabel {
-color: white;
-font-weight: bold;
-}
-
-QFrame.PeripheralCollectionInner {
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-border: none;
-border-top: 1px solid black;
-}
-
-QFrame.PeripheralCollectionInner QLabel{
-color: black;
-}
-
-</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
     <property name="margin">
@@ -172,7 +129,7 @@ color: black;
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Sweep Voltage(PVS1 via 1K resistor)</string>
+             <string>Sweep Voltage(PV1 via 1K resistor)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

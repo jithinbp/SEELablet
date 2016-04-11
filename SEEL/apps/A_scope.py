@@ -201,7 +201,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 
 	def update(self):
 		n=0
-
 		while(not self.I.oscilloscope_progress()[0]):
 			time.sleep(0.1)
 			print (self.timebase,'correction required',n)
@@ -221,19 +220,25 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 		self.curveF[1].clear()
 		self.curveFR.clear()
 
-		msg='';pos=0
+		msg='';pos=0;phaseA=0
 		for fitsel in [self.fit_select_box,self.fit_select_box_2]:
 			if fitsel.currentIndex()<4:
-				if len(msg)>0:
-					msg+='\n'
+				if len(msg)>0:msg+='\n'
 				if self.channel_states[fitsel.currentIndex()]:
 					if fitsel.currentText()=='CH2':
-						msg+='FIT '+chr(pos+65)+': '+self.fitData(self.I.achans[fitsel.currentIndex()].get_xaxis(),\
-						self.I.achans[fitsel.currentIndex()].get_yaxis(),self.curveFR)
+						ed = self.fitData(self.I.achans[fitsel.currentIndex()].get_xaxis(),	self.I.achans[fitsel.currentIndex()].get_yaxis(),self.curveFR)
 					else:
-						msg+='FIT '+chr(pos+65)+': '+self.fitData(self.I.achans[fitsel.currentIndex()].get_xaxis(),\
-						self.I.achans[fitsel.currentIndex()].get_yaxis(),self.curveF[pos])
+						ed = self.fitData(self.I.achans[fitsel.currentIndex()].get_xaxis(),self.I.achans[fitsel.currentIndex()].get_yaxis(),self.curveF[pos])
 
+					if len(ed)==4:
+						dp=''
+						if not len(msg): phaseA = ed[3]
+						else:dp = '(%.3f)'%(ed[3]-phaseA)
+							
+						msg+='Fit %c:Amp = %0.3fV \tFreq=%0.2fHz \tOffset=%0.3fV \tPhase=%0.1f%c'%(pos+65,ed[0],ed[1],ed[2],ed[3],176)
+						msg+=dp
+					else:
+						msg+='Fit Failed'
 
 				else:
 					msg+='FIT '+chr(pos+65)+': Channel Unavailable'
@@ -281,8 +286,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 		
 		self.timer.singleShot(100,self.start_capture)
 
-
-
 	def readCursor(self):
 		pos=self.vLine.getPos()
 		index = int(pos[0]*1e6)/self.I.timebase
@@ -296,7 +299,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 		else:
 			self.coord_label.setText("")
 
-
 	def fitData(self,xReal,yReal,curve):
 		if self.fit_type_box.currentIndex()==0: #sine wave
 			fitres = self.math.sineFit(xReal,yReal)
@@ -308,6 +310,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 
 				frequency = freq/1e6
 				period = 1./frequency/1e6
+				#Collapse waveforms on top of each other.
 				if(self.collapseButton.isChecked()):
 					self.collapseButton.setChecked(False)
 					self.collapse_win = pg.GraphicsWindow(title="Collapsing plot")
@@ -324,13 +327,14 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 					if(self.collapse_win.windowState() & QtCore.Qt.WindowActive):
 						print ('opened')
 				#------------------------------------------------------
-			
+				
+				##Overlay fit curve
 				if(self.overlay_fit_button.isChecked()):
 					x=np.linspace(0,xReal[-1],50000)
 					curve.setData(x*1e-6,self.math.sineFunc(x,amp,frequency,ph*np.pi/180,offset))
-				return 'Amp = %0.3fV \tFreq=%0.2fHz \tOffset=%0.3fV \tPhase=%0.1f%c'%(amp, freq, offset,ph,176)
+				return [amp, freq, offset,ph]
 			else:
-				return 'fit failed'
+				return []
 
 		elif self.fit_type_box.currentIndex()==1: #square
 			fitres = self.math.squareFit(xReal,yReal)
@@ -370,7 +374,6 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 		else:
 				return 'fit failed'
 
-
 	def setOffsetAndGainLabels(self):
 		pass
 	
@@ -406,9 +409,9 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 
 
 	def setTimeBase(self,g):
-		timebases = [1.75,2,4,8,16,32,128,256,512,1024,1024]
+		timebases = [1.75,2,4,8,16,32,128,256,512,1024,2048]
 		self.prescalerValue=[0,0,0,0,1,1,2,2,3,3,3][g]
-		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.1,0.1]
+		samplescaling=[1,1,1,1,1,0.5,0.4,0.3,0.2,0.2,0.1]
 		self.timebase=timebases[g]
 		'''
 		if(self.active_channels==1 and self.timebase<1.0):
@@ -453,12 +456,9 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 		elif val==1:
 			self.plot2.addItem(self.arrow)
 
-
-
 	def setActiveChannels(self,val):
 		self.active_channels = int(val)
 		self.autoSetSamples()
-		
 
 	def remap_CH0(self,val):
 		val = str(val)
@@ -479,6 +479,7 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 			R2 = [Y.calPoly10(0),Y.calPoly10(1023)]
 			R2[0]=R2[0]*.9;R2[1]=R2[1]*.9
 
+			self.plot.setLimits(yMax=max(R2),yMin=min(R2),xMin=min(R1),xMax=max(R1))		
 			self.plot.setXRange(min(R1),max(R1))
 			self.plot.setYRange(min(R2),max(R2))
 
@@ -486,19 +487,16 @@ class AppWindow(QtGui.QMainWindow, analogScope.Ui_MainWindow,utilitiesClass):
 			chan = self.I.analogInputSources[self.chan1remap]
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
 			R[0]=R[0]*.9;R[1]=R[1]*.9
-			#print (R)
-			#self.plot.setYRange(min(R),max(R))
 			chan = self.I.analogInputSources['CH2']
 			R = [chan.calPoly10(0),chan.calPoly10(1023)]
 			R[0]=R[0]*.9;R[1]=R[1]*.9
 			self.plot2.setYRange(min(R),max(R))
 			self.plot.setLimits(yMax=max(R),yMin=min(R),xMin=0,xMax=self.timebase*self.samples*1e-6)
-			#self.plot.setXRange(0,self.timebase*self.samples*1e-6)
-			#self.plot.setRange(QtCore.QRectF(0, -16.5, self.samples*self.timebase*1e-6, 2*16.5)) 
+			self.plot.setXRange(0,self.timebase*self.samples*1e-6)
 
 	def enableXY(self,state):
 		self.autoRange()
-
+		
 	def plot_liss(self):
 		chans = ['CH1','CH2']
 		lissx = self.Liss_x.currentText()

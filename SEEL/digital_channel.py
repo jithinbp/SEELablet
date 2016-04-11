@@ -1,8 +1,7 @@
 from __future__ import print_function
 import numpy as np
-from SEEL.commands_proto import *
-digital_channel_names=['ID1','ID2','ID3','ID4']
 
+digital_channel_names=['ID1','ID2','ID3','ID4']
 
 class digital_channel:
 	EVERY_SIXTEENTH_RISING_EDGE = 5

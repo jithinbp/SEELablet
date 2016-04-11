@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import math,sys,time, struct
 
 # allows to pack numeric values into byte strings
@@ -36,6 +34,9 @@ CAPTURE_12BIT       = Byte.pack(13)
 CAPTURE_MULTIPLE    = Byte.pack(14)
 SET_HI_CAPTURE      = Byte.pack(15)
 SET_LO_CAPTURE      = Byte.pack(16)
+
+MULTIPOINT_CAPACITANCE= Byte.pack(20)
+SET_CAP= Byte.pack(21)
 
 #/*-----SPI--------*/
 SPI_HEADER         = Byte.pack(3)
@@ -138,6 +139,7 @@ INTERVAL_MEASUREMENTS       = Byte.pack(13)
 CONFIGURE_COMPARATOR        = Byte.pack(14)
 START_ALTERNATE_ONE_CHAN_LA = Byte.pack(15)
 START_THREE_CHAN_LA         = Byte.pack(16)
+STOP_LA 			        = Byte.pack(17)
 
 #/*--------MISCELLANEOUS------*/
 COMMON                = Byte.pack(11)
@@ -163,8 +165,10 @@ SET_RGB2		      = Byte.pack(17)
 READ_LOG              = Byte.pack(18)
 RESTORE_STANDALONE    = Byte.pack(19)
 GET_ALTERNATE_HIGH_FREQUENCY = Byte.pack(20)
-MULTIPOINT_CAPACITANCE= Byte.pack(21)
 SET_RGB3		      = Byte.pack(22)
+
+START_CTMU		      = Byte.pack(23)
+STOP_CTMU		      = Byte.pack(23)
 
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
@@ -247,6 +251,37 @@ TWELVE_BIT = Byte.pack(12)
 
 
 
+def applySIPrefix(value, unit='',precision=2 ):
+		neg = False
+		if value < 0.:
+			value *= -1; neg = True
+		elif value == 0.:  return 0., 0  # mantissa & exponnt both 0
+		exponent = int(math.log10(value))
+		if exponent > 0:
+			exponent = (exponent // 3) * 3
+		else:
+			exponent = (-1*exponent + 3) // 3 * (-3)
+
+		value *= (10 ** (-exponent) )
+		if value >= 1000.:
+			value /= 1000.0
+			exponent += 3
+		if neg:
+			value *= -1
+		exponent = int(exponent)
+		PREFIXES = "yzafpnum kMGTPEZY"
+		prefix_levels = (len(PREFIXES) - 1) // 2
+		si_level = exponent // 3
+		if abs(si_level) > prefix_levels:
+			raise ValueError("Exponent out range of available prefixes.")
+		return '%.*f %s%s' % (precision, value,PREFIXES[si_level + prefix_levels],unit)
+
+
+
+'''
+def reverse_bits(x):
+	return int('{:08b}'.format(x)[::-1], 2)
+
 def InttoString(val):
 	return	ShortInt.pack(int(val))
 
@@ -275,6 +310,4 @@ def getLx(f1,f2,f3,Ccal):
 	c=(2*math.pi*f1)**2
 	return (a-1)*(b-1)/(Ccal*c)
 	
-
-def reverse_bits(x):
-	return int('{:08b}'.format(x)[::-1], 2)
+'''

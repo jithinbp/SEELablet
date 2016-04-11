@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'analogScope.ui'
 #
-# Created: Thu Feb 25 15:44:20 2016
+# Created: Fri Apr  8 17:00:48 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(868, 506)
+        MainWindow.resize(868, 535)
         MainWindow.setMinimumSize(QtCore.QSize(300, 0))
         MainWindow.setMouseTracking(False)
         icon = QtGui.QIcon()
@@ -35,67 +35,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setToolTip(_fromUtf8(""))
         MainWindow.setAutoFillBackground(False)
-        MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 11px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #ebc, stop: 0.1 #689);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection QLabel {\n"
-"color: white;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 3px solid black;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner QLabel{\n"
-"color: black;\n"
-"}\n"
-"\n"
-"\n"
-"#centralwidget{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
-"}\n"
-"#centralwidget QLabel {\n"
-"color: black;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-""))
+        MainWindow.setStyleSheet(_fromUtf8(""))
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setTabShape(QtGui.QTabWidget.Rounded)
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -333,7 +273,7 @@ class Ui_MainWindow(object):
         self.frame_6 = QtGui.QFrame(self.frame_4)
         self.frame_6.setMinimumSize(QtCore.QSize(0, 70))
         self.frame_6.setMaximumSize(QtCore.QSize(16777215, 65))
-        self.frame_6.setStyleSheet(_fromUtf8("QCheckBox{background-color: rgba(255, 33, 0,0);}"))
+        self.frame_6.setStyleSheet(_fromUtf8(""))
         self.frame_6.setFrameShape(QtGui.QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QtGui.QFrame.Raised)
         self.frame_6.setObjectName(_fromUtf8("frame_6"))
@@ -457,7 +397,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.message_label.sizePolicy().hasHeightForWidth())
         self.message_label.setSizePolicy(sizePolicy)
         self.message_label.setBaseSize(QtCore.QSize(0, 17))
-        self.message_label.setStyleSheet(_fromUtf8("color: rgb(255, 255, 255);"))
+        self.message_label.setStyleSheet(_fromUtf8(""))
         self.message_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.message_label.setWordWrap(False)
         self.message_label.setObjectName(_fromUtf8("message_label"))

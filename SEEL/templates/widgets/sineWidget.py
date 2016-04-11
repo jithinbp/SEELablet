@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sineWidget.ui'
 #
-# Created: Thu Jan 14 10:15:39 2016
+# Created: Fri Apr  8 17:47:19 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!

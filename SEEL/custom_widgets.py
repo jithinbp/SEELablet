@@ -189,35 +189,35 @@ class CustomWidgets:
 			self.I=interface.Interface()
 			self.setupUi(self)
 			self.name=name
-			if name=='pvs1':
+			if name=='PV1':
 				self.slider.setRange(0,4095)
-			if name=='pvs2':
+			if name=='PV2':
 				self.slider.setRange(0,4095)
-			elif name=='pvs3':
+			elif name=='PV3':
 				self.slider.setRange(0,4095)
-			elif name=='pcs':
+			elif name=='PCS':
 				self.slider.setRange(0,4095)
 
 		def setValue(self,val):
-			if self.name=='pvs1':
-				retval=self.I.DAC.__setRawVoltage__('PVS1',val)
-			elif self.name=='pvs2':
-				retval=self.I.DAC.__setRawVoltage__('PVS2',val)
-			elif self.name=='pvs3':
-				retval=self.I.DAC.__setRawVoltage__('PVS3',val)
-			elif self.name=='pcs':
+			if self.name=='PV1':
+				retval=self.I.DAC.__setRawVoltage__('PV1',val)
+			elif self.name=='PV2':
+				retval=self.I.DAC.__setRawVoltage__('PV2',val)
+			elif self.name=='PV3':
+				retval=self.I.DAC.__setRawVoltage__('PV3',val)
+			elif self.name=='PCS':
 				retval=self.I.DAC.__setRawVoltage__('PCS',val)
 
 			self.label.setText(self.name+': %.3f'%(retval))
 
-	def widget_pvs1(self):
-		self.updateWidgetBay(self.sourceHandler('pvs1'))
-	def widget_pvs2(self):
-		self.updateWidgetBay(self.sourceHandler('pvs2'))
-	def widget_pvs3(self):
-		self.updateWidgetBay(self.sourceHandler('pvs3'))
+	def widget_PV1(self):
+		self.updateWidgetBay(self.sourceHandler('PV1'))
+	def widget_PV2(self):
+		self.updateWidgetBay(self.sourceHandler('PV2'))
+	def widget_PV3(self):
+		self.updateWidgetBay(self.sourceHandler('PV3'))
 	def widget_pcs(self):
-		self.updateWidgetBay(self.sourceHandler('pcs'))
+		self.updateWidgetBay(self.sourceHandler('PCS'))
 
 
 

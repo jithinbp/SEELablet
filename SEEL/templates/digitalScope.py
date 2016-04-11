@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'digitalScope.ui'
 #
-# Created: Wed Feb 17 14:13:41 2016
+# Created: Fri Apr  8 17:47:16 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,67 +34,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setToolTip(_fromUtf8(""))
         MainWindow.setAutoFillBackground(False)
-        MainWindow.setStyleSheet(_fromUtf8("QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 11px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #ebc, stop: 0.1 #689);\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollection QLabel {\n"
-"color: white;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner {\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #abe, stop: 0.7 #aba);\n"
-"border: none;\n"
-"border-top: 3px solid black;\n"
-"}\n"
-"\n"
-"QFrame.PeripheralCollectionInner QLabel{\n"
-"color: black;\n"
-"}\n"
-"\n"
-"\n"
-"#centralwidget{\n"
-"border-top-left-radius: 5px;\n"
-"border-top-right-radius: 5px;\n"
-"border: 1px solid black;\n"
-"background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-"stop: 0 #6af, stop: 0.1 #689);\n"
-"}\n"
-"#centralwidget QLabel {\n"
-"color: black;\n"
-"font-weight: bold;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-""))
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setTabShape(QtGui.QTabWidget.Rounded)
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -344,32 +283,12 @@ class Ui_MainWindow(object):
         self.LA1_chan = QtGui.QComboBox(self.frame_8)
         self.LA1_chan.setGeometry(QtCore.QRect(70, 20, 71, 21))
         self.LA1_chan.setObjectName(_fromUtf8("LA1_chan"))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
-        self.LA1_chan.addItem(_fromUtf8(""))
         self.pushButton = QtGui.QPushButton(self.frame_12)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 94, 31))
         self.pushButton.setMinimumSize(QtCore.QSize(94, 0))
         self.pushButton.setObjectName(_fromUtf8("pushButton"))
         self.progressBar = QtGui.QProgressBar(self.frame_12)
         self.progressBar.setGeometry(QtCore.QRect(10, 50, 281, 16))
-        self.progressBar.setStyleSheet(_fromUtf8("QProgressBar:horizontal {\n"
-"border: 1px solid gray;\n"
-"border-radius: 3px;\n"
-"background: white;\n"
-"padding: 1px;\n"
-"text-align: right;\n"
-"margin-right: 5ex;\n"
-"}\n"
-"QProgressBar::chunk:horizontal {\n"
-"background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 #467, stop:1 white);\n"
-"margin-right: 1px; /* space */\n"
-"width: 5px;\n"
-"}"))
         self.progressBar.setMaximum(2500)
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
@@ -539,13 +458,6 @@ class Ui_MainWindow(object):
         self.LA1_chanmode.setItemText(3, _translate("MainWindow", "RISING EDGES ONLY", None))
         self.LA1_chanmode.setItemText(4, _translate("MainWindow", "EVERY FOUR RISING EDGES", None))
         self.label_28.setText(_translate("MainWindow", "Channel", None))
-        self.LA1_chan.setItemText(0, _translate("MainWindow", "ID1", None))
-        self.LA1_chan.setItemText(1, _translate("MainWindow", "ID2", None))
-        self.LA1_chan.setItemText(2, _translate("MainWindow", "ID3", None))
-        self.LA1_chan.setItemText(3, _translate("MainWindow", "ID4", None))
-        self.LA1_chan.setItemText(4, _translate("MainWindow", "-", None))
-        self.LA1_chan.setItemText(5, _translate("MainWindow", "CH1", None))
-        self.LA1_chan.setItemText(6, _translate("MainWindow", "Fin", None))
         self.pushButton.setText(_translate("MainWindow", "Start", None))
         self.progressBar.setFormat(_translate("MainWindow", "%v", None))
         self.pushButton_2.setText(_translate("MainWindow", "Show", None))

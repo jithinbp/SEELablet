@@ -51,7 +51,7 @@ class AppWindow(QtGui.QMainWindow, loadSineTable.Ui_MainWindow):
         
 
     def reset1(self):
-        self.I.load_waveform(1,np.sin,[0,np.pi*2])
+        self.I.load_equation('W1',np.sin,[0,np.pi*2])
         y1=np.sin(np.linspace(0,np.pi*2,512+1)[:-1])
         for a in range(512):
             item =self.table.item(a,0)
@@ -62,7 +62,7 @@ class AppWindow(QtGui.QMainWindow, loadSineTable.Ui_MainWindow):
         QtGui.QMessageBox.about(self, 'Sine Wave','Table Contents set to sine')
 
     def reset2(self):
-        self.I.load_waveform(2,np.sin,[0,np.pi*2])
+        self.I.load_equation('W2',np.sin,[0,np.pi*2])
         y1=np.sin(np.linspace(0,np.pi*2,512+1)[:-1])
         for a in range(512):
             item =self.table.item(a,1)
@@ -107,7 +107,7 @@ class AppWindow(QtGui.QMainWindow, loadSineTable.Ui_MainWindow):
                 break
         if len(tbl)==512:
             print ('loading table')
-            self.I.load_waveform_table(1,tbl)
+            self.I.load_table('W1',tbl)
         else:
             QtGui.QMessageBox.about(self, 'Error','Check data points')
 
@@ -124,7 +124,7 @@ class AppWindow(QtGui.QMainWindow, loadSineTable.Ui_MainWindow):
                 break
         if len(tbl)==512:
             print ('loading table')
-            self.I.load_waveform_table(2,tbl)
+            self.I.load_table('W2',tbl)
         else:
             QtGui.QMessageBox.about(self, 'Error','Check data points')
 

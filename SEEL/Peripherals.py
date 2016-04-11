@@ -1,5 +1,6 @@
 from __future__ import print_function
-from SEEL.commands_proto import *
+#from SEEL.commands_proto import *
+import SEEL.commands_proto as CP
 import numpy as np 
 import time
 
@@ -41,13 +42,13 @@ class I2C():
         self.buff=np.zeros(10000)
 
     def init(self):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_INIT)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_INIT)
         self.H.__get_ack__()
 
     def enable_smbus(self):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_ENABLE_SMBUS)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_ENABLE_SMBUS)
         self.H.__get_ack__()
 
     def pullSCLLow(self,uS):
@@ -64,8 +65,8 @@ class I2C():
         ================    ============================================================================================
 
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_PULLDOWN_SCL)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_PULLDOWN_SCL)
         self.H.__sendInt__(uS)
         self.H.__get_ack__()
         
@@ -82,8 +83,8 @@ class I2C():
         freq                I2C frequency
         ================    ============================================================================================
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_CONFIG)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_CONFIG)
         #freq=1/((BRGVAL+1.0)/64e6+1.0/1e7)
         BRGVAL=int( (1./freq-1./1e7)*64e6-1 )
         if BRGVAL>511:
@@ -107,8 +108,8 @@ class I2C():
                             - 1 for reading.
         ================    ============================================================================================
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_START)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_START)
         self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
         return self.H.__get_ack__()>>4
 
@@ -118,8 +119,8 @@ class I2C():
         
         :return: Nothing
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_STOP)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_STOP)
         self.H.__get_ack__()
 
     def wait(self):
@@ -128,8 +129,8 @@ class I2C():
 
         :return: Nothing
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_WAIT)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_WAIT)
         self.H.__get_ack__()
 
     def send(self,data):
@@ -148,8 +149,8 @@ class I2C():
 
         :return: Nothing
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_SEND)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_SEND)
         self.H.__sendByte__(data)        #data byte
         return self.H.__get_ack__()>>4
         
@@ -170,8 +171,8 @@ class I2C():
 
         :return: Nothing
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_SEND_BURST)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_SEND_BURST)
         self.H.__sendByte__(data)        #data byte
         #No handshake. for the sake of speed. e.g. loading a frame buffer onto an I2C display such as ssd1306
 
@@ -191,8 +192,8 @@ class I2C():
         ================    ============================================================================================
 
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_RESTART)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_RESTART)
         self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
         return self.H.__get_ack__()>>4
 
@@ -228,42 +229,42 @@ class I2C():
         """
         data=[]
         for a in range(length-1):
-            self.H.__sendByte__(I2C_HEADER)
-            self.H.__sendByte__(I2C_READ_MORE)
+            self.H.__sendByte__(CP.I2C_HEADER)
+            self.H.__sendByte__(CP.I2C_READ_MORE)
             data.append(self.H.__getByte__())
             self.H.__get_ack__()
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_READ_END)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_READ_END)
         data.append(self.H.__getByte__())
         self.H.__get_ack__()
         return data
 
     def read_repeat(self):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_READ_MORE)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_READ_MORE)
         val=self.H.__getByte__()
         self.H.__get_ack__()
         return val
 
     def read_end(self):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_READ_END)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_READ_END)
         val=self.H.__getByte__()
         self.H.__get_ack__()
         return val
 
 
     def read_status(self):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_STATUS)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_STATUS)
         val=self.H.__getInt__()
         self.H.__get_ack__()
         return val
 
 
     def readBulk(self,device_address,register_address,bytes_to_read):
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_READ_BULK)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_READ_BULK)
         self.H.__sendByte__(device_address)
         self.H.__sendByte__(register_address)
         self.H.__sendByte__(bytes_to_read)
@@ -288,8 +289,8 @@ class I2C():
         bytestream          List of bytes to write
         ================    ============================================================================================
         """
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_WRITE_BULK)
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_WRITE_BULK)
         self.H.__sendByte__(device_address)
         self.H.__sendByte__(len(bytestream))
         for a in bytestream:
@@ -376,8 +377,8 @@ class I2C():
         print ('total channels calculated : ',total_chans)
         print ('length of each channel : ',channel_length)
 
-        self.H.__sendByte__(I2C_HEADER)
-        self.H.__sendByte__(I2C_START_SCOPE)       
+        self.H.__sendByte__(CP.I2C_HEADER)
+        self.H.__sendByte__(CP.I2C_START_SCOPE)       
         self.H.__sendByte__(address)
         self.H.__sendByte__(location)
         self.H.__sendByte__(sample_length)
@@ -396,8 +397,8 @@ class I2C():
 
         data=b''
         for i in range(int(total_int_samples/DATA_SPLITTING)):
-            self.H.__sendByte__(ADC)
-            self.H.__sendByte__(GET_CAPTURE_CHANNEL)
+            self.H.__sendByte__(CP.ADC)
+            self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
             self.H.__sendByte__(0)   #starts with A0 on PIC
             self.H.__sendInt__(DATA_SPLITTING)
             self.H.__sendInt__(i*DATA_SPLITTING)
@@ -413,8 +414,8 @@ class I2C():
             #print ('Pass : len=',len(data), ' i = ',i)
 
         if total_int_samples%DATA_SPLITTING:
-            self.H.__sendByte__(ADC)
-            self.H.__sendByte__(GET_CAPTURE_CHANNEL)
+            self.H.__sendByte__(CP.ADC)
+            self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
             self.H.__sendByte__(0)   #starts with A0 on PIC
             self.H.__sendInt__(total_int_samples%DATA_SPLITTING)
             self.H.__sendInt__(total_int_samples-total_int_samples%DATA_SPLITTING)
@@ -467,8 +468,8 @@ class SPI():
         ================    ============================================================================================
 
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(SET_SPI_PARAMETERS)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.SET_SPI_PARAMETERS)
         #0Bhgfedcba - > <g>: modebit CKP,<f>: modebit CKE, <ed>:primary pre,<cba>:secondary pre
         self.H.__sendByte__(secondary_prescaler|(primary_prescaler<<3)|(CKE<<5)|(CKP<<6)|(SMP<<7)) 
         self.H.__get_ack__()
@@ -489,8 +490,8 @@ class SPI():
         ================    ============================================================================================
         
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(START_SPI)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.START_SPI)
         self.H.__sendByte__(channel)    #value byte
         #self.H.__get_ack__()
 
@@ -511,9 +512,9 @@ class SPI():
         channel = channel.upper()
         if channel in ['CS1','CS2']:
             csnum=['CS1','CS2'].index(channel)+9  #chip select number 9=CSOUT1,10=CSOUT2
-            self.H.__sendByte__(SPI_HEADER)
-            if state:self.H.__sendByte__(STOP_SPI)
-            else:self.H.__sendByte__(START_SPI)
+            self.H.__sendByte__(CP.SPI_HEADER)
+            if state:self.H.__sendByte__(CP.STOP_SPI)
+            else:self.H.__sendByte__(CP.START_SPI)
             self.H.__sendByte__(csnum)   
         else: print('Channel does not exist')
         
@@ -532,8 +533,8 @@ class SPI():
 
 
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(STOP_SPI)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.STOP_SPI)
         self.H.__sendByte__(channel)    #value byte
         #self.H.__get_ack__()
 
@@ -551,8 +552,8 @@ class SPI():
 
         :return: value returned by slave device
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(SEND_SPI8)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.SEND_SPI8)
         self.H.__sendByte__(value)  #value byte
         v=self.H.__getByte__()
         self.H.__get_ack__()
@@ -573,8 +574,8 @@ class SPI():
         :return: value returned by slave device
         :rtype: int
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(SEND_SPI16)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.SEND_SPI16)
         self.H.__sendInt__(value)   #value byte
         v=self.H.__getInt__()
         self.H.__get_ack__()
@@ -595,8 +596,8 @@ class SPI():
 
         :return: Nothing
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(SEND_SPI8_BURST)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.SEND_SPI8_BURST)
         self.H.__sendByte__(value)  #value byte
 
     def send16_burst(self,value):
@@ -614,8 +615,8 @@ class SPI():
 
         :return: nothing
         """
-        self.H.__sendByte__(SPI_HEADER)
-        self.H.__sendByte__(SEND_SPI16_BURST)
+        self.H.__sendByte__(CP.SPI_HEADER)
+        self.H.__sendByte__(CP.SEND_SPI16_BURST)
         self.H.__sendInt__(value)   #value byte
 
 class DACCHAN:
@@ -650,10 +651,10 @@ class MCP4728:
 		self.I2C = I2C(self.H)
 		self.SWITCHEDOFF=[0,0,0,0]
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
-		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PVS3':DACCHAN('PVS3',[0,3.3],1),'PVS2':DACCHAN('PVS2',[-3.3,3.3],2),'PVS1':DACCHAN('PVS1',[-5.,5.],3)}
-		self.CHANNEL_MAP={0:'PCS',1:'PVS3',2:'PVS2',3:'PVS1'}
-		self.calibration_enabled={'PVS1':False,'PVS2':False,'PVS3':False,'PCS':False}
-		self.calibration_tables={'PVS1':[],'PVS2':[],'PVS3':[],'PCS':[]}
+		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
+		self.CHANNEL_MAP={0:'PCS',1:'PV3',2:'PV2',3:'PV1'}
+		self.calibration_enabled={'PV1':False,'PV2':False,'PV3':False,'PCS':False}
+		self.calibration_tables={'PV1':[],'PV2':[],'PV3':[],'PCS':[]}
 
 
 	def load_calibration(self,name,table):
@@ -669,8 +670,8 @@ class MCP4728:
 		v=int(np.clip(v,0,4095))
 		CHAN = self.CHANS[name]
 		'''
-		self.H.__sendByte__(DAC) #DAC write coming through.(MCP4728)
-		self.H.__sendByte__(SET_DAC)
+		self.H.__sendByte__(CP.DAC) #DAC write coming through.(MCP4728)
+		self.H.__sendByte__(CP.SET_DAC)
 		self.H.__sendByte__(self.addr<<1)	#I2C address
 		self.H.__sendByte__(CHAN.channum)		#DAC channel
 		if self.calibration_enabled[name]:
@@ -800,8 +801,8 @@ class NRF24L01():
 	routines for the NRFL01 radio
 	"""
 	def init(self):
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_SETUP)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_SETUP)
 		self.H.__get_ack__()
 		time.sleep(0.015) #15 mS settling time
 		stat = self.get_status()
@@ -821,16 +822,16 @@ class NRF24L01():
 		'''
 		Puts the radio into listening mode.
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_RXMODE)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_RXMODE)
 		self.H.__get_ack__()
 		
 	def txmode(self):
 		'''
 		Puts the radio into transmit mode.
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_TXMODE)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_TXMODE)
 		self.H.__get_ack__()
 
 	def triggerAll(self,val):
@@ -842,16 +843,16 @@ class NRF24L01():
 
 		
 	def power_down(self):
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_POWER_DOWN)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_POWER_DOWN)
 		self.H.__get_ack__()
 		
 	def rxchar(self):
 		'''
 		Receives a 1 Byte payload
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_RXCHAR)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_RXCHAR)
 		value = self.H.__getByte__()
 		self.H.__get_ack__()
 		return value
@@ -861,8 +862,8 @@ class NRF24L01():
 		Transmits a single character
 		'''
 	
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_TXCHAR)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_TXCHAR)
 		self.H.__sendByte__(char)
 		return self.H.__get_ack__()>>4
 		
@@ -870,8 +871,8 @@ class NRF24L01():
 		'''
 		Check if the RX FIFO contains data
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_HASDATA)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_HASDATA)
 		value = self.H.__getByte__()
 		self.H.__get_ack__()
 		return value
@@ -881,8 +882,8 @@ class NRF24L01():
 		Flushes the TX and RX FIFOs
 		'''
 
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_FLUSH)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_FLUSH)
 		self.H.__get_ack__()
 
 	def write_register(self,address,value):
@@ -892,8 +893,8 @@ class NRF24L01():
 		from some of the constants defined in this module.
 		'''
 		print ('writing',address,value)
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITEREG)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITEREG)
 		self.H.__sendByte__(address)
 		self.H.__sendByte__(value)
 		self.H.__get_ack__()
@@ -903,8 +904,8 @@ class NRF24L01():
 		Read the value of any of the configuration registers on the radio module.
 		
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_READREG)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_READREG)
 		self.H.__sendByte__(address)
 		val=self.H.__getByte__()
 		self.H.__get_ack__()
@@ -915,15 +916,15 @@ class NRF24L01():
 		Returns a byte representing the STATUS register on the radio.
 		Refer to NRF24L01+ documentation for further details
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_GETSTATUS)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_GETSTATUS)
 		val=self.H.__getByte__()
 		self.H.__get_ack__()
 		return val
 
 	def write_command(self,cmd):
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITECOMMAND)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITECOMMAND)
 		self.H.__sendByte__(cmd)
 		self.H.__get_ack__()
 
@@ -935,8 +936,8 @@ class NRF24L01():
 		from P2 to P5, then RX_ADDR_P1 must be updated last.
 		Addresses from P1-P5 must share the first two bytes.
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITEADDRESS)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITEADDRESS)
 		self.H.__sendByte__(register)
 		self.H.__sendByte__(address&0xFF);self.H.__sendByte__((address>>8)&0xFF);
 		self.H.__sendByte__((address>>16)&0xFF);
@@ -947,8 +948,8 @@ class NRF24L01():
 		Sets RX_ADDR_P0 and TX_ADDR to the specified address.
 		
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITEADDRESSES)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITEADDRESSES)
 		self.H.__sendByte__(address&0xFF);self.H.__sendByte__((address>>8)&0xFF);
 		self.H.__sendByte__((address>>16)&0xFF);
 		self.H.__get_ack__()
@@ -957,8 +958,8 @@ class NRF24L01():
 
 
 	def read_payload(self,numbytes):
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_READPAYLOAD)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_READPAYLOAD)
 		self.H.__sendByte__(numbytes)
 		data=self.H.fd.read(numbytes)
 		self.H.__get_ack__()
@@ -966,8 +967,8 @@ class NRF24L01():
 
 
 	def write_payload(self,data,verbose=False,**args): 
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITEPAYLOAD)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITEPAYLOAD)
 		numbytes=len(data)|0x80   #0x80 implies transmit immediately. Otherwise it will simply load the TX FIFO ( used by ACK_payload)
 		if(args.get('rxmode',False)):numbytes|=0x40
 		self.H.__sendByte__(numbytes)
@@ -1022,8 +1023,8 @@ class NRF24L01():
 
 
 	def transaction(self,data,**args): 
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_TRANSACTION)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_TRANSACTION)
 		self.H.__sendByte__(len(data)) #total Data bytes coming through
 		if 'listen' not in args:args['listen']=True
 		if args.get('listen',False):data[0]|=0x80  # You need this if hardware must wait for a reply
@@ -1065,8 +1066,8 @@ class NRF24L01():
 				data=data[:15]
 			else:
 				print ('ack payload size:',self.ACK_PAYLOAD_SIZE)
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_WRITEPAYLOAD)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_WRITEPAYLOAD)
 		self.H.__sendByte__(len(data))
 		self.H.__sendByte__(self.ACK_PAYLOAD|pipe)
 		for a in data:
@@ -1078,22 +1079,22 @@ class NRF24L01():
 	def start_token_manager(self):
 		'''
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_START_TOKEN_MANAGER)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_START_TOKEN_MANAGER)
 		self.H.__get_ack__()
 
 	def stop_token_manager(self):
 		'''
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_STOP_TOKEN_MANAGER)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_STOP_TOKEN_MANAGER)
 		self.H.__get_ack__()
 
 	def total_tokens(self):
 		'''
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_TOTAL_TOKENS)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_TOTAL_TOKENS)
 		x = self.H.__getByte__()
 		self.H.__get_ack__()
 		return x
@@ -1101,8 +1102,8 @@ class NRF24L01():
 	def fetch_report(self,num):
 		'''
 		'''
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_REPORTS)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_REPORTS)
 		self.H.__sendByte__(num)
 		data = [self.H.__getByte__() for a in range(20)]
 		self.H.__get_ack__()
@@ -1153,8 +1154,8 @@ class NRF24L01():
 		return filtered_lst
 	
 	def __delete_registered_node__(self,num):
-		self.H.__sendByte__(NRFL01)
-		self.H.__sendByte__(NRF_DELETE_REPORT_ROW)
+		self.H.__sendByte__(CP.NRFL01)
+		self.H.__sendByte__(CP.NRF_DELETE_REPORT_ROW)
 		self.H.__sendByte__(num)
 		self.H.__get_ack__()
 		
@@ -1224,3 +1225,154 @@ class NRF24L01():
 		self.rxmode()
 		time.sleep(0.1)
 		self.flush()
+
+class RadioLink():
+	ADC_COMMANDS =1
+	READ_ADC =0<<4
+
+	I2C_COMMANDS =2
+	I2C_TRANSACTION =0<<4
+	I2C_WRITE =1<<4
+	SCAN_I2C =2<<4
+	PULL_SCL_LOW = 3<<4
+	I2C_CONFIG = 4<<4
+	I2C_READ = 5<<4
+	
+	NRF_COMMANDS = 3
+	NRF_READ_REGISTER =0<<4
+	NRF_WRITE_REGISTER =1<<4
+	
+	MISC_COMMANDS = 4
+	WS2812B_CMD = 0<<4
+
+	def __init__(self,NRF,**args):
+		self.NRF = NRF
+		if 'address' in args:
+			self.ADDRESS = args.get('address',False)
+		else:
+			print ('Address not specified. Add "address=0x....." argument while instantiating')
+			self.ADDRESS=0x010101
+		
+
+	def __selectMe__(self):
+		if self.NRF.CURRENT_ADDRESS!=self.ADDRESS:
+			self.NRF.selectAddress(self.ADDRESS)
+		
+		
+	def I2C_scan(self):
+		self.__selectMe__()
+		import sensorlist
+		print ('Scanning addresses 0-127...')
+		x = self.NRF.transaction([self.I2C_COMMANDS|self.SCAN_I2C|0x80],timeout=500)
+		if not x:return []
+		if not sum(x):return []
+		addrs=[]
+		print ('Address','\t','Possible Devices')
+
+		for a in range(16):
+			if(x[a]^255):
+				for b in range(8):
+					if x[a]&(0x80>>b)==0:
+						addr = 8*a+b
+						addrs.append(addr)
+						print (hex(addr),'\t\t',sensorlist.sensors.get(addr,'None'))
+						
+		return addrs
+
+
+	def __decode_I2C_list__(self,data):
+		lst=[]
+		if sum(data)==0:
+			return lst
+		for a in range(len(data)):
+			if(data[a]^255):
+				for b in range(8):
+					if data[a]&(0x80>>b)==0:
+						addr = 8*a+b
+						lst.append(addr)
+		return lst
+
+	def writeI2C(self,I2C_addr,regaddress,bytes):
+		self.__selectMe__()
+		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_WRITE]+[I2C_addr]+[regaddress]+bytes)
+		
+	def readI2C(self,I2C_addr,regaddress,numbytes):
+		self.__selectMe__()
+		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
+	
+	def writeBulk(self,I2C_addr,bytes):
+		self.__selectMe__()
+		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_WRITE]+[I2C_addr]+bytes)
+		
+	def readBulk(self,I2C_addr,regaddress,numbytes):
+		self.__selectMe__()
+		return self.NRF.transactionWithRetries([self.I2C_COMMANDS|self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
+
+	def simpleRead(self,I2C_addr,numbytes):
+		self.__selectMe__()
+		return self.NRF.transactionWithRetries([self.I2C_COMMANDS|self.I2C_READ]+[I2C_addr]+[numbytes])
+
+
+	def readADC(self,channel):
+		self.__selectMe__()
+		return self.NRF.transaction([self.ADC_COMMANDS|self.READ_ADC]+[channel])
+	
+	def pullSCLLow(self,t_ms):
+		self.__selectMe__()
+		dat=self.NRF.transaction([self.I2C_COMMANDS|self.PULL_SCL_LOW]+[t_ms])
+		if dat:
+			return self.__decode_I2C_list__(dat)
+		else:
+			return []
+
+	def configI2C(self,freq):
+		self.__selectMe__()
+		brgval=int(32e6/freq/4 - 1)
+		print (brgval)
+		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_CONFIG]+[brgval],listen=False)
+
+	def write_register(self,reg,val):
+		self.__selectMe__()
+		print ('writing to ',reg,val)
+		return self.NRF.transaction([self.NRF_COMMANDS|self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
+
+
+
+	def WS2812B(self,cols):
+		"""
+		set shade of WS2182 LED on CS1/RC0
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		cols                2Darray [[R,G,B],[R2,G2,B2],[R3,G3,B3]...]
+							brightness of R,G,B ( 0-255  )
+		==============  ============================================================================================
+
+		example::
+		
+			>>> WS2812B([[10,0,0],[0,10,10],[10,0,10]])
+			#sets red, cyan, magenta to three daisy chained LEDs
+
+		"""
+		self.__selectMe__()
+		colarray=[]
+		for a in cols:
+			colarray.append(int('{:08b}'.format(int(a[1]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[0]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[2]))[::-1], 2))
+
+		return self.NRF.transaction([self.MISC_COMMANDS|self.WS2812B_CMD]+colarray,listen=False)
+
+
+	def read_register(self,reg):
+		self.__selectMe__()
+		x=self.NRF.transaction([self.NRF_COMMANDS|self.NRF_READ_REGISTER]+[reg])
+		if x:
+			return x[0]
+		else:
+			return False
+			
+

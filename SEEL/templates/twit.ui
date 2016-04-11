@@ -40,19 +40,6 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="detect">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Detecting reader...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="dataLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -78,28 +65,14 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QSpinBox" name="sectorEdit">
-            <property name="minimum">
-             <number>8</number>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>Read</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="dataEdit"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="text">
-             <string>Write</string>
-            </property>
-           </widget>
+           <widget class="QLineEdit" name="consumerKey"/>
           </item>
          </layout>
         </widget>
@@ -162,40 +135,7 @@
   </widget>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>read()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>358</x>
-     <y>116</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>389</x>
-     <y>46</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>write()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>379</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>131</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>read()</slot>
   <slot>write()</slot>

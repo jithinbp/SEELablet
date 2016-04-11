@@ -13,29 +13,6 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-#centralwidget{
-background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 #abe, stop: 0.7 #aba);
-}</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QFormLayout" name="formLayout">
     <item row="0" column="0">

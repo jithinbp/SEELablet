@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sensorWidget.ui'
 #
-# Created: Wed Mar  9 11:55:08 2016
+# Created: Fri Apr  8 17:47:19 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
