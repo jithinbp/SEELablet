@@ -33,6 +33,25 @@ class AppWindow(QtGui.QMainWindow, aboutDevice.Ui_MainWindow):
 				item.setText('%s'%b)
 				xpos+=1
 			ypos+=1
+		self.maxRows=ypos
+		self.maxCols=xpos
+
+	def setColumn(self,col,data):
+		ypos=0
+		if col > self.maxCols:
+			self.maxCols = col
+			self.table.setColumnCount(col+1)
+
+		if len(data) > self.maxRows:
+			self.maxRows = len(data)
+			self.table.setRowCount(self.maxRows+1)
+
+
+		for a in data:
+			item = QtGui.QTableWidgetItem()
+			self.table.setItem(ypos,col,item)
+			item.setText('%s'%a)
+			ypos+=1
 
 	def __del__(self):
 		print ('bye')

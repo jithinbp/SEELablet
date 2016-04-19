@@ -1,7 +1,7 @@
 from __future__ import print_function
 import numpy as np
 
-digital_channel_names=['ID1','ID2','ID3','ID4']
+digital_channel_names=['ID1','ID2','ID3','ID4','SEN']
 
 class digital_channel:
 	EVERY_SIXTEENTH_RISING_EDGE = 5
@@ -11,10 +11,10 @@ class digital_channel:
 	EVERY_EDGE                  = 1
 	DISABLED				    = 0
 	def __init__(self,a):
-		self.name=''
 		self.gain=0
 		self.channel_number=a
 		self.digital_channel_names=digital_channel_names
+		self.name=self.digital_channel_names[a]
 		self.xaxis=np.zeros(20000)
 		self.yaxis=np.zeros(20000)
 		self.timestamps=np.zeros(10000)
@@ -32,21 +32,17 @@ class digital_channel:
 
 	def set_params(self,**keys):
 		self.channel_number = keys.get('channel_number',self.channel_number)	
-		self.name = digital_channel_names[self.channel_number]
+		self.name = keys.get('name','ErrOr')	
 
 	def load_data(self,initial_state,timestamps):
 		if self.initial_state_override:
 			self.initial_state = (self.initial_state_override-1)==1
 			self.initial_state_override = False
-		else: self.initial_state = initial_state[self.channel_number]
+		else: self.initial_state = initial_state[self.name]
 		self.timestamps=timestamps
 		self.dlength = len(self.timestamps)
-		#print(self.channel_number,self.dlength,len(self.timestamps),self.initial_state)
-		if(self.prescaler==0): prescale = 1.0/64		#convert to uSeconds
-		elif(self.prescaler==1): prescale = 1.0/8
-		elif(self.prescaler==2): prescale = 1.0/1
-		elif(self.prescaler==3): prescale = 4.0/1
-		self.timestamps = np.array(self.timestamps)*prescale
+		#print('dchan.py',self.channel_number,self.name,initial_state,self.initial_state)
+		self.timestamps = np.array(self.timestamps)*[1./64,1./8,1.,4.][self.prescaler]
 
 		if self.dlength:self.maxT=self.timestamps[-1]
 		else: self.maxT=0

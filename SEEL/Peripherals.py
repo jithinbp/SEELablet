@@ -661,6 +661,9 @@ class MCP4728:
 		self.calibration_enabled[name]=True
 		self.calibration_tables[name] = table
 
+	def __ignoreCalibration__(self,name):
+		self.calibration_enabled[name]=False
+
 	def setVoltage(self,name,v):
 		chan = self.CHANS[name]
 		v = int(round(chan.VToCode(v)))		

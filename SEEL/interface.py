@@ -223,12 +223,18 @@ class Interface():
 					if a in polyDict:
 						self.analogInputSources[a].loadPolynomials(polyDict[a])
 						self.analogInputSources[a].calibrationReady=True
-						self.analogInputSources[a].regenerateCalibration()
+					self.analogInputSources[a].regenerateCalibration()
 				
 				self.__print__( polynomials.split('>|')[0])
 				
 		
 		time.sleep(0.001)
+	def __ignoreCalibration__(self):
+			for a in self.analogInputSources:
+				self.analogInputSources[a].__ignoreCalibration__()
+				self.analogInputSources[a].regenerateCalibration()
+
+			for a in ['PV1','PV2','PV3']: self.DAC.__ignoreCalibration__(a)
 
 	def __print__(self,*args):
 		if self.verbose:
@@ -1561,7 +1567,7 @@ class Interface():
 		tmt = self.H.__getInt__()
 		self.H.__get_ack__()
 		#print(A,B)
-		if(tmt >= timeout_msb ):return None,None
+		if(tmt >= timeout_msb ):return [],[]
 		rtime = lambda t: t/64e6
 		if(kwargs.get('zero',True)):  # User wants set a reference timestamp
 			return rtime(A-A[0]),rtime(B-A[0])
@@ -1806,6 +1812,8 @@ class Interface():
 		a.length = self.MAX_SAMPLES/4
 		a.maximum_time = 67*1e6 #conversion to uS
 		a.mode = args.get('channel_mode',1)
+		a.name = args.get('channel','ID1')
+		
 		if trmode in [3,4,5]:
 			a.initial_state_override = 2
 		elif trmode == 2:
@@ -1846,6 +1854,7 @@ class Interface():
 		for a in self.dchans[:2]:
 			a.prescaler = 0;a.length = self.MAX_SAMPLES/4;  a.datatype='long';a.maximum_time = maximum_time*1e6 #conversion to uS
 			a.mode = modes[n];a.channel_number=chans[n]
+			a.name = a.digital_channel_names[n]
 			n+=1
 		self.digital_channels_in_buffer = 2
 
@@ -1900,6 +1909,7 @@ class Interface():
 			a.datatype='int'
 			a.maximum_time = 1e3 #< 1 mS between each consecutive level changes in the input signal must be ensured to prevent rollover
 			a.mode=modes[n]
+			a.name = a.digital_channel_names[n]
 			if trmode in [3,4,5]:
 				a.initial_state_override = 2
 			elif trmode == 2:
@@ -1977,13 +1987,14 @@ class Interface():
 			a.prescaler = prescale
 			a.length = self.MAX_SAMPLES/4
 			a.datatype='int'
+			a.name = a.digital_channel_names[n]
 			a.maximum_time = maximum_time*1e6 #conversion to uS
 			a.mode=mode[n]
 			n+=1
 
 	def get_LA_initial_states(self):
 		""" 
-		fetches the initial states before the logic analyser started
+		fetches the initial states of digital inputs that were recorded right before the Logic analyzer was started, and the total points each channel recorded
 
 		:return: chan1 progress,chan2 progress,chan3 progress,chan4 progress,[ID1,ID2,ID3,ID4]. eg. [1,0,1,1]
 		"""
@@ -2008,8 +2019,7 @@ class Interface():
 		if C<0: C=0
 		if D<0: D=0
 
-		#self.__print__([(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)],[(s_err&1!=0),(s_err&2!=0),(s_err&4!=0),(s&8!=0)])
-		return A,B,C,D,[(s&1!=0),(s&2!=0),(s&4!=0),(s&8!=0)]
+		return A,B,C,D,{'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0),'SEN':(s&16!=16)}  #SEN is inverted comparator output.
 
 	def stop_LA(self):
 		""" 
@@ -2089,6 +2099,7 @@ class Interface():
 		==============  ============================================================================================
 		"""
 		data=self.get_LA_initial_states()
+		print (data)
 		for a in range(4):
 			if(self.dchans[a].channel_number<self.digital_channels_in_buffer):self.__fetch_LA_channel__(a,data)
 		return True
@@ -2151,7 +2162,6 @@ class Interface():
 		"""
 		
 		set the logic level on digital outputs SQR1,SQR2,SQR3,SQR4
-		On older units, SQR3,SQR4 were called OD1,OD2. Both mnemonics will work.
 
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
@@ -2167,10 +2177,6 @@ class Interface():
 
 		"""
 		data=0
-		if 'OD1' in kwargs:
-			data|= 0x40|(kwargs.get('OD1')<<2)
-		if 'OD2' in kwargs:
-			data|= 0x80|(kwargs.get('OD2')<<3)
 		if 'SQR1' in kwargs:
 			data|= 0x10|(kwargs.get('SQR1'))
 		if 'SQR2' in kwargs:
@@ -2184,7 +2190,42 @@ class Interface():
 		self.H.__sendByte__(data)
 		self.H.__get_ack__()
 
-	
+	def countPulses(self,channel='SEN'):
+		"""
+		
+		Count pulses on a digital input. Retrieve total pulses using readPulseCount
+
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		channel         The input pin to measure rising edges on : 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin', 'SEN'
+		==============  ============================================================================================
+		"""
+		self.H.__sendByte__(CP.COMMON)
+		self.H.__sendByte__(CP.START_COUNTING)
+		self.H.__sendByte__(self.__calcDChan__(channel))
+		self.H.__get_ack__()
+
+	def readPulseCount(self):
+		"""
+		
+		Read pulses counted using a digital input. Call countPulses before using this.
+
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		==============  ============================================================================================
+		"""
+		self.H.__sendByte__(CP.COMMON)
+		self.H.__sendByte__(CP.FETCH_COUNT)
+		count = self.H.__getInt__()
+		self.H.__get_ack__()
+		return count
+
 	def __get_capacitor_range__(self,ctime):
 		self.__charge_cap__(0,30000)
 		self.H.__sendByte__(CP.COMMON)
@@ -2781,6 +2822,7 @@ class Interface():
 		duty_cycle      Percentage of high time
 		==============  ============================================================================================
 		"""
+		if freq==0 or duty_cycle==0 : return None
 		p=[1,8,64,256]
 		prescaler=0
 		while prescaler<=3:
@@ -2858,67 +2900,7 @@ class Interface():
 		self.H.__sendByte__(prescaler)
 		self.H.__get_ack__()
 
-	def sqr4_pulse(self,freq,h0,p1,h1,p2,h2,p3,h3):
-		"""
-		Output one set of phase correlated square pulses on SQR1,SQR2,OD1,OD2 .
-		
-		.. tabularcolumns:: |p{3cm}|p{11cm}|
-		
-		==============  ============================================================================================
-		**Arguments** 
-		==============  ============================================================================================
-		freq            Frequency in Hertz
-		h0              Duty Cycle for SQR1 (0-1)
-		p1              Phase shift for SQR2 (0-1)
-		h1              Duty Cycle for SQR2 (0-1)
-		p2              Phase shift for OD1  (0-1)
-		h2              Duty Cycle for OD1  (0-1)
-		p3              Phase shift for OD2  (0-1)
-		h3              Duty Cycle for OD2  (0-1)
-		==============  ============================================================================================
-		
-		"""
-		wavelength = int(64e6/freq)
-		wavelength = int(64e6/freq)
-		params=0
-		if wavelength>0xFFFF00:
-			self.__print__('frequency too low.')
-			return
-		elif wavelength>0x3FFFC0:
-			wavelength = int(64e6/freq/256)
-			params=3
-		elif wavelength>0x7FFF8:
-			params=2
-			wavelength = int(64e6/freq/64)
-		elif wavelength>0xFFFF:
-			params=1
-			wavelength = int(64e6/freq/8)
-
-
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SQR4)
-		self.H.__sendInt__(wavelength)
-		self.H.__sendInt__(int(wavelength*h0))
-
-		A1 = int(p1%1*wavelength)
-		B1 = int((h1+p1)%1*wavelength)
-		A2 = int(p2%1*wavelength)
-		B2 = int((h2+p2)%1*wavelength)
-		A3 = int(p3%1*wavelength)
-		B3 = int((h3+p3)%1*wavelength)
-
-		#self.__print__(p1,h1,p2,h2,p3,h3)
-		#self.__print__(wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
-		self.H.__sendInt__(A1)
-		self.H.__sendInt__(B1)
-		self.H.__sendInt__(A2)
-		self.H.__sendInt__(B2)
-		self.H.__sendInt__(A3)
-		self.H.__sendInt__(B3)
-		self.H.__sendByte__(params)
-		self.H.__get_ack__()
-
-	def sqr4_continuous(self,freq,h0,p1,h1,p2,h2,p3,h3):
+	def sqr4_continuous(self,freq,h0,p1,h1,p2,h2,p3,h3,**kwargs):
 		"""
 		Initialize continuously running phase correlated square waves on SQR1,SQR2,OD1,OD2
 		
@@ -2938,6 +2920,7 @@ class Interface():
 		==============  ============================================================================================
 		
 		"""
+
 		wavelength = int(64e6/freq)
 		params=0
 		if wavelength>0xFFFF00:
@@ -2952,7 +2935,7 @@ class Interface():
 		elif wavelength>0xFFFF:
 			params=1
 			wavelength = int(64e6/freq/8)
-		params|= (1<<5)
+		if not kwargs.get('pulse',False):params|= (1<<5)
 		self.H.__sendByte__(CP.WAVEGEN)
 		self.H.__sendByte__(CP.SQR4)
 		self.H.__sendInt__(wavelength)

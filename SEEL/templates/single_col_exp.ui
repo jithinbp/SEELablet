@@ -129,7 +129,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>400</width>
+                <width>401</width>
                 <height>444</height>
                </rect>
               </property>
@@ -253,8 +253,8 @@
               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
@@ -330,8 +330,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>402</width>
-             <height>611</height>
+             <width>403</width>
+             <height>612</height>
             </rect>
            </property>
            <property name="styleSheet">
@@ -482,9 +482,17 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionWhite"/>
      <addaction name="actionBlack"/>
     </widget>
+    <widget class="QMenu" name="menuRemote_server">
+     <property name="title">
+      <string>remote server</string>
+     </property>
+     <addaction name="actionStart"/>
+     <addaction name="actionStop"/>
+    </widget>
     <addaction name="actionReset_Device"/>
     <addaction name="actionAbout_device"/>
     <addaction name="menuColor_scheme"/>
+    <addaction name="menuRemote_server"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -540,6 +548,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionAdvanced">
    <property name="text">
     <string>Advanced</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="text">
+    <string>start</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>stop</string>
    </property>
   </action>
  </widget>
@@ -600,7 +618,7 @@ p, li { white-space: pre-wrap; }
    <slot>selectDevice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>124</x>
+     <x>123</x>
      <y>664</y>
     </hint>
     <hint type="destinationlabel">
@@ -689,6 +707,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionStart</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>startRemoteServer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>run_exp()</slot>
@@ -711,5 +745,6 @@ p, li { white-space: pre-wrap; }
   <slot>setColorSchemeBlack()</slot>
   <slot>loadBasicExperiments()</slot>
   <slot>loadAdvancedExperiments()</slot>
+  <slot>startRemoteServer()</slot>
  </slots>
 </ui>

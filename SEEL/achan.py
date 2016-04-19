@@ -77,6 +77,9 @@ class analogInputSource:
 	def loadCalibrationTable(self,table,slope, intercept):
 		self.adc_shifts = np.array(table)*slope - intercept
 
+	def __ignoreCalibration__(self):
+		self.calibrationReady = False
+
 	def loadPolynomials(self,polys):
 		for a in range(len(polys)):
 			epoly = [float(b) for b in polys[a]]

@@ -168,7 +168,10 @@ GET_ALTERNATE_HIGH_FREQUENCY = Byte.pack(20)
 SET_RGB3		      = Byte.pack(22)
 
 START_CTMU		      = Byte.pack(23)
-STOP_CTMU		      = Byte.pack(23)
+STOP_CTMU		      = Byte.pack(24)
+
+START_COUNTING		  = Byte.pack(25)
+FETCH_COUNT  		  = Byte.pack(26)
 
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
@@ -255,7 +258,7 @@ def applySIPrefix(value, unit='',precision=2 ):
 		neg = False
 		if value < 0.:
 			value *= -1; neg = True
-		elif value == 0.:  return 0., 0  # mantissa & exponnt both 0
+		elif value == 0.:  return '0 '  # mantissa & exponnt both 0
 		exponent = int(math.log10(value))
 		if exponent > 0:
 			exponent = (exponent // 3) * 3

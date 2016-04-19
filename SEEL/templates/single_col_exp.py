@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'single_col_exp.ui'
 #
-# Created: Fri Apr  8 17:47:18 2016
+# Created: Sun Apr 17 13:03:12 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.SCF1 = QtGui.QWidget()
-        self.SCF1.setGeometry(QtCore.QRect(0, 0, 400, 444))
+        self.SCF1.setGeometry(QtCore.QRect(0, 0, 401, 444))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.SCF2 = QtGui.QWidget()
-        self.SCF2.setGeometry(QtCore.QRect(0, 0, 402, 611))
+        self.SCF2.setGeometry(QtCore.QRect(0, 0, 403, 612))
         self.SCF2.setStyleSheet(_fromUtf8(""))
         self.SCF2.setObjectName(_fromUtf8("SCF2"))
         self.gridLayout_6 = QtGui.QGridLayout(self.SCF2)
@@ -231,6 +231,8 @@ class Ui_MainWindow(object):
         self.menuUtilities.setObjectName(_fromUtf8("menuUtilities"))
         self.menuColor_scheme = QtGui.QMenu(self.menuUtilities)
         self.menuColor_scheme.setObjectName(_fromUtf8("menuColor_scheme"))
+        self.menuRemote_server = QtGui.QMenu(self.menuUtilities)
+        self.menuRemote_server.setObjectName(_fromUtf8("menuRemote_server"))
         self.menuHelp = QtGui.QMenu(self.menubar)
         self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
         self.menuLevel = QtGui.QMenu(self.menubar)
@@ -252,11 +254,18 @@ class Ui_MainWindow(object):
         self.actionBasic.setObjectName(_fromUtf8("actionBasic"))
         self.actionAdvanced = QtGui.QAction(MainWindow)
         self.actionAdvanced.setObjectName(_fromUtf8("actionAdvanced"))
+        self.actionStart = QtGui.QAction(MainWindow)
+        self.actionStart.setObjectName(_fromUtf8("actionStart"))
+        self.actionStop = QtGui.QAction(MainWindow)
+        self.actionStop.setObjectName(_fromUtf8("actionStop"))
         self.menuColor_scheme.addAction(self.actionWhite)
         self.menuColor_scheme.addAction(self.actionBlack)
+        self.menuRemote_server.addAction(self.actionStart)
+        self.menuRemote_server.addAction(self.actionStop)
         self.menuUtilities.addAction(self.actionReset_Device)
         self.menuUtilities.addAction(self.actionAbout_device)
         self.menuUtilities.addAction(self.menuColor_scheme.menuAction())
+        self.menuUtilities.addAction(self.menuRemote_server.menuAction())
         self.menuLevel.addAction(self.actionBasic)
         self.menuLevel.addAction(self.actionAdvanced)
         self.menubar.addAction(self.menuUtilities.menuAction())
@@ -274,6 +283,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.actionBlack, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.setColorSchemeBlack)
         QtCore.QObject.connect(self.actionBasic, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.loadBasicExperiments)
         QtCore.QObject.connect(self.actionAdvanced, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.loadAdvancedExperiments)
+        QtCore.QObject.connect(self.actionStart, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.startRemoteServer)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -282,8 +292,8 @@ class Ui_MainWindow(object):
         self.hintText.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
+"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;\"><br /></p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Experiments ", None))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Icons for launching experiments", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Help", None))
@@ -296,6 +306,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Advanced control inputs for configuring the waveform generators and power supplies", None))
         self.menuUtilities.setTitle(_translate("MainWindow", "Utilities", None))
         self.menuColor_scheme.setTitle(_translate("MainWindow", "color scheme", None))
+        self.menuRemote_server.setTitle(_translate("MainWindow", "remote server", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
         self.menuLevel.setTitle(_translate("MainWindow", "level", None))
         self.actionIPython_Console.setText(_translate("MainWindow", "iPython Console", None))
@@ -306,4 +317,6 @@ class Ui_MainWindow(object):
         self.actionBlack.setText(_translate("MainWindow", "black", None))
         self.actionBasic.setText(_translate("MainWindow", "Basic", None))
         self.actionAdvanced.setText(_translate("MainWindow", "Advanced", None))
+        self.actionStart.setText(_translate("MainWindow", "start", None))
+        self.actionStop.setText(_translate("MainWindow", "stop", None))
 

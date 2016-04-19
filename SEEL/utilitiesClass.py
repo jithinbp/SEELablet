@@ -1,6 +1,6 @@
 import time,random,functools,pkgutil,importlib,functools,pkg_resources
 
-import os
+import os,numbers
 os.environ['QT_API'] = 'pyqt'
 import sip
 sip.setapi("QString", 2)
@@ -110,13 +110,13 @@ class utilitiesClass():
 		return plot3d
 
 
-	def addCurve(self,plot,name='',col=(255,255,255),axis='left'):
+	def addCurve(self,plot,name='',col=(255,255,255),**kwargs):
 		#if(len(name)):curve = plot.plot(name=name)
 		#else:curve = plot.plot()
-		if(len(name)):curve = pg.PlotCurveItem(name=name)
-		else:curve = pg.PlotCurveItem()
+		if(len(name)):curve = pg.PlotDataItem(name=name)#pg.PlotCurveItem(name=name)
+		else:curve = pg.PlotCurveItem(**kwargs)
 		plot.addItem(curve)
-		curve.setPen(color=col, width=1)
+		curve.setPen(kwargs.get('pen',{'col':(255,255,255),'width':1}))
 		#self.curves.append(curve)
 		self.plots2D[plot].append(curve)
 		return curve
@@ -253,8 +253,9 @@ class utilitiesClass():
 		def setValue(self,val):
 			retval = self.func(val)
 			#self.value.setText('%.3f %s '%(retval*self.scale,self.units))
-			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
-			else: self.value.setText('Error')
+			if isinstance(retval,numbers.Number):
+				self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText(str(retval))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
 				#self.linkObj.setText('%.3f %s '%(retval*self.scale,self.units))
@@ -280,8 +281,8 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
-			else: self.value.setText('Error')
+			if isinstance(retval,numbers.Number): self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText(str(retval))
 			#self.value.setText('%.3f %s '%(retval*self.scale,self.units))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
@@ -309,8 +310,10 @@ class utilitiesClass():
 
 		def setValue(self,val):
 			retval = self.func(val)
-			if retval: self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
-			else: self.value.setText('Error')
+			if isinstance(retval,numbers.Number):
+				print(retval)
+				self.value.setText('%s'%(self.applySIPrefix(retval*self.scale,self.units) ))
+			else: self.value.setText(str(retval))
 			#self.value.setText('%.2f %s '%(retval*self.scale,self.units))
 			if self.linkFunc:
 				self.linkFunc(retval*self.scale,self.units)
@@ -336,8 +339,8 @@ class utilitiesClass():
 			retval = self.func()
 			#if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
 			#else: self.value.setText('%.3e %s '%(retval,self.units))
-			if retval:self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
-			else: self.value.setText('Error')
+			if isinstance(retval,numbers.Number):self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
+			else: self.value.setText(str(retval))
 
 	class selectAndButtonIcon(QtGui.QFrame,selectAndButton.Ui_Form):
 		def __init__(self,**args):
@@ -357,8 +360,8 @@ class utilitiesClass():
 			retval = self.func(self.optionBox.currentText())
 			#if abs(retval)<1e4 and abs(retval)>.01:self.value.setText('%.3f %s '%(retval,self.units))
 			#else: self.value.setText('%.3e %s '%(retval,self.units))
-			if retval:self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
-			else: self.value.setText('Error')
+			if isinstance(retval,numbers.Number):self.value.setText('%s'%(self.applySIPrefix(retval,self.units) ))
+			else: self.value.setText(str(retval))
 
 	class experimentIcon(QtGui.QPushButton):
 		mouseHover = QtCore.pyqtSignal(str)
@@ -385,6 +388,33 @@ class utilitiesClass():
 
 		def leaveEvent(self, event):
 			self.mouseHover.emit('')
+
+	class experimentListItem(QtGui.QPushButton):
+		mouseHover = QtCore.pyqtSignal(str)
+		def __init__(self,basepackage,name,launchfunc):
+			super(utilitiesClass.experimentListItem, self).__init__()
+			self.setMouseTracking(True)
+			self.name = name
+			tmp = importlib.import_module(basepackage+'.'+name)
+			genName = tmp.params.get('name',name)
+			self.setText(genName)
+			self.hintText = tmp.params.get('hint','No summary available')
+			self.hintText = '''
+			<p><strong>%s</strong>.</p>
+			%s
+			'''%(genName.replace('\n',' '), self.hintText)
+			self.func = launchfunc			
+			self.clicked.connect(self.func)
+			self.setMinimumHeight(30)
+			#self.setMaximumWidth(170)
+			#self.setStyleSheet("border-image: url(%s) 0 0 0 0 stretch stretch;color:white;"%(pkg_resources.resource_filename(basepackage, _fromUtf8(tmp.params.get('image','') ))))
+
+		def enterEvent(self, event):
+			self.mouseHover.emit(self.hintText)
+
+		def leaveEvent(self, event):
+			self.mouseHover.emit('')
+
 
 
 	class sineWidget(QtGui.QWidget,sineWidget.Ui_Form):
