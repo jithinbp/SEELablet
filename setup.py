@@ -44,7 +44,7 @@ setup(name='SEEL',
     url='https://vlabtool.jithinbp.in',
     install_requires = ['numpy>=1.8.1','pyqtgraph>=0.9.10'],
     packages=find_packages(),#['Labtools', 'Labtools.widgets'],
-    scripts=["SEEL/bin/"+a for a in os.listdir("SEEL/bin/")],
+    #scripts=["SEEL/bin/"+a for a in os.listdir("SEEL/bin/")],
     package_data={'': ['*.css','*.png','*.gif','*.html','*.css','*.js','*.png','*.jpg','*.jpeg','*.htm','proto.rules']},
     cmdclass={'install': CustomInstall},
 )

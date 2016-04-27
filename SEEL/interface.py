@@ -181,10 +181,9 @@ class Interface():
 
 				for a in dac_slope_intercept.split('>|')[1:]:
 					S= a.split('|<')
-					NAME = S[0][:4]
+					NAME = S[0][:3]
 					self.aboutArray.append([])
 					self.aboutArray.append(['Calibrated :',NAME])
-					self.__print__( '\n','>'*20,NAME,'<'*20)
 					fits = struct.unpack('6f',S[1])
 					slope=fits[0];intercept=fits[1]
 					fitvals = fits[2:]
@@ -209,12 +208,14 @@ class Interface():
 						if NAME=='PV1':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV1A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV1B,2048)
 						elif NAME=='PV2':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV2A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV2B,2048)
 						elif NAME=='PV3':OFF=self.read_bulk_flash(self.DAC_SHIFTS_PV3A,2048)+self.read_bulk_flash(self.DAC_SHIFTS_PV3B,2048)
-
 						OFF = np.array([ord(data) for data in OFF])
+						self.__print__( '\n','>'*20,NAME,'<'*20)
+						self.__print__('Offsets :',OFF[:20],'...')
 						fitfn = np.poly1d(fitvals)
 						YDATA = fitfn(DACX) - (OFF*slope+intercept)
 						LOOKBEHIND = 100;LOOKAHEAD=100                      
 						OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
+						self.aboutArray.append(['Err min:',min(OFF),'Err max:',max(OFF)])
 						self.DAC.load_calibration(NAME,OFF)
 				
 				inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)

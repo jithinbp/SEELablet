@@ -798,8 +798,10 @@ class NRF24L01():
 	def __init__(self,H):
 		self.H = H
 		self.ready=False
+		self.sigs={self.CURRENT_ADDRESS:1}
 		if self.H.connected:
 				self.connected=self.init()
+
 	"""
 	routines for the NRFL01 radio
 	"""
@@ -895,7 +897,7 @@ class NRF24L01():
 		address byte can either be located in the NRF24L01+ manual, or chosen
 		from some of the constants defined in this module.
 		'''
-		print ('writing',address,value)
+		#print ('writing',address,value)
 		self.H.__sendByte__(CP.NRFL01)
 		self.H.__sendByte__(CP.NRF_WRITEREG)
 		self.H.__sendByte__(address)
@@ -957,9 +959,9 @@ class NRF24L01():
 		self.H.__sendByte__((address>>16)&0xFF);
 		self.H.__get_ack__()
 		self.CURRENT_ADDRESS=address
+		if address not in self.sigs:
+			self.sigs[address]=1
 		
-
-
 	def read_payload(self,numbytes):
 		self.H.__sendByte__(CP.NRFL01)
 		self.H.__sendByte__(CP.NRF_READPAYLOAD)
@@ -967,7 +969,6 @@ class NRF24L01():
 		data=self.H.fd.read(numbytes)
 		self.H.__get_ack__()
 		return [ord(a) for a in data]
-
 
 	def write_payload(self,data,verbose=False,**args): 
 		self.H.__sendByte__(CP.NRFL01)
@@ -984,7 +985,6 @@ class NRF24L01():
 			elif val&0x1: print (' Node probably dead/out of range. It failed to acknowledge')
 			return
 		return val
-	
 
 	def I2C_scan(self):
 		'''
@@ -1024,8 +1024,9 @@ class NRF24L01():
 						
 		return addrs
 
-
 	def transaction(self,data,**args): 
+		st = time.time()
+
 		self.H.__sendByte__(CP.NRFL01)
 		self.H.__sendByte__(CP.NRF_TRANSACTION)
 		self.H.__sendByte__(len(data)) #total Data bytes coming through
@@ -1037,7 +1038,9 @@ class NRF24L01():
 		for a in data:
 			self.H.__sendByte__(a)
 
+		#print ('dt send',time.time()-st,timeout,data[0]&0x80,data)
 		numbytes=self.H.__getByte__()
+		#print ('byte 1 in',time.time()-st)
 		if numbytes: data = self.H.fd.read(numbytes)
 		else: data=[]
 		val=self.H.__get_ack__()>>4
@@ -1045,9 +1048,12 @@ class NRF24L01():
 			if val&0x1: print (time.time(),'%s Err. Node not found'%(hex(self.CURRENT_ADDRESS)))
 			if val&0x2: print (time.time(),'%s Err. NRF on-board transmitter not found'%(hex(self.CURRENT_ADDRESS)))
 			if val&0x4 and args['listen']: print (time.time(),'%s Err. Node received command but did not reply'%(hex(self.CURRENT_ADDRESS)))
-		if val&0x7:
+		if val&0x7:	#Something didn't go right.
 			self.flush()
+			self.sigs[self.CURRENT_ADDRESS] = self.sigs[self.CURRENT_ADDRESS]*50/51.
 			return False
+		
+		self.sigs[self.CURRENT_ADDRESS] = (self.sigs[self.CURRENT_ADDRESS]*50+1)/51.
 		return [ord(a) for a in data]
 
 	def transactionWithRetries(self,data,**args):
@@ -1190,8 +1196,6 @@ class NRF24L01():
 		self.rxmode()
 		time.sleep(0.1)
 		self.flush()
-
-		#---------
 
 	def init_shockburst_receiver(self,**args):
 		'''
@@ -1336,7 +1340,7 @@ class RadioLink():
 
 	def write_register(self,reg,val):
 		self.__selectMe__()
-		print ('writing to ',reg,val)
+		#print ('writing to ',reg,val)
 		return self.NRF.transaction([self.NRF_COMMANDS|self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
 
 
@@ -1367,7 +1371,9 @@ class RadioLink():
 			colarray.append(int('{:08b}'.format(int(a[0]))[::-1], 2))
 			colarray.append(int('{:08b}'.format(int(a[2]))[::-1], 2))
 
-		return self.NRF.transaction([self.MISC_COMMANDS|self.WS2812B_CMD]+colarray,listen=False)
+
+		res = self.NRF.transaction([self.MISC_COMMANDS|self.WS2812B_CMD]+colarray,listen=False)
+		return res
 
 
 	def read_register(self,reg):
