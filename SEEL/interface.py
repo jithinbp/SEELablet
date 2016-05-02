@@ -99,6 +99,7 @@ class Interface():
 		self.error_count=0
 		self.channels_in_buffer=0
 		self.digital_channels_in_buffer=0
+		self.currents=[0.55e-3,0.55e-6,0.55e-5,0.55e-4]
 		self.data_splitting = kwargs.get('data_splitting',CP.DATA_SPLITTING)
 		self.allAnalogChannels=allAnalogChannels
 		self.analogInputSources={}
@@ -162,9 +163,15 @@ class Interface():
 				adc_shifts = [CP.Byte.unpack(a)[0] for a in adc_shifts]
 				self.__print__('ADC INL correction table loaded.')
 				self.aboutArray.append(['ADC INL Correction found',adc_shifts[0],adc_shifts[1],'...'])
-				inl_slope_intercept = polynomials.split('STOP')[2]
-				dac_slope_intercept = polynomials.split('STOP')[1]
-				slopes_offsets=polynomials.split('STOP')[0]
+
+				poly_sections = polynomials.split('STOP')  #The 2K array is split into sections containing data for ADC_INL fit, ADC_CHANNEL fit, DAC_CHANNEL fit, PCS, CAP ...
+
+				slopes_offsets		= poly_sections[0]
+				dac_slope_intercept = poly_sections[1]
+				inl_slope_intercept = poly_sections[2]
+				cap_and_pcs 		= poly_sections[3]
+
+				#Load calibration data for ADC channels into an array that'll be evaluated in the next code block
 				for a in slopes_offsets.split('>|')[1:]:
 					S= a.split('|<')
 					self.__print__( '\n','>'*20,S[0],'<'*20)
@@ -179,11 +186,21 @@ class Interface():
 						self.aboutArray.append([b]+['%.3e'%v for v in poly])
 						polyDict[S[0]].append(poly)
 
+				
+				#Load calibration data (slopes and offsets) for ADC channels
+				inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)
+				for a in self.analogInputSources:
+					self.analogInputSources[a].loadCalibrationTable(adc_shifts,inl_slope_intercept[0],inl_slope_intercept[1])
+					if a in polyDict:
+						self.analogInputSources[a].loadPolynomials(polyDict[a])
+						self.analogInputSources[a].calibrationReady=True
+					self.analogInputSources[a].regenerateCalibration()
+				
+				#Load calibration data for DAC channels
 				for a in dac_slope_intercept.split('>|')[1:]:
 					S= a.split('|<')
-					NAME = S[0][:3]
-					self.aboutArray.append([])
-					self.aboutArray.append(['Calibrated :',NAME])
+					NAME = S[0][:3]			#Name of the DAC channel . PV1, PV2 ...
+					self.aboutArray.append([]);	self.aboutArray.append(['Calibrated :',NAME])
 					fits = struct.unpack('6f',S[1])
 					slope=fits[0];intercept=fits[1]
 					fitvals = fits[2:]
@@ -217,16 +234,11 @@ class Interface():
 						OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
 						self.aboutArray.append(['Err min:',min(OFF),'Err max:',max(OFF)])
 						self.DAC.load_calibration(NAME,OFF)
-				
-				inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)
-				for a in self.analogInputSources:
-					self.analogInputSources[a].loadCalibrationTable(adc_shifts,inl_slope_intercept[0],inl_slope_intercept[1])
-					if a in polyDict:
-						self.analogInputSources[a].loadPolynomials(polyDict[a])
-						self.analogInputSources[a].calibrationReady=True
-					self.analogInputSources[a].regenerateCalibration()
-				
-				self.__print__( polynomials.split('>|')[0])
+
+				if len(cap_and_pcs)==16:
+					print (cap_and_pcs,struct.unpack('4f',cap_and_pcs) )
+				else:
+					print ('Cap and PCS calibration invalid',cap_and_pcs)
 				
 		
 		time.sleep(0.001)
@@ -1450,11 +1462,13 @@ class Interface():
 			if y[0]>0:   #rising edge occured first
 				dt = [y[0],x[1]]
 			else:       #falling edge occured first
-				if y[1]>x[1]: return -1,-1 #Edge dropped. return False
+				if y[1]>x[1]:
+					return -1,-1 #Edge dropped. return False
 				dt = [y[1],x[1]]
 			#self.__print__(x,y,dt)
 			params = dt[1],dt[0]/dt[1]
-			if params[1]>0.5:print(x,y,dt)
+			if params[1]>0.5:
+				print(x,y,dt)
 			return params
 		else:
 			return -1,-1
@@ -1568,7 +1582,7 @@ class Interface():
 		tmt = self.H.__getInt__()
 		self.H.__get_ack__()
 		#print(A,B)
-		if(tmt >= timeout_msb ):return [],[]
+		if(tmt >= timeout_msb ):return None,None
 		rtime = lambda t: t/64e6
 		if(kwargs.get('zero',True)):  # User wants set a reference timestamp
 			return rtime(A-A[0]),rtime(B-A[0])
@@ -2290,6 +2304,7 @@ class Interface():
 			if CT>30000 and V<0.1:
 				self.__print__('Capacitance too high for this method')
 				return 0
+
 			elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
 				return C
 			elif V<GOOD_VOLTS[0] and V>0.1 and CT<40000:
@@ -2307,10 +2322,12 @@ class Interface():
 				self.__print__('Constant voltage mode ')
 				return self.get_capacitor_range()[1]
 
+	def __calibrate_ctmu__(self,currents):
+		self.currents=[0.55e-3*currents[0],0.55e-6*currents[1],0.55e-5*currents[2],0.55e-4*currents[3]]
+
 	def __get_capacitance__(self,current_range,trim, Charge_Time):  #time in uS
 		self.__charge_cap__(0,30000)
 		self.H.__sendByte__(CP.COMMON)
-		currents=[0.55e-3,0.55e-6,0.55e-5,0.55e-4]
 		self.H.__sendByte__(CP.GET_CAPACITANCE)
 		self.H.__sendByte__(current_range)
 		if(trim<0):
@@ -2322,7 +2339,7 @@ class Interface():
 		VCode = self.H.__getInt__()
 		V = 3.3*VCode/4095
 		self.H.__get_ack__()
-		Charge_Current = currents[current_range]*(100+trim)/100.0
+		Charge_Current = self.currents[current_range]*(100+trim)/100.0
 		if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
 		else: C = 0
 		#self.__print__('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
