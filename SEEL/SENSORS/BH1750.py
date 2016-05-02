@@ -1,3 +1,4 @@
+from __future__  import print_function
 from numpy import int16
 def connect(route,**args):
 	return BRIDGE(route,**args)
@@ -59,4 +60,4 @@ if __name__ == "__main__":
  from SEEL import interface
  I= interface.connect()
  A = connect(I.I2C)
- print A.getRaw()
+ print (A.getRaw())

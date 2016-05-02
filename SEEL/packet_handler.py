@@ -64,7 +64,7 @@ class Handler():
 			version= self.get_version(fd)
 			if version[:len(self.expected_version)]==self.expected_version:
 				return fd,version,True
-		except socket.error, e:
+		except socket.error as e:
 			error_code = e.args[0]
 			error_string = e.args[1]
 			self.occupiedPorts.append(portname)

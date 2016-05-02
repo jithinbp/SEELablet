@@ -1,0 +1,3802 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <!--This file was converted to xhtml by LibreOffice - see http://cgit.freedesktop.org/libreoffice/core/tree/filter/source/xslt for the code.-->
+ <head profile="http://dublincore.org/documents/dcmi-terms/">
+  <meta content="application/xhtml+xml; charset=utf-8" http-equiv="Content-Type"/>
+  <title xml:lang="en-US">
+   SEELablet User Manual
+  </title>
+  <meta content="SEELablet User Manual" name="DCTERMS.title" xml:lang="en-US"/>
+  <meta content="en-US" name="DCTERMS.language" scheme="DCTERMS.RFC4646"/>
+  <meta content="http://xml.openoffice.org/odf2xhtml" name="DCTERMS.source"/>
+  <meta content="2016-02-18T15:53:03.783599429" name="DCTERMS.issued" scheme="DCTERMS.W3CDTF"/>
+  <meta content="2016-02-19T19:59:40.198041492" name="DCTERMS.modified" scheme="DCTERMS.W3CDTF"/>
+  <meta content="" name="DCTERMS.provenance" xml:lang="en-US"/>
+  <meta content="," name="DCTERMS.subject" xml:lang="en-US"/>
+  <link href="http://purl.org/dc/elements/1.1/" hreflang="en" rel="schema.DC"/>
+  <link href="http://purl.org/dc/terms/" hreflang="en" rel="schema.DCTERMS"/>
+  <link href="http://purl.org/dc/dcmitype/" hreflang="en" rel="schema.DCTYPE"/>
+  <link href="http://purl.org/dc/dcam/" hreflang="en" rel="schema.DCAM"/>
+  <style type="text/css">
+   @page {  }
+	table { border-collapse:collapse; border-spacing:0; empty-cells:show }
+	td, th { vertical-align:top; font-size:12pt;}
+	h1, h2, h3, h4, h5, h6 { clear:both }
+	ol, ul { margin:0; padding:0;}
+	li { list-style: none; margin:0; padding:0;}
+	<!-- "li span.odfLiEnd" - IE 7 issue-->
+	li span. { clear: both; line-height:0; width:0; height:0; margin:0; padding:0; }
+	span.footnodeNumber { padding-right:1em; }
+	span.annotation_style_by_filter { font-size:95%; font-family:Arial; background-color:#fff000;  margin:0; border:0; padding:0;  }
+	* { margin:0;}
+	.fr1 { border-style:none; font-size:12pt; margin-bottom:0cm; margin-left:0cm; margin-right:0cm; margin-top:0cm; padding:0cm; font-family:Liberation Serif; vertical-align:middle; writing-mode:lr-tb; }
+	.fr10 { font-size:12pt; font-family:Liberation Serif; text-align:center; vertical-align:top; writing-mode:lr-tb; }
+	.fr11 { font-size:12pt; margin-left:0cm; margin-right:0cm; font-family:Liberation Serif; vertical-align:middle; writing-mode:lr-tb; }
+	.fr2 { border-style:none; font-size:12pt; margin-bottom:0cm; margin-left:0cm; margin-right:0cm; margin-top:0cm; padding:0cm; font-family:Liberation Serif; vertical-align:top; writing-mode:lr-tb; }
+	.fr3 { border-style:none; font-size:12pt; margin-bottom:0cm; margin-left:0cm; margin-right:0cm; margin-top:0cm; padding:0cm; font-family:Liberation Serif; text-align:center; vertical-align:top; writing-mode:lr-tb; }
+	.fr4 { border-style:none; font-size:12pt; margin-bottom:0cm; margin-left:0cm; margin-right:0cm; margin-top:0cm; padding:0cm; font-family:Liberation Serif; vertical-align:top; writing-mode:lr-tb; }
+	.fr5 { font-size:12pt; font-family:Liberation Serif; vertical-align:top; writing-mode:lr-tb; }
+	.fr6 { font-size:12pt; font-family:Liberation Serif; vertical-align:middle; writing-mode:lr-tb; }
+	.fr7 { font-size:12pt; font-family:Liberation Serif; vertical-align:middle; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; margin-top:0cm; margin-bottom:0cm; padding:0cm; border-style:none; }
+	.fr8 { font-size:12pt; font-family:Liberation Serif; vertical-align:top; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; margin-top:0cm; margin-bottom:0cm; padding:0cm; border-style:none; }
+	.fr9 { font-size:12pt; font-family:Liberation Serif; text-align:center; vertical-align:top; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; margin-top:0cm; margin-bottom:0cm; padding:0cm; border-style:none; }
+	.Contents_20_1 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.Contents_20_2 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; margin-left:1.199cm; margin-right:0cm; text-indent:0cm; }
+	.Contents_20_Heading { font-size:14pt; margin-bottom:0.212cm; margin-top:0.423cm; font-family:Liberation Sans; writing-mode:lr-tb; }
+	.Heading_20_2_borderStart { font-size:105%; margin-top:0.353cm; font-family:Liberation Sans; writing-mode:lr-tb; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; color:#33a3a3; font-weight:bold; background-color:#ffffcc; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.Heading_20_2 { font-size:105%; font-family:Liberation Sans; writing-mode:lr-tb; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; color:#33a3a3; font-weight:bold; background-color:#ffffcc; padding-bottom:0.212cm; padding-top:0.353cm;  border-top-style:none; border-bottom-style:none; }
+	.Heading_20_2_borderEnd { font-size:105%; margin-bottom:0.212cm; font-family:Liberation Sans; writing-mode:lr-tb; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; color:#33a3a3; font-weight:bold; background-color:#ffffcc; padding-top:0.353cm;  border-top-style:none;}
+	.P1 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P10 { font-size:11pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P11 { font-size:12pt; font-style:normal; margin-bottom:0cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; text-align:center ! important; }
+	.P12 { font-size:12pt; font-style:normal; margin-bottom:0cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; text-align:center ! important; font-weight:normal; }
+	.P13 { font-size:12pt; font-style:italic; margin-bottom:0cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; text-align:center ! important; }
+	.P14 { font-size:12pt; font-style:italic; margin-bottom:0cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; text-align:center ! important; }
+	.P15 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P16 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P17 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; text-indent:0.801cm; background-color:transparent; }
+	.P18 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; text-indent:1.199cm; background-color:transparent; }
+	.P19 { color:#ff0000; font-size:12pt; font-weight:bold; text-align:center ! important; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P2 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P20_borderStart { background-color:transparent; color:#008080; font-size:12pt; font-style:italic; line-height:120%; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; padding-bottom:0cm;  border-bottom-style:none; }
+	.P20 { background-color:transparent; color:#008080; font-size:12pt; font-style:italic; line-height:120%; font-family:Liberation Serif; writing-mode:lr-tb; padding-bottom:0cm; padding-top:0cm;  border-top-style:none; border-bottom-style:none; }
+	.P20_borderEnd { background-color:transparent; color:#008080; font-size:12pt; font-style:italic; line-height:120%; margin-bottom:0cm; font-family:Liberation Serif; writing-mode:lr-tb; padding-top:0cm;  border-top-style:none;}
+	.P21 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P22 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P23 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P24 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P25 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P26 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P27 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P28 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P29 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P3 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P30 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P31 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P32 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P33 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P34 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-weight:bold; }
+	.P35 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P36 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P37 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P38 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P39 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P4 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P40 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P41 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P42 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-style:italic; }
+	.P43 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; font-style:italic; }
+	.P44 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P45 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P46 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P47 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P48 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P49 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P5 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P50 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P51 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P52 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P53 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P54 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P55 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P56 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P57 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P58 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P59 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P6 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P60 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P61 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P62 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:center ! important; }
+	.P63 { color:#ff0000; font-size:12pt; font-weight:bold; text-align:center ! important; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P64 { color:#ff0000; font-size:12pt; font-weight:bold; text-align:center ! important; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P65 { color:#008080; font-size:14pt; font-weight:bold; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P66 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; text-align:right ! important; }
+	.P67 { font-size:16pt; font-family:Liberation Serif; writing-mode:lr-tb; color:#808080; letter-spacing:normal; font-style:italic; text-shadow:none; text-decoration:none ! important; font-weight:normal; }
+	.P68 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P69 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; margin-left:0cm; margin-right:0cm; margin-top:0cm; margin-bottom:0cm; text-align:right ! important; text-indent:0cm; color:#808080; letter-spacing:normal; font-style:italic; text-shadow:none; text-decoration:none ! important; font-weight:normal; }
+	.P7 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P70 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P71 { font-size:10pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Courier; writing-mode:lr-tb; }
+	.P72 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P73 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P74 { font-size:11pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P75 { font-size:11pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P76 { font-size:11pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P77 { font-size:11pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P78_borderStart { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-top:0.423cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P78 { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.423cm;  border-top-style:none; border-bottom-style:none; }
+	.P78_borderEnd { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-bottom:0.212cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.423cm;  border-top-style:none;}
+	.P79_borderStart { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-top:0.423cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P79 { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.423cm;  border-top-style:none; border-bottom-style:none; }
+	.P79_borderEnd { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-bottom:0.212cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.423cm;  border-top-style:none;}
+	.P8 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P80_borderStart { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-top:0.423cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P80 { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.423cm;  border-top-style:none; border-bottom-style:none; }
+	.P80_borderEnd { background-color:transparent; color:#198a8a; font-size:130%; font-weight:bold; margin-bottom:0.212cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.423cm;  border-top-style:none;}
+	.P81_borderStart { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; margin-top:0.353cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P81 { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.353cm;  border-top-style:none; border-bottom-style:none; }
+	.P81_borderEnd { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-bottom:0.212cm; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.353cm;  border-top-style:none;}
+	.P82_borderStart { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; margin-top:0.353cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P82 { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.353cm;  border-top-style:none; border-bottom-style:none; }
+	.P82_borderEnd { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-bottom:0.212cm; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.353cm;  border-top-style:none;}
+	.P83_borderStart { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; margin-top:0.353cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P83 { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.353cm;  border-top-style:none; border-bottom-style:none; }
+	.P83_borderEnd { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-bottom:0.212cm; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.353cm;  border-top-style:none;}
+	.P84_borderStart { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; margin-top:0.353cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm;  border-bottom-style:none; }
+	.P84 { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-bottom:0.212cm; padding-top:0.353cm;  border-top-style:none; border-bottom-style:none; }
+	.P84_borderEnd { background-color:#ffffcc; color:#33a3a3; font-size:105%; font-weight:bold; margin-bottom:0.212cm; margin-left:1.401cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Sans; writing-mode:lr-tb; padding-top:0.353cm;  border-top-style:none;}
+	.P85 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P86 { font-size:11pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P87 { font-size:12pt; margin-left:1.199cm; margin-right:0cm; text-indent:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P88 { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.P9 { font-size:12pt; line-height:120%; margin-bottom:0.247cm; margin-top:0cm; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.Standard { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.Table_20_Contents { font-size:12pt; font-family:Liberation Serif; writing-mode:lr-tb; }
+	.Table1 { width:16.995cm; margin-left:0px; margin-right:auto;}
+	.Table10 { width:19.001cm; float:none; }
+	.Table11 { width:19.001cm; float:none; }
+	.Table12 { width:19.001cm; float:none; }
+	.Table13 { width:19.001cm; float:none; }
+	.Table14 { width:19.001cm; float:none; }
+	.Table15 { width:19.001cm; float:none; }
+	.Table16 { width:19.001cm; float:none; }
+	.Table17 { width:19.001cm; float:none; }
+	.Table18 { width:19.001cm; float:none; }
+	.Table2 { width:17.009cm; margin-left:0cm; margin-right:auto;}
+	.Table3 { width:19.001cm; float:none; }
+	.Table4 { width:19.001cm; float:none; }
+	.Table5 { width:16.977cm; margin-left:0px; margin-right:auto;}
+	.Table6 { width:19.001cm; float:none; }
+	.Table7 { width:19.001cm; float:none; }
+	.Table8 { width:19.001cm; float:none; }
+	.Table9 { width:19.001cm; float:none; }
+	.Tableau1 { width:17.009cm; margin-left:0cm; margin-right:auto;}
+	.Tableau3 { width:18.29cm; margin-left:0px; margin-right:auto;}
+	.Table1_A1 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-width:thin; border-top-style:solid; border-top-color:#000000; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_A2 { vertical-align:middle; padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B2 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B3 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B4 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B5 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B6 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B7 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_B8 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_C8 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-style:none; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D1 { padding:0.097cm; border-width:thin; border-style:solid; border-color:#000000; }
+	.Table1_D2 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D3 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D4 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D5 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D6 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D7 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table1_D8 { padding:0.097cm; border-left-width:thin; border-left-style:solid; border-left-color:#000000; border-right-width:thin; border-right-style:solid; border-right-color:#000000; border-top-style:none; border-bottom-width:thin; border-bottom-style:solid; border-bottom-color:#000000; }
+	.Table10_A1 { padding:0.097cm; border-style:none; }
+	.Table11_A1 { padding:0.097cm; border-style:none; }
+	.Table12_A1 { padding:0.097cm; border-style:none; }
+	.Table13_A1 { padding:0.097cm; border-style:none; }
+	.Table14_A1 { padding:0.097cm; border-style:none; }
+	.Table15_A1 { padding:0.097cm; border-style:none; }
+	.Table16_A1 { padding:0.097cm; border-style:none; }
+	.Table17_A1 { padding:0.097cm; border-style:none; }
+	.Table18_A1 { padding:0.097cm; border-style:none; }
+	.Table2_A1 { padding:0.097cm; border-style:none; }
+	.Table3_A1 { background-color:transparent; padding:0.097cm; border-style:none; }
+	.Table3_A2 { padding:0.097cm; border-style:none; }
+	.Table3_A6 { padding:0.097cm; border-style:none; }
+	.Table3_A7 { padding:0.097cm; border-style:none; }
+	.Table3_A8 { padding:0.097cm; border-style:none; }
+	.Table3_A9 { padding:0.097cm; border-style:none; }
+	.Table3_B1 { padding:0.097cm; border-style:none; }
+	.Table3_B2 { padding:0.097cm; border-style:none; }
+	.Table3_B6 { padding:0.097cm; border-style:none; }
+	.Table3_B7 { padding:0.097cm; border-style:none; }
+	.Table3_B8 { padding:0.097cm; border-style:none; }
+	.Table3_B9 { padding:0.097cm; border-style:none; }
+	.Table4_A1 { padding:0.097cm; border-style:none; }
+	.Table5_A1 { padding:0.097cm; border-style:none; }
+	.Table6_A1 { padding:0.097cm; border-style:none; }
+	.Table7_A1 { padding:0.097cm; border-style:none; }
+	.Table8_A1 { padding:0.097cm; border-style:none; }
+	.Table9_A1 { padding:0.097cm; border-style:none; }
+	.Tableau1_A1 { padding:0.097cm; border-style:none; }
+	.Tableau3_A1 { padding:0.097cm; border-style:none; }
+	.Table1_A { width:3.196cm; }
+	.Table1_B { width:8.313cm; }
+	.Table1_C { width:2.889cm; }
+	.Table1_D { width:2.596cm; }
+	.Table10_A { width:3.697cm; }
+	.Table10_B { width:15.304cm; }
+	.Table11_A { width:3.697cm; }
+	.Table11_B { width:15.304cm; }
+	.Table12_A { width:3.574cm; }
+	.Table12_B { width:15.427cm; }
+	.Table13_A { width:3.574cm; }
+	.Table13_B { width:15.427cm; }
+	.Table14_A { width:3.574cm; }
+	.Table14_B { width:15.427cm; }
+	.Table15_A { width:3.574cm; }
+	.Table15_B { width:15.427cm; }
+	.Table16_A { width:3.574cm; }
+	.Table16_B { width:15.427cm; }
+	.Table17_A { width:3.549cm; }
+	.Table17_B { width:15.452cm; }
+	.Table18_A { width:19.001cm; }
+	.Table2_A { width:2.798cm; }
+	.Table2_B { width:14.212cm; }
+	.Table3_A { width:2.796cm; }
+	.Table3_B { width:16.205cm; }
+	.Table4_A { width:2.688cm; }
+	.Table4_B { width:16.312cm; }
+	.Table5_A { width:2.499cm; }
+	.Table5_B { width:14.478cm; }
+	.Table6_A { width:2.699cm; }
+	.Table6_B { width:16.302cm; }
+	.Table7_A { width:2.884cm; }
+	.Table7_B { width:16.117cm; }
+	.Table8_A { width:2.903cm; }
+	.Table8_B { width:16.097cm; }
+	.Table9_A { width:3.683cm; }
+	.Table9_B { width:15.318cm; }
+	.Tableau1_A { width:8.694cm; }
+	.Tableau1_B { width:4.307cm; }
+	.Tableau1_C { width:4.008cm; }
+	.Tableau3_A { width:8.103cm; }
+	.Tableau3_B { width:3.307cm; }
+	.Tableau3_C { width:6.879cm; }
+	.T1 { font-style:italic; }
+	.T11 { color:#0000ff; }
+	.T12 { font-family:Courier; font-weight:bold; }
+	.T16 { vertical-align:sub; font-size:58%;}
+	.T18 { font-weight:normal; }
+	.T19 { color:#000000; font-family:Liberation Serif; font-size:28pt; letter-spacing:normal; font-style:normal; text-shadow:none; text-decoration:none ! important; font-weight:normal; }
+	.T2 { font-style:italic; }
+	.T5 { font-weight:bold; }
+	.T6 { font-weight:bold; }
+	.T7 { font-weight:bold; }
+	.T8 { font-weight:bold; }
+	.T9 { font-weight:bold; }
+	<!-- ODF styles with no properties representable as CSS -->
+	.Sect1 .Index_20_Link .Numbering_20_Symbols .T10 .T13 .T14 .T15 .T17 .T3 .T4  { }
+  </style>
+  <script src="jquery.js" type="text/javascript">
+  </script>
+  <script type="text/javascript">
+   $(function(){ /* launched when the document is ready */
+	  var embedImg=$("* [class^=fr] img");
+	  for(var i=0; i < embedImg.length; i++){
+	    var el = $($(embedImg[i]).parent()[0]);
+	    var imgAndText = el.html();
+	    /* deletes after img tag event in multiline context */
+	    var img=imgAndText.replace(/>[\s\S]*/, ">");
+	    /* keep the image only */
+	    el.html(img);
+	  }
+	});
+  </script>
+  <script src="mathjax/MathJax.js?config=MML_CHTML" type="text/javascript">
+  </script>
+  <link href="style1.css" rel="stylesheet" type="text/css"/>
+ </head>
+ <body dir="ltr" style="max-width:21.001cm;margin-top:2cm; margin-bottom:2cm; margin-left:1cm; margin-right:1cm; writing-mode:lr-tb; ">
+  <table border="0" cellpadding="0" cellspacing="0" class="Tableau1">
+   <colgroup>
+    <col width="380">
+    </col>
+    <col width="188">
+    </col>
+    <col width="175">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Tableau1_A1" style="text-align:left;width:8.694cm; ">
+     <p class="Standard">
+      <span class="T19">
+       A Versatile Labtool
+      </span>
+     </p>
+     <p class="P67">
+      User Manual
+     </p>
+     <p class="Standard">
+     </p>
+    </td>
+    <td class="Tableau1_A1" style="text-align:left;width:4.307cm; ">
+     <p class="P69">
+      jithinbp.in/vLabtool
+     </p>
+     <p class="P69">
+      Videos, sample code
+     </p>
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P66">
+      <!--Next 'div' is emulating the top hight of a draw:frame.-->
+      <div style="height:0.065cm;">
+      </div>
+      <!--Next '
+			div' is a draw:frame.
+		-->
+      <div class="fr5" id="Image2" style="height:1.7cm;width:1.055cm; padding:0;  float:left; position:relative; left:2.501cm; ">
+       <img alt="e-mail" src="./images/phone.png" style="height:1.7cm;width:1.055cm;"/>
+       e-mail
+      </div>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+    <td class="Tableau1_A1" style="text-align:left;width:4.008cm; ">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="Table_20_Contents">
+      <!--Next '
+			span' is a draw:frame.
+		-->
+      <span class="fr6" id="Image1" style="height:2.859cm;width:3.81cm; padding:0; ">
+       <img alt="vLabTool logo" src="./images/wave.png" style="height:2.859cm;width:3.81cm;"/>
+       vLabTool logo
+      </span>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+   </tr>
+  </table>
+  <h1 class="P78">
+   <a id="a__Introduction">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1505_105747675">
+   </a>
+   Introduction
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P68">
+   A cost effective, multi-pronged data acquisition and control instrument to turn your computer into a workbench for science and electronics experiments .
+  </p>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table18">
+   <colgroup>
+    <col width="830">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table18_A1" style="text-align:left;width:19.001cm; ">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P62">
+      <!--Next '
+			span' is a draw:frame.
+		-->
+      <span class="fr6" id="Image10" style="height:9.594cm;width:15.827cm; padding:0; ">
+       <img alt="vLabtool box with a little experiment" src="./images/vlabtool.png" style="height:9.594cm;width:15.827cm;"/>
+       vLabtool box with a little experiment
+      </span>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+   </tr>
+  </table>
+  <p class="P68">
+  </p>
+  <h2 class="Heading_20_2">
+   <a id="a__Plug_and_Play_multitool_with_Experiment_Oriented_Apps_">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1507_105747675">
+   </a>
+   Plug and Play multitool with Experiment Oriented Apps.
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Tableau3">
+   <colgroup>
+    <col width="354">
+    </col>
+    <col width="145">
+    </col>
+    <col width="301">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Tableau3_A1" style="text-align:left;width:8.103cm; ">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P62">
+      <!--Next '
+			span' is a draw:frame.
+		-->
+      <span class="fr1" id="Frame1" style="width:6.749cm; padding:0; ">
+       <!--Next 'div' was a 'draw:text-box'.-->
+       <div style="min-height:6.11cm;">
+        <!--Next 'div' was a 'text:p'.-->
+        <div class="P12">
+         <!--Next '
+			span' is a draw:frame.
+		-->
+         <span class="fr7" id="Image4" style="height:5.653cm;width:6.749cm; padding:0; ">
+          <img alt="Ubuntu logo" src="./images/ubuntu.png" style="height:5.653cm;width:6.749cm;"/>
+          Ubuntu logo
+         </span>
+         <!--Next 'div' added for floating.-->
+         <div style="position:relative; left:0cm;">
+          Version 12.04 or Greater
+         </div>
+        </div>
+        <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+        </div>
+       </div>
+      </span>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+    <td class="Tableau3_A1" style="text-align:left;width:3.307cm; ">
+     <p class="Table_20_Contents">
+     </p>
+    </td>
+    <td class="Tableau3_A1" style="text-align:left;width:6.879cm; ">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P62">
+      <!--Next '
+			span' is a draw:frame.
+		-->
+      <span class="fr2" id="Frame2" style="width:6.227cm; padding:0; ">
+       <!--Next 'div' was a 'draw:text-box'.-->
+       <div style="min-height:6.11cm;">
+        <!--Next 'div' was a 'text:p'.-->
+        <div class="P11">
+         <!--Next 'div' is emulating the top hight of a draw:frame.-->
+         <!--Next '
+			div' is a draw:frame.
+		-->
+         <div class="fr8" id="Image5" style="height:5.355cm;width:6.227cm; padding:0;  float:left; position:relative; left:0cm; ">
+          <img alt="Python logo" src="./images/python.png" style="height:5.355cm;width:6.227cm;"/>
+          Python logo
+         </div>
+         <!--Next 'div' added for floating.-->
+         <div style="position:relative; left:0cm;">
+          Version 2.7 or Greater
+         </div>
+        </div>
+        <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+        </div>
+       </div>
+      </span>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+   </tr>
+  </table>
+  <p class="P7">
+  </p>
+  <a name="toc">
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Sect1">
+   <colgroup>
+   </colgroup>
+   <p class="Contents_20_Heading">
+    Table of Contents
+   </p>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1505_105747675">
+       Introduction
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1507_105747675">
+       Plug and Play multitool with Experiment Oriented Apps.
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1509_105747675">
+       Feature Summary
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1511_105747675">
+       Installing the software
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1513_105747675">
+       System Requirements
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1515_105747675">
+       Installating dependencies
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1517_105747675">
+       List of Installed Software
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1519_105747675">
+       Testing : Oscilloscope Application
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1521_105747675">
+       Control widgets in the Analog Signals section
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1523_105747675">
+       Control widgets in the Peripherals section
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1525_105747675">
+       Control widgets in the Digital section
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1527_105747675">
+       Testing : Wireless Units Demo
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1529_105747675">
+       Connecting a new wireless node carrying some sensor
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1531_105747675">
+       Logging Data from a sensor
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1533_105747675">
+       Changing sensor parameters
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1535_105747675">
+       Testing : Data logger Application Demo
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1537_105747675">
+       Choosing a command and starting the logger
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1539_105747675">
+       Additional Functionality Accessible through menus
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1541_105747675">
+       Pin Definitions and Functions
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1543_105747675">
+       Analog Inputs - Measure Voltages with 12-bit resolution
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1545_105747675">
+       Analog Outputs
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1547_105747675">
+       Digital Inputs - Measure Logic Levels with 15nS resolution
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1549_105747675">
+       Digital Outputs
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1551_105747675">
+       Data Buses - I2C , SPI, UART
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1553_105747675">
+       A Few Definitions For The Expansion slot
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1555_105747675">
+       Additional Nomenclature
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P88">
+      <a href="#__RefHeading___Toc1557_105747675">
+       Wireless Nodes
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1559_105747675">
+       On-board Transceiver : 2-way radio link
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <p class="P87">
+      <a href="#__RefHeading___Toc1561_105747675">
+       Wireless Subunits : 3-Byte addresses
+      </a>
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P70">
+  </p>
+  <h2 class="P83">
+   <a id="a__Feature_Summary">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1509_105747675">
+   </a>
+   Feature Summary
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P20">
+   Calibrated Against Professional equipment for high accuracy
+  </p>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table1">
+   <colgroup>
+    <col width="140">
+    </col>
+    <col width="363">
+    </col>
+    <col width="126">
+    </col>
+    <col width="113">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table1_A1" style="text-align:left;width:3.196cm; ">
+     <p class="P19">
+      Feature
+     </p>
+    </td>
+    <td class="Table1_A1" style="text-align:left;width:8.313cm; ">
+     <p class="P19">
+      Description
+     </p>
+    </td>
+    <td class="Table1_A1" style="text-align:left;width:2.889cm; ">
+     <p class="P19">
+      Socket Labels
+     </p>
+    </td>
+    <td class="Table1_D1" style="text-align:left;width:2.596cm; ">
+     <p class="P19">
+      Range
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P63">
+      Analog Inputs
+     </p>
+    </td>
+    <td class="Table1_B2" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      Up to 10 analog inputs with various voltage ranges.
+     </p>
+     <p class="P15">
+      Programmable gain and offset control.
+     </p>
+     <p class="P15">
+      12-bit voltage measurement. Up-to 1MSPS sampling.
+     </p>
+     <p class="P15">
+      <span class="T1">
+       5ppm
+      </span>
+      , 3.3V Voltage Reference
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P23">
+      CH1, CH2
+     </p>
+     <p class="P23">
+      CH3,
+     </p>
+     <p class="P23">
+      CH4 - CH7
+     </p>
+     <p class="P23">
+      SEN
+     </p>
+     <p class="P23">
+      I2V
+     </p>
+    </td>
+    <td class="Table1_D2" style="text-align:left;width:2.596cm; ">
+     <p class="P23">
+      ±16Volts
+     </p>
+     <p class="P23">
+      ±3.3Volts
+     </p>
+     <p class="P23">
+      0 − 3.3V
+     </p>
+     <p class="P23">
+      0 − 3.3V
+     </p>
+     <p class="P23">
+      ±3.3mA
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Analog Outputs
+     </p>
+    </td>
+    <td class="Table1_B3" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      Programmable Voltage Sources (12-bit)
+     </p>
+     <p class="P15">
+     </p>
+     <p class="P15">
+     </p>
+     <p class="P15">
+      Programmable Constant Current Source
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P15">
+      PVS1
+     </p>
+     <p class="P15">
+      PVS2
+     </p>
+     <p class="P15">
+      PVS3
+     </p>
+     <p class="P15">
+      PCS
+     </p>
+     <p class="P15">
+     </p>
+    </td>
+    <td class="Table1_D3" style="text-align:left;width:2.596cm; ">
+     <p class="P15">
+      ±5V
+     </p>
+     <p class="P15">
+      ±3.3V
+     </p>
+     <p class="P15">
+      0 − 3.3V
+     </p>
+     <p class="P15">
+      0 − 3.3mA
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Digital Inputs
+     </p>
+    </td>
+    <td class="Table1_B4" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      <span class="T3">
+       4
+      </span>
+      ×
+      <span class="T3">
+       TTL compatible digital Inputs.
+      </span>
+     </p>
+     <p class="P15">
+      Logic Analyzer
+     </p>
+     <p class="P15">
+      Frequency Counter (0-30MHz),
+     </p>
+     <p class="P15">
+      time measurement routines
+     </p>
+     <p class="P15">
+      ±2.5ppm, 12M Hz Reference oscillator
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P15">
+      ID1 - ID4
+     </p>
+    </td>
+    <td class="Table1_D4" style="text-align:left;width:2.596cm; ">
+     <p class="P15">
+      0-5 V
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Waveform
+     </p>
+     <p class="P64">
+      Generators
+     </p>
+    </td>
+    <td class="Table1_B5" style="text-align:left;width:8.313cm; ">
+     <ol>
+      <li>
+       <p class="P85" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+         1.
+        </span>
+        Sine/triangle wave.
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P85" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Programmable frequency : 28-bit resolution
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Manual Amplitude Control
+        <span class="odfLiEnd">
+        </span>
+       </p>
+      </li>
+      <li>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+         2.
+        </span>
+        Sine wave
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Fixed Frequency
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Fixed Amplitude
+        <span class="odfLiEnd">
+        </span>
+       </p>
+      </li>
+      <li>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+         3.
+        </span>
+        4 × Phase Correlated Square Waves
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Frequency
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Phase difference maximum resolution
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Duty Cycle maximum resolution
+        <span class="odfLiEnd">
+        </span>
+       </p>
+       <p class="P86" style="margin-left:0cm;">
+        <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+         <!-- -->
+        </span>
+        Also functions as simple state selectable output
+        <span class="odfLiEnd">
+        </span>
+       </p>
+      </li>
+     </ol>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P15">
+      Wavegen
+     </p>
+     <p class="P16">
+     </p>
+     <p class="P16">
+     </p>
+     <p class="P16">
+      SINE
+     </p>
+     <p class="P16">
+     </p>
+     <p class="P16">
+     </p>
+     <p class="P15">
+      SQ1 - SQ4
+     </p>
+    </td>
+    <td class="Table1_D5" style="text-align:left;width:2.596cm; ">
+     <p class="P15">
+     </p>
+     <p class="P15">
+      5Hz - 2MHz
+     </p>
+     <p class="P15">
+      0-4 Volts
+     </p>
+     <p class="P15">
+     </p>
+     <p class="P15">
+      14
+      <span class="T4">
+       k
+      </span>
+      Hz
+     </p>
+     <p class="P15">
+      ±4Volts
+     </p>
+     <p class="P15">
+      0 − 5Volts
+     </p>
+     <p class="P15">
+      10Hz-
+      <span class="T4">
+       1
+      </span>
+      6MHz
+     </p>
+     <p class="P15">
+      15nS
+     </p>
+     <p class="P15">
+      15nS
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Wireless Nodes
+     </p>
+    </td>
+    <td class="Table1_B6" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      Battery Powered add-on units.
+     </p>
+     <p class="P15">
+      Power Source
+     </p>
+     <p class="P18">
+      Acts as a wireless bridge for various sensors
+     </p>
+     <p class="P18">
+      Multiple Nodes can be used together
+     </p>
+     <p class="P18">
+      Can also control relays and read voltages
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P15">
+     </p>
+     <p class="P15">
+      Cell/Adapter
+     </p>
+     <p class="P15">
+     </p>
+    </td>
+    <td class="Table1_D6" style="text-align:left;width:2.596cm; ">
+     <p class="P15">
+     </p>
+     <p class="P15">
+      3.7-4.2 V
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Data Buses
+     </p>
+    </td>
+    <td class="Table1_B7" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      I2C : Master
+     </p>
+     <p class="P17">
+      Commonly Used by numerous sensor ICs
+     </p>
+     <p class="P15">
+      SPI : Master
+     </p>
+     <p class="P17">
+      Chip Select pins
+     </p>
+     <p class="P15">
+      UART
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P15">
+      SCL,SDA
+     </p>
+     <p class="P15">
+     </p>
+     <p class="P15">
+      SCK,SDI,SDO
+     </p>
+     <p class="P15">
+     </p>
+     <p class="P15">
+      CS1 , CS2
+     </p>
+    </td>
+    <td class="Table1_D7" style="text-align:left;width:2.596cm; ">
+     <p class="P22">
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table1_A2" style="text-align:left;width:3.196cm; ">
+     <p class="P64">
+      Expansion Slot
+     </p>
+    </td>
+    <td class="Table1_B8" style="text-align:left;width:8.313cm; ">
+     <p class="P15">
+      20 - pin Socket designed to accommodate
+     </p>
+     <p class="P15">
+      add-on modules.
+     </p>
+     <p class="P15">
+      Selection includes SPI,I2C,Analog IO,Digital IO,
+     </p>
+     <p class="P15">
+      16MHz TTL output, and a DC Sine Wave.
+     </p>
+    </td>
+    <td class="Table1_C8" style="text-align:left;width:2.889cm; ">
+     <p class="P22">
+     </p>
+    </td>
+    <td class="Table1_D8" style="text-align:left;width:2.596cm; ">
+     <p class="P22">
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P20">
+  </p>
+  <h1 class="P80">
+   <a id="a__Installing_the_software">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1511_105747675">
+   </a>
+   Installing the software
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P2">
+   .
+  </p>
+  <p class="P3">
+   The device has been tested on Debian based distributions: Ubuntu 12.04 and above, and Raspbian Wheezy. Windows support pending.
+  </p>
+  <h2 class="P81">
+   <a id="a__System_Requirements">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1513_105747675">
+   </a>
+   System Requirements
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table2">
+   <colgroup>
+    <col width="122">
+    </col>
+    <col width="621">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table2_A1" style="text-align:left;width:2.798cm; ">
+     <p class="P25">
+      Processor
+     </p>
+    </td>
+    <td class="Table2_A1" style="text-align:left;width:14.212cm; ">
+     <p class="P24">
+      <span class="T5">
+       Entry level PCs as well as Netbooks running Intel Atom processors are
+      </span>
+     </p>
+     <p class="P24">
+      <span class="T5">
+       supported
+      </span>
+      .  No special hardware required. Tested with the Raspberry Pi 2..
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table2_A1" style="text-align:left;width:2.798cm; ">
+     <p class="P25">
+      Display
+     </p>
+    </td>
+    <td class="Table2_A1" style="text-align:left;width:14.212cm; ">
+     <p class="P26">
+      Graphical Utilities are scalable down to 800x600 without scrollbars entering
+     </p>
+     <p class="P26">
+      into the picture.
+     </p>
+     <p class="P24">
+      Accelerated Graphics are only required if responsive 3D plots are being used
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Installating_dependencies">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1515_105747675">
+   </a>
+   Installating dependencies
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P4">
+   Run the following commands on a terminal (CTRL-ALT-T) :
+  </p>
+  <ol>
+   <li>
+    <p class="P71" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     sudo apt-get install python-qt4 python-opengl python-qt4-gl python-scipy
+     <span class="odfLiEnd">
+     </span>
+    </p>
+    <p class="P71" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+      <!-- -->
+     </span>
+     python-numpy ipython-qtconsole python-setuptools python-sip
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P71" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      2.
+     </span>
+     sudo easy_install pyqtgraph
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P71" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      3.
+     </span>
+     sudo easy_install vLabtool
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h2 class="P81">
+   <a id="a__List_of_Installed_Software">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1517_105747675">
+   </a>
+   List of Installed Software
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P4">
+   The Following is an incomplete list of graphical applications that have been installed along with the Python module, and can be run from a terminal
+  </p>
+  <ol>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     <span class="T6">
+      vLabtool-scope
+     </span>
+     <span class="T10">
+      , 2-channel Oscilloscope, 4-chan Logic Analyzer, Peripheral control and curve fitting abilities.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      2.
+     </span>
+     <span class="T6">
+      vLabtool-stream
+     </span>
+     <span class="T10">
+      , Designed to continuously plot values from any function from the vLabtool Python module that returns an integer/decimal.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      3.
+     </span>
+     <span class="T6">
+      vLabtool-sensorDemo
+     </span>
+     <span class="T10">
+      , Auto-Detects sensors connected to the I2C expansion slot, and allows plotting their readings in real time., This requires the sensor class to be installed, and several are supported by default.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      4.
+     </span>
+     <span class="T6">
+      vLabtool-console
+     </span>
+     <span class="T10">
+      , Launches an iPython console with the initialization functions already carried out., A plotting window is also incorporated, and can used with a single function call.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      5.
+     </span>
+     <span class="T6">
+      vLabtool-wirelessDemo
+     </span>
+     <span class="T10">
+      , Auto Detects wireless nodes in the vicinity, and lists their addresses and connected sensors, It plots data from multiple sensors in real time.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      6.
+     </span>
+     <span class="T6">
+      vLabtool-bodePlots
+     </span>
+     <span class="T10">
+      , Uses the programmable sine wave generator and analog inputs to obtain the frequency and phase response of filters.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P72" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      7.
+     </span>
+     <span class="T6">
+      vLabtool-diodeIV
+     </span>
+     <span class="T10">
+      , Plots the Current-Voltage characteristics of a diode. Also forms a surface plot of multiple curves to study the temperature dependence
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h1 class="P79">
+   <a id="a__Testing___Oscilloscope_Application">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1519_105747675">
+   </a>
+   Testing :
+   <span class="T11">
+    Oscilloscope Application
+   </span>
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P8">
+   Copy the following command and run it on a terminal:
+   <span class="T12">
+    vLabtool-scope
+   </span>
+  </p>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P1">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr3" id="Frame3" style="width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+    <!--Next 'div' was a 'draw:text-box'.-->
+    <div style="min-height:9.537cm;">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P14">
+      <!--Next 'div' is emulating the top hight of a draw:frame.-->
+      <!--Next '
+			div' is a draw:frame.
+		-->
+      <div class="fr9" id="Image6" style="height:9.537cm;width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+       <img alt="Screenshot: see the caption" src="./images/shot-oscillo.png" style="height:9.537cm;width:17cm;"/>
+       Screenshot: see the caption
+      </div>
+      <!--Next 'div' added for floating.-->
+      <div style="position:relative; left:0cm;">
+       Screenshot of the oscilloscope utility plotting a sine waves generated by the waveform generators.
+      </div>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+     <p class="P14">
+      The data has also been fitted, and the results displayed in the bottom section.
+     </p>
+    </div>
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <h2 class="P81">
+   <a id="a__Control_widgets_in_the_Analog_Signals_section">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1521_105747675">
+   </a>
+   Control widgets in the Analog Signals section
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table3">
+   <colgroup>
+    <col width="122">
+    </col>
+    <col width="708">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table3_A1" style="text-align:left;width:2.796cm; ">
+     <p class="P35">
+     </p>
+    </td>
+    <td class="Table3_B1" style="text-align:left;width:16.205cm; ">
+     <p class="P65">
+      CH1 : Channel 1 of the oscilloscope
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A2" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+      Remappable
+     </p>
+    </td>
+    <td class="Table3_B2" style="text-align:left;width:16.205cm; ">
+     <p class="P35">
+      <span class="T5">
+       Not restricted to ’CH1’ input socket. This
+      </span>
+      is a very flexible acquisition channel, and can be mapped to any of the analog inputs via a drop down menu located at the top corner, It also Features 12-bit offset control via a slider.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A7" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+     </p>
+    </td>
+    <td class="Table3_B7" style="text-align:left;width:16.205cm; ">
+     <p class="P65">
+      CH2 : Channel 2 of the oscilloscope
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A7" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+      Fixed
+     </p>
+    </td>
+    <td class="Table3_B7" style="text-align:left;width:16.205cm; ">
+     <p class="P27">
+      This channel can only record the signals input to the socket labeled CH2.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A7" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+     </p>
+    </td>
+    <td class="Table3_B7" style="text-align:left;width:16.205cm; ">
+     <p class="P65">
+      TRIGGER : Allows selecting the channel to trigger the oscilloscope
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A6" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+      Level
+     </p>
+    </td>
+    <td class="Table3_B6" style="text-align:left;width:16.205cm; ">
+     <p class="P27">
+      The rotary dial sets the trigger level, and this is also reflected in a marker
+     </p>
+     <p class="P27">
+      located on the plot.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A7" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+      Channel
+     </p>
+    </td>
+    <td class="Table3_B7" style="text-align:left;width:16.205cm; ">
+     <p class="P35">
+      <span class="T5">
+       The drop down menu allows selecting the trigger channel
+      </span>
+      , If CH1 is selected,
+     </p>
+     <p class="P35">
+      the trigger signal will be obtained from the channel it has been mapped to.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A8" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+     </p>
+    </td>
+    <td class="Table3_B8" style="text-align:left;width:16.205cm; ">
+     <p class="P65">
+      Time Gap : Specify the time scale of the oscilloscope
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table3_A9" style="text-align:left;width:2.796cm; ">
+     <p class="P36">
+      Dial
+     </p>
+    </td>
+    <td class="Table3_B9" style="text-align:left;width:16.205cm; ">
+     <p class="P35">
+      Set the delay(in µs) between each successive data point.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table4">
+   <colgroup>
+    <col width="117">
+    </col>
+    <col width="713">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P20">
+      Sine Fit :Uses Scipy to fit the data against a sine function
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Menu 1
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P38">
+      <span class="T5">
+       Select input data channel for fitting
+      </span>
+      , Uses Scipy.optimize and obtains frequency, amplitude, phase and offset values.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Menu 2
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Select a second input data channel for fitting.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      checkbox
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Overlay the fitted results.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Results
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      The fitted values: Amplitude, Freq, Phase, Offset are displayed in the message window at the bottom of the screen.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P20">
+      Lissajous : XY Plots
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Menu 1
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Select input data channel for X-axis.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Menu 2
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Select input data channel for Y-axis.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      show
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Enable/Disable Lissajous overlay.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table4_A1" style="text-align:left;width:2.688cm; ">
+     <p class="P37">
+      Animate
+     </p>
+    </td>
+    <td class="Table4_A1" style="text-align:left;width:16.312cm; ">
+     <p class="P28">
+      Pause data acquisition and animate the formation of the X-Y plot.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Control_widgets_in_the_Peripherals_section">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1523_105747675">
+   </a>
+   Control widgets in the Peripherals section
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P1">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr3" id="Frame4" style="width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+    <!--Next 'div' was a 'draw:text-box'.-->
+    <div style="min-height:9.11cm;">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P14">
+      <!--Next 'div' is emulating the top hight of a draw:frame.-->
+      <!--Next '
+			div' is a draw:frame.
+		-->
+      <div class="fr9" id="Image7" style="height:9.11cm;width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+       <img alt="Screenshot: see the caption" src="./images/shot-lissajous.png" style="height:9.11cm;width:17cm;"/>
+       Screenshot: see the caption
+      </div>
+      <!--Next 'div' added for floating.-->
+      <div style="position:relative; left:0cm;">
+       Screenshot of the oscilloscope utility showing the peripherals section. The Lissajous plot has been enabled in the Analog section.
+      </div>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table5">
+   <colgroup>
+    <col width="109">
+    </col>
+    <col width="633">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table5_A1" style="text-align:left;width:2.499cm; ">
+     <p class="P41">
+      PVS1
+     </p>
+    </td>
+    <td class="Table5_A1" style="text-align:left;width:14.478cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      : ±5V , Set the output voltage on PVS1 socket., Max Current 5mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table5_A1" style="text-align:left;width:2.499cm; ">
+     <p class="P41">
+      PVS2
+     </p>
+    </td>
+    <td class="Table5_A1" style="text-align:left;width:14.478cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      : ±3.3V , Set the output voltage on PVS2 socket., Max Current 5mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table5_A1" style="text-align:left;width:2.499cm; ">
+     <p class="P41">
+      PVS3
+     </p>
+    </td>
+    <td class="Table5_A1" style="text-align:left;width:14.478cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      : 0 − 3V , Set the output voltage on PVS3 socket., Max Current 5mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table5_A1" style="text-align:left;width:2.499cm; ">
+     <p class="P41">
+      PCS
+     </p>
+    </td>
+    <td class="Table5_A1" style="text-align:left;width:14.478cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      : 0 − 3.3mA, Set the output current on PCS socket. Current subject to load resistance, PCS and PVS3 are linked, and only one can be used at a time.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table6">
+   <colgroup>
+    <col width="118">
+    </col>
+    <col width="712">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P41">
+      Wavegen
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      :
+      <span class="T1">
+       0 − 2M Hz, Set the output frequency of the waveform generator., Max resolution 0.04Hz., Amplitude control(±1mV − ±4V ) via physical knob located on the device.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P20">
+      Phase Correlated Square Waves (SQ1,SQ2,SQ3,SQ4)
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P41">
+      Frequency
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P40">
+      <span class="T5">
+       Range
+      </span>
+      :
+      <span class="T1">
+       0 − 8M Hz, Set the output frequency of all four square waves.,
+      </span>
+     </p>
+     <p class="P42">
+      Resolution:15nS.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P41">
+      Output
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P29">
+      Select the Output socket to configure.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P41">
+      Phase Duty
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P40">
+      <span class="T5">
+       Set the phase difference
+      </span>
+      (0 − 100%) , between the selected waveform and SQ1.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table6_A1" style="text-align:left;width:2.699cm; ">
+     <p class="P41">
+      Cycle
+     </p>
+    </td>
+    <td class="Table6_A1" style="text-align:left;width:16.302cm; ">
+     <p class="P40">
+      <span class="T5">
+       Set the Duty Cycle
+      </span>
+      (0 − 100%) , of the selected waveform.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <h2 class="P81">
+   <a id="a__Control_widgets_in_the_Digital_section">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1525_105747675">
+   </a>
+   Control widgets in the Digital section
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P1">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr3" id="Frame5" style="width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+    <!--Next 'div' was a 'draw:text-box'.-->
+    <div style="min-height:9.982cm;">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P13">
+      <!--Next 'div' is emulating the top hight of a draw:frame.-->
+      <!--Next '
+			div' is a draw:frame.
+		-->
+      <div class="fr9" id="Image8" style="height:9.982cm;width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+       <img alt="Screenshot: see the caption" src="./images/shot-LA.png" style="height:9.982cm;width:17cm;"/>
+       Screenshot: see the caption
+      </div>
+      <!--Next 'div' added for floating.-->
+      <div style="position:relative; left:0cm;">
+       Screenshot of the digital signals section in the four channel logic analyzer mode. Four PWM signals from SQ1 - SQ4 have been connected to Digital inputs ID1-ID4. CH3 has been set to record only rising edges, while CH4 records only falling edges
+      </div>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table7">
+   <colgroup>
+    <col width="126">
+    </col>
+    <col width="704">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table7_A1" style="text-align:left;width:2.884cm; ">
+     <p class="P44">
+      Active Channels
+     </p>
+    </td>
+    <td class="Table7_A1" style="text-align:left;width:16.117cm; ">
+     <p class="P45">
+      <span class="T5">
+       Number of inputs to digitize
+      </span>
+      . Single channel and two channel modes can record
+     </p>
+     <p class="P45">
+      up to 60 seconds delay between consecutive level changes with a resolution of
+     </p>
+     <p class="P45">
+      15nS. Three and Four channel modes can only record up to 1 ms delay between
+     </p>
+     <p class="P45">
+      consecutive level changes.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table7_A1" style="text-align:left;width:2.884cm; ">
+     <p class="P44">
+      Acquisition time
+     </p>
+    </td>
+    <td class="Table7_A1" style="text-align:left;width:16.117cm; ">
+     <p class="P45">
+      <span class="T5">
+       Time to sample inputs before fetching results
+      </span>
+      . The LA continuously refreshes
+     </p>
+     <p class="P45">
+      data at this interval..
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table8">
+   <colgroup>
+    <col width="127">
+    </col>
+    <col width="703">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P20">
+      Single Channel Options
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Channel
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P45">
+      <span class="T5">
+       The input to record
+      </span>
+      . Select from ID1,ID2,ID3,ID4.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Edges
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P45">
+      <span class="T5">
+       Types of Level changes to record.
+      </span>
+      Select from options such as Falling edges only,
+     </p>
+     <p class="P45">
+      rising edges only, all edges.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P20">
+      Trigger
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Channel
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Enable level change trigger on selected channel.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Edges
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Type of level change to use as the trigger.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P20">
+      3/4 channel modes
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      CH1-CH4
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Set the type of level changes to record for each channel when the logic
+     </p>
+     <p class="P30">
+      analyzer is in either the 3 channel, or the 4 channel mode.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P20">
+      Measure Time Intervals &gt; Important! Freeze logic analyzer before using this.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Edge 1
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Select input channel and edge type that will start the timer.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Edge 2
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Select input channel and edge type that will stop the timer.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Go
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Run the measurement.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table8_A1" style="text-align:left;width:2.903cm; ">
+     <p class="P44">
+      Results
+     </p>
+    </td>
+    <td class="Table8_A1" style="text-align:left;width:16.097cm; ">
+     <p class="P30">
+      Results will be displayed here in seconds units.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <h1 class="P79">
+   <a id="a__Testing___Wireless_Units_Demo">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1527_105747675">
+   </a>
+   Testing :
+   <span class="T11">
+    Wireless Units Demo
+   </span>
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P9">
+   Copy the following command and run it on a terminal:
+   <span class="T12">
+    vLabtool-wirelessDemo
+   </span>
+  </p>
+  <h2 class="P81">
+   <a id="a__Connecting_a_new_wireless_node_carrying_some_sensor">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1529_105747675">
+   </a>
+   Connecting a new wireless node carrying some sensor
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P10">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <div style="height:0.399cm;">
+   </div>
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr4" id="Frame6" style="width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+    <!--Next 'div' was a 'draw:text-box'.-->
+    <div style="min-height:7.876cm;">
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P13">
+      <!--Next 'div' is emulating the top hight of a draw:frame.-->
+      <!--Next '
+			div' is a draw:frame.
+		-->
+      <div class="fr9" id="Image9" style="height:7.876cm;width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+       <img alt="Screenshot: see the caption" src="./images/shot-wireless1.png" style="height:7.876cm;width:17cm;"/>
+       Screenshot: see the caption
+      </div>
+      <!--Next 'div' added for floating.-->
+      <div style="position:relative; left:0cm;">
+       Screenshot of the wirelessDemo application
+      </div>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <ol>
+   <li>
+    <p class="P74" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     <span class="T7">
+      Plug in a sensor on to a wireless node by matching the pins labeled
+     </span>
+     <span class="T2">
+      Vdd, GND, SCL, SDA
+     </span>
+     <span class="T13">
+      .
+     </span>
+     <span class="T7">
+      These pins appear in the same order on most sensor modules, and no extra wires should be needed.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P75" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      2.
+     </span>
+     Make sure that the option Register New Nodes on the Application is selected.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P75" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      3.
+     </span>
+     Plug In the Battery onto the wireless node.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P75" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      4.
+     </span>
+     Observe that the software has auto detected your wireless node as well as found out the address of the sensor you connected.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P74" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      5.
+     </span>
+     <span class="T13">
+      Unselect
+     </span>
+     <span class="T2">
+      Register New Nodes
+     </span>
+     <span class="T13">
+      .
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+    <p class="P75" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0cm">
+      <!-- -->
+     </span>
+     If you wish, you may move the cursor over a sensor’s address and the software will guess it’s model number/type.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P74" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      6.
+     </span>
+     <span class="T7">
+      Click on
+     </span>
+     <span class="T13">
+      ,
+     </span>
+     <span class="T2">
+      Refresh Node List
+     </span>
+     <span class="T13">
+      , This loads a few controls for each wireless node, and also a drop down selection of the connected sensors.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h2 class="P81">
+   <a id="a__Logging_Data_from_a_sensor">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1531_105747675">
+   </a>
+   Logging Data from a sensor
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <ol>
+   <li>
+    <p class="P76" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     After Following the steps in the previous section, Select the appropriate sensor and click on Go, The software will continuously plot values fetched from the sensor.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h2 class="P81">
+   <a id="a__Changing_sensor_parameters">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1533_105747675">
+   </a>
+   Changing sensor parameters
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <ol>
+   <li>
+    <p class="P77" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     Open the auto-generated menu at the bottom left corner, and change parameters. A few examples include gain, sampling rates, and data-type selection.
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h2 class="P84">
+   <a id="a__Testing___Data_logger_Application_Demo">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1535_105747675">
+   </a>
+   Testing : Data logger Application Demo
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P5">
+   This application plots the return values from any of the functions defined in the Python Module as long as they return integers or decimals.
+  </p>
+  <p class="P5">
+   Copy the following command and run it on a terminal:
+   <span class="T12">
+    vLabtool-stream
+   </span>
+  </p>
+  <h2 class="P81">
+   <a id="a__Choosing_a_command_and_starting_the_logger">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1537_105747675">
+   </a>
+   Choosing a command and starting the logger
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <ol>
+   <li>
+    <p class="P73" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      1.
+     </span>
+     <span class="T9">
+      Refer to the programmer’s manual for a list of valid commands
+     </span>
+     <span class="T17">
+      , and pick the function you would like to monitor, The manual can be opened from the help menu.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+   <li>
+    <p class="P73" style="margin-left:0cm;">
+     <span class="Numbering_20_Symbols" style="display:block;float:left;min-width:0.635cm;">
+      2.
+     </span>
+     <span class="T9">
+      Paste the command name with correct arguments into the application
+     </span>
+     <span class="T17">
+      . And now click on Monitor. The app includes a few common commands and appropriate arguments packed into a drop down menu linked to the command entry box.
+     </span>
+     <span class="odfLiEnd">
+     </span>
+    </p>
+   </li>
+  </ol>
+  <h2 class="P81">
+   <a id="a__Additional_Functionality_Accessible_through_menus">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1539_105747675">
+   </a>
+   Additional Functionality Accessible through menus
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table9">
+   <colgroup>
+    <col width="161">
+    </col>
+    <col width="669">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      Voltmeter
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P31">
+      Load Widgets that perform a single voltage measurement per click.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      Amplifiers
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P31">
+      Load a widget to set the gain on the voltage input channels.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      Wavegen
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P31">
+      Load a slider that allows setting the frequency of the sine wave output.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      IV sources
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P49">
+      <span class="T5">
+       Load widgets that
+      </span>
+      , enable setting programmable voltage and current.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      Timing
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P49">
+      <span class="T5">
+       Load time measurement widgets
+      </span>
+      , These include duty cycle and frequency.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      Console
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P31">
+      Insert an iPython Console with init commands preloaded.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table9_A1" style="text-align:left;width:3.683cm; ">
+     <p class="P48">
+      help
+     </p>
+    </td>
+    <td class="Table9_A1" style="text-align:left;width:15.318cm; ">
+     <p class="P31">
+      Help menu that allows access to the programmer’s manual as well as experiment specific HTML files.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <h1 class="P79">
+   <a id="a__Pin_Definitions_and_Functions">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1541_105747675">
+   </a>
+   Pin Definitions and Functions
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <h2 class="P81">
+   <a id="a__Analog_Inputs_-_Measure_Voltages_with_12-bit_resolution">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1543_105747675">
+   </a>
+   Analog Inputs - Measure Voltages with 12-bit resolution
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table10">
+   <colgroup>
+    <col width="162">
+    </col>
+    <col width="669">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH1
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range: ± 16
+      </span>
+      <span class="T8">
+       V
+      </span>
+      , Gain: up to 32×, Separate AC coupled input.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH2
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range: ± 16
+      </span>
+      <span class="T8">
+       V
+      </span>
+      , Gain: up to 32×, Separate AC coupled input.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH3
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range: ±
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      , Gain: up to 32×,
+      <span class="T15">
+       12-bit Offset control.
+      </span>
+     </p>
+     <!--Next 'div' was a 'text:p'.-->
+     <div class="P50">
+      *manual gain control by grounding R
+      <span class="T16">
+       g
+      </span>
+      via resistor R.
+      <!--Next '
+			span' is a draw:frame.
+		-->
+      <span id="Object1">
+       <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow>
+         <mi>
+          g
+         </mi>
+         <mo stretchy="false">
+          =
+         </mo>
+         <mrow>
+          <mn>
+           1
+          </mn>
+          <mo stretchy="false">
+           +
+          </mo>
+          <mfrac>
+           <mrow>
+            <mn>
+             10
+            </mn>
+            <mi>
+             K
+            </mi>
+           </mrow>
+           <msub>
+            <mi>
+             R
+            </mi>
+            <mi>
+             g
+            </mi>
+           </msub>
+          </mfrac>
+         </mrow>
+        </mrow>
+       </math>
+      </span>
+     </div>
+     <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+     </div>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH4
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      , Gain: up to 32×,
+      <span class="T15">
+       12-bit Offset control.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH5
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      , Gain: up to 32×,
+      <span class="T15">
+       12-bit Offset control.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH6
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      , Gain: up to 32×,
+      <span class="T15">
+       12-bit Offset control.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      CH7
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      , Gain: up to 32×,
+      <span class="T15">
+       12-bit Offset control.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      SEN
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      ,
+      <span class="T15">
+       Internally Pulled up to 3.3V via 5.1KOhm resistor.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      AN2
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      ,
+      <span class="T15">
+       Available on the expansion slot.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      AN3
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P47">
+      <span class="T5">
+       Range:
+      </span>
+      <span class="T8">
+       0 –
+      </span>
+      <span class="T5">
+      </span>
+      <span class="T8">
+       3.3V
+      </span>
+      ,
+      <span class="T15">
+       Available on the expansion slot.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P39">
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P20">
+      Internally Monitored
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      5 V
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P50">
+      <span class="T5">
+       The supply voltage
+      </span>
+      ,
+      <span class="T1">
+       Measures the power supply voltage of the USB port.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table10_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P46">
+      V+
+     </p>
+    </td>
+    <td class="Table10_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P32">
+      Measures the output voltage.
+     </p>
+     <p class="P50">
+      Monitor this to verify if external loads are affecting it
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Analog_Outputs">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1545_105747675">
+   </a>
+   Analog Outputs
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table11">
+   <colgroup>
+    <col width="162">
+    </col>
+    <col width="669">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P20">
+      Waveform Generators
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      WG1
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       0-2MHz Sine/ Triangle Waveform Generator
+      </span>
+      , Range: ±4V. Manual Amplitude Control via dial located on the side.
+     </p>
+     <p class="P52">
+      28- bit (0.04Hz) resolution
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      SINE
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       Fixed 14KHz Sine Waveform Generator
+      </span>
+      , Range: ±4V.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P20">
+      Programmable Voltage and Current Sources (12-bit)
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      PVS1
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      : ±5V , Up to 10mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      PVS2
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      : ±3.3V , Up to 10mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      PVS3
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      : 0 − 3.3V , Up to 10mA.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table11_A1" style="text-align:left;width:3.697cm; ">
+     <p class="P51">
+      PCS
+     </p>
+    </td>
+    <td class="Table11_A1" style="text-align:left;width:15.304cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      : 0 − 3.3mA.
+     </p>
+     <p class="P52">
+      Subject to Load resistance. Up to 3.3V voltage drop
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Digital_Inputs_-_Measure_Logic_Levels_with_15nS_resolution">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1547_105747675">
+   </a>
+   Digital Inputs - Measure Logic Levels with 15nS resolution
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table12">
+   <colgroup>
+    <col width="156">
+    </col>
+    <col width="674">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table12_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table12_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P20">
+      Logic Analyzer, Frequency Counter, Timing Functions
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table12_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P53">
+      ID1
+     </p>
+    </td>
+    <td class="Table12_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V,  0-32MHz.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table12_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P53">
+      ID2
+     </p>
+    </td>
+    <td class="Table12_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V,  0-32MHz.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table12_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P53">
+      ID3
+     </p>
+    </td>
+    <td class="Table12_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V,  0-32MHz.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table12_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P53">
+      ID4
+     </p>
+    </td>
+    <td class="Table12_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P52">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V,  0-32MHz.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Digital_Outputs">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1549_105747675">
+   </a>
+   Digital Outputs
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table13">
+   <colgroup>
+    <col width="156">
+    </col>
+    <col width="674">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table13_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table13_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P20">
+      4
+      <span class="T14">
+       ×
+      </span>
+      PWM output with 15nS frequency, phase, and DCycle control
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table13_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SQ1
+     </p>
+    </td>
+    <td class="Table13_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P55">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table13_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SQ2
+     </p>
+    </td>
+    <td class="Table13_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P55">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table13_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SQ3
+     </p>
+    </td>
+    <td class="Table13_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P55">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table13_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SQ4
+     </p>
+    </td>
+    <td class="Table13_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P55">
+      <span class="T5">
+       Range
+      </span>
+      :  0 − 5V.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Data_Buses_-_I2C___SPI__UART">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1551_105747675">
+   </a>
+   Data Buses - I2C , SPI, UART
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table14">
+   <colgroup>
+    <col width="156">
+    </col>
+    <col width="674">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P21">
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P20">
+      I2C (Inter-Integrated Circuit) Master: Up to 4MHz Clock speed
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      Application
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P55">
+      <span class="T5">
+       Tested With Various sensors
+      </span>
+      ,
+      <span class="T1">
+       MPU6050, MLX90614, HMC5883L, BMP180,
+      </span>
+     </p>
+     <p class="P55">
+      <span class="T1">
+       TSL2561, SHT21
+      </span>
+      etc.
+     </p>
+     <p class="P43">
+      These measure angular velocity, acceleration, temperature, humidity, luminosity, pressure, and magnetic fields.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      Vdd
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P33">
+      3.3V Power output.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      GND
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P33">
+      Power return path.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SCL
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P33">
+      I2C Clock Output.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SDA
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P33">
+      I2C Data Line.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P20">
+      SPI(Serial-Peripheral Interface) Master: Available on the 20-pin Expansion Slot. Supports all four modes of operation.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SCK
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P34">
+      SPI Clock Output,
+      <span class="T18">
+       Tested Up To 16MHz.
+      </span>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SDO
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P34">
+      SPI Data Output (MOSI).
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      SDI
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P34">
+      SPI Data Input (MISO).
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      O1
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P34">
+      Chip Select 1.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table14_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P54">
+      O2
+     </p>
+    </td>
+    <td class="Table14_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P34">
+      Chip Select 2.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__A_Few_Definitions_For_The_Expansion_slot">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1553_105747675">
+   </a>
+   A Few Definitions For The Expansion slot
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table15">
+   <colgroup>
+    <col width="156">
+    </col>
+    <col width="674">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table15_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P56">
+      DDS
+     </p>
+    </td>
+    <td class="Table15_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P57">
+      <span class="T5">
+       16MHz , 0-3.3V TTL output.
+      </span>
+      This is also the reference clock for the 0-2MHz sine/triangle wave generator, and can be used to create phase correlated wavegen add-ons.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table15_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P56">
+      AN2
+     </p>
+    </td>
+    <td class="Table15_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P57">
+      <span class="T5">
+       Analog Input
+      </span>
+      , Range: 0 − 3.3V.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table15_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P56">
+      AN3
+     </p>
+    </td>
+    <td class="Table15_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P57">
+      <span class="T5">
+       Analog Input
+      </span>
+      , Range: 0 − 3.3V.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <h2 class="P81">
+   <a id="a__Additional_Nomenclature">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1555_105747675">
+   </a>
+   Additional Nomenclature
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table16">
+   <colgroup>
+    <col width="156">
+    </col>
+    <col width="674">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table16_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P58">
+      GND
+     </p>
+    </td>
+    <td class="Table16_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P59">
+      <span class="T5">
+       Short for GROUND
+      </span>
+      . This is the reference voltage, and is taken as 0 volts. It is also connected to the ground level of the power source (laptop/tablet/RPi etc.)
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table16_A1" style="text-align:left;width:3.574cm; ">
+     <p class="P58">
+      V+/V-
+     </p>
+    </td>
+    <td class="Table16_A1" style="text-align:left;width:15.427cm; ">
+     <p class="P59">
+      <span class="T5">
+       Power Outputs
+      </span>
+      , ±9V . Current limit 20mA per channel.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+  <h1 class="P79">
+   <a id="a__Wireless_Nodes">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1557_105747675">
+   </a>
+   Wireless Nodes
+  </h1>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P1">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr10" id="Image11" style="height:7.876cm;width:17cm; padding:0;  float:left; position:relative; left:0cm; ">
+    <img alt="Screenshot: see the caption" src="./images/shot-wireless2.png" style="height:7.876cm;width:17cm;"/>
+    Screenshot: see the caption
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <h2 class="P81">
+   <a id="a__On-board_Transceiver___2-way_radio_link">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1559_105747675">
+   </a>
+   On-board Transceiver : 2-way radio link
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <p class="P6">
+   Capable of communicating with multiple wireless nodes to control and receive sensor data payloads
+  </p>
+  <h2 class="P81">
+   <a id="a__Wireless_Subunits___3-Byte_addresses">
+    <span>
+    </span>
+   </a>
+   <a id="__RefHeading___Toc1561_105747675">
+   </a>
+   Wireless Subunits : 3-Byte addresses
+  </h2>
+  <a class="retButton" href="#toc">
+   ↸
+  </a>
+  <!--Next 'div' was a 'text:p'.-->
+  <div class="P1">
+   <!--Next 'div' is emulating the top hight of a draw:frame.-->
+   <div style="height:0.531cm;">
+   </div>
+   <!--Next '
+			div' is a draw:frame.
+		-->
+   <div class="fr5" id="Image12" style="height:5.064cm;width:8.458cm; padding:0;  float:left; position:relative; left:4.008cm; ">
+    <img alt="A wireless subunit" src="./images/shot-wireless3.png" style="height:5.064cm;width:8.458cm;"/>
+    A wireless subunit
+   </div>
+  </div>
+  <div style="clear:both; line-height:0; width:0; height:0; margin:0; padding:0;">
+  </div>
+  <table border="0" cellpadding="0" cellspacing="0" class="Table17">
+   <colgroup>
+    <col width="155">
+    </col>
+    <col width="675">
+    </col>
+   </colgroup>
+   <tr>
+    <td class="Table17_A1" style="text-align:left;width:3.549cm; ">
+     <p class="P60">
+      I2C
+     </p>
+    </td>
+    <td class="Table17_A1" style="text-align:left;width:15.452cm; ">
+     <p class="P61">
+      <span class="T5">
+       Data bus for Interfacing with commonly available sensors
+      </span>
+      . Measure physical parameters with minimal mechanical interference.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table17_A1" style="text-align:left;width:3.549cm; ">
+     <p class="P60">
+      SPI
+     </p>
+    </td>
+    <td class="Table17_A1" style="text-align:left;width:15.452cm; ">
+     <p class="P61">
+      <span class="T5">
+       Another data bus used by some devices.
+      </span>
+      Of interest to the vLabtool are precise waveform generators, and high resolution analog instruments.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="Table17_A1" style="text-align:left;width:3.549cm; ">
+     <p class="P60">
+      RGBout
+     </p>
+    </td>
+    <td class="Table17_A1" style="text-align:left;width:15.452cm; ">
+     <p class="P61">
+      <span class="T5">
+       Control WS2812B arrays
+      </span>
+      , Daisy chained RGB LEDs with 16 million shades each.
+     </p>
+    </td>
+   </tr>
+  </table>
+  <p class="P1">
+  </p>
+ </body>
+</html>
