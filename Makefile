@@ -2,22 +2,22 @@ DESTDIR =
 all:
 	make -C docs html
 	#make -C docs/misc all
-	make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+	make -C SEEL $@ DESTDIR=$(DESTDIR)
 	python setup.py build
 	python3 setup.py build
 
 clean:
 	rm -rf docs/_*
-	make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+	make -C SEEL $@ DESTDIR=$(DESTDIR)
 	rm -rf SEEL.egg-info build
 	find . -name "*~" -o -name "*.pyc" -o -name "__pycache__" | xargs rm -rf
 
 IMAGEDIR=$(DESTDIR)/usr/share/doc/seelablet-common/images
 
 install:
-	make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+	#make -C SEEL $@ DESTDIR=$(DESTDIR)
 	# install documents
-	install -d $(DESTDIR)/usr/share/doc/seelablet
+	#install -d $(DESTDIR)/usr/share/doc/seelablet
 	#cp -a docs/build/html $(DESTDIR)/usr/share/doc/seelablet
 	#cp docs/misc/build/*.html $(DESTDIR)/usr/share/doc/seelablet/html
 	# create ditributions for Python2 and Python3

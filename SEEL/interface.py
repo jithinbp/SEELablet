@@ -2802,17 +2802,19 @@ class Interface():
 		# y1 = array with 512 points between 0 and 512
 		# y2 = array with 32 points between 0 and 64
 
+		LARGE_MAX = 511*.9  # A form of amplitude control. This decides the max PWM duty cycle out of 512 clocks
+		SMALL_MAX = 63 *.9  # Max duty cycle out of 64 clocks
 		y1=np.array(points)
 		y1-=min(y1)
 		y1=y1/float(max(y1))
 		y1=1.-y1
-		y1 = list(np.int16(np.round( 511 - 511*y1 )))
+		y1 = list(np.int16(np.round( LARGE_MAX - LARGE_MAX*y1 )))
 
 		y2=np.array(points[::16])
 		y2-=min(y2)
 		y2 = y2/float(max(y2))
 		y2=1.- y2
-		y2 = list(np.int16(np.round( 64 - 64*y2 )))
+		y2 = list(np.int16(np.round( SMALL_MAX - SMALL_MAX*y2 )))
 		self.H.__sendByte__(CP.WAVEGEN)
 		if(num==1):self.H.__sendByte__(CP.LOAD_WAVEFORM1)
 		elif(num==2):self.H.__sendByte__(CP.LOAD_WAVEFORM2)
