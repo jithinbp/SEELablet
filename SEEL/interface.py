@@ -2802,8 +2802,8 @@ class Interface():
 		# y1 = array with 512 points between 0 and 512
 		# y2 = array with 32 points between 0 and 64
 
-		LARGE_MAX = 511*.9  # A form of amplitude control. This decides the max PWM duty cycle out of 512 clocks
-		SMALL_MAX = 63 *.9  # Max duty cycle out of 64 clocks
+		LARGE_MAX = 511*.95  # A form of amplitude control. This decides the max PWM duty cycle out of 512 clocks
+		SMALL_MAX = 63 *.95  # Max duty cycle out of 64 clocks
 		y1=np.array(points)
 		y1-=min(y1)
 		y1=y1/float(max(y1))
