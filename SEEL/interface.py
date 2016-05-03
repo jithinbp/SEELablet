@@ -212,9 +212,8 @@ class Interface():
 						The correction array defines for each DAC code, the number of codes to skip forwards or backwards
 						in order to output the most accurate voltage value.
 						
-						E.g. if Code 1024 was found to output a voltage corresponding to code 1030(Theoretically. Code 1030 may itself
-						correspond to code 1030+-error ) , and code 1020 was found to output a voltage corresponding to code 1024,
-						then correction array[1024] will be equal to -4 . Adding it to the code 1024 will give code 1020 which will output the
+						E.g. if Code 1024 was found to output a voltage corresponding to code 1030 , and code 1020 was found to output a voltage corresponding to code 1024,
+						then correction array[1024] = -4 , correction_array[1030]=-6. Adding -4 to the code 1024 will give code 1020 which will output the
 						correct voltage value expected from code 1024.
 						
 						The variables LOOKAHEAD and LOOKBEHIND define the range of codes to search around a particular DAC code in order to 
@@ -233,12 +232,14 @@ class Interface():
 						LOOKBEHIND = 100;LOOKAHEAD=100                      
 						OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
 						self.aboutArray.append(['Err min:',min(OFF),'Err max:',max(OFF)])
-						self.DAC.load_calibration(NAME,OFF)
+						self.DAC.CHANS[NAME].load_calibration_table(OFF)
 
-				if len(cap_and_pcs)==16:
-					print (cap_and_pcs,struct.unpack('4f',cap_and_pcs) )
+				if len(cap_and_pcs)==24:
+					scalers = struct.unpack('6f',cap_and_pcs)
+					self.__calibrate_ctmu__(self,scalers[:4])
+					self.DAC.CHANS['PCS'].load_calibration_twopoint(scalers[4],scalers[5]) #Slope and offset for current source
 				else:
-					print ('Cap and PCS calibration invalid',cap_and_pcs)
+					print ('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
 				
 		
 		time.sleep(0.001)

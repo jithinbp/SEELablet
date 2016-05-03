@@ -630,6 +630,27 @@ class DACCHAN:
 		intercept = span[0]
 		self.VToCode = np.poly1d([4095./slope,-4095.*intercept/slope ])
 		self.CodeToV = np.poly1d([slope/4095.,intercept ])
+		self.calibration_enabled = False
+		self.calibration_table = []
+		self.slope=1
+		self.offset=0
+
+	def load_calibration_table(self,table):
+		self.calibration_enabled='table'
+		self.calibration_table = table
+
+	def load_calibration_twopoint(self,slope,offset):
+		self.calibration_enabled='twopoint'
+
+	
+	def apply_calibration(self,v):
+		if self.calibration_enabled=='table':			#Each point is individually calibrated 
+			return int(np.clip(v+self.calibration_table[v]	,0,4095))
+		elif self.calibration_enabled=='twopoint':		#Overall slope and offset correction is applied
+			return int(np.clip(v*self.slope+self.offset,0,4095)	)
+		else:
+			return v
+		
 
 class MCP4728:
 	defaultVDD =3300
@@ -653,16 +674,11 @@ class MCP4728:
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
 		self.CHANS = {'PCS':DACCHAN('PCS',[3.3e-3,0],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
 		self.CHANNEL_MAP={0:'PCS',1:'PV3',2:'PV2',3:'PV1'}
-		self.calibration_enabled={'PV1':False,'PV2':False,'PV3':False,'PCS':False}
-		self.calibration_tables={'PV1':[],'PV2':[],'PV3':[],'PCS':[]}
 
 
-	def load_calibration(self,name,table):
-		self.calibration_enabled[name]=True
-		self.calibration_tables[name] = table
 
 	def __ignoreCalibration__(self,name):
-		self.calibration_enabled[name]=False
+		self.CHANS[name].calibration_enabled=False
 
 	def setVoltage(self,name,v):
 		chan = self.CHANS[name]
@@ -686,28 +702,9 @@ class MCP4728:
 
 		self.H.__get_ack__()
 		'''
-		if self.calibration_enabled[name]:
-			val = int(v+self.calibration_tables[name][v])
-			#print (val,v,self.calibration_tables[name][v])
-			self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(val>>8)&0x0F,val&0xFF])
-		else:
-			self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(v>>8)&0x0F,v&0xFF])
-
+		val = self.CHANS[name].apply_calibration(v)
+		self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(val>>8)&0x0F,val&0xFF])
 		return CHAN.CodeToV(v)
-
-
-	def __samplewriteall__(self,v1):
-		self.I2C.start(self.addr,0)
-		self.I2C.send((v1>>8)&0xF )
-		self.I2C.send(v1&0xFF)
-		self.I2C.send((v1>>8)&0xF )
-		self.I2C.send(v1&0xFF)
-		self.I2C.send((v1>>8)&0xF )
-		self.I2C.send(v1&0xFF)
-		self.I2C.send((v1>>8)&0xF )
-		self.I2C.send(v1&0xFF)
-		self.I2C.stop()
-
 
 
 	def __writeall__(self,v1,v2,v3,v4):
