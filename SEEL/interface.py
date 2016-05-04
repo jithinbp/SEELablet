@@ -127,8 +127,8 @@ class Interface():
 		self.buff=np.zeros(10000)
 		self.SOCKET_CAPACITANCE = 42e-12
 
-		self.digital_channel_names=['ID1','ID2','ID3','ID4','SEN','EXT','Fin']
-		self.allDigitalChannels = ['ID1','ID2','ID3','ID4','Fin']
+		self.digital_channel_names=digital_channel_names
+		self.allDigitalChannels = self.digital_channel_names
 
 		#This array of four instances of digital_channel is used to store data retrieved from the
 		#logic analyzer section of the device.  It also contains methods to generate plottable data
@@ -1163,7 +1163,7 @@ class Interface():
 	
 	def __calcDChan__(self,name):
 		"""
-		accepts a string represention of a digital input ( 'ID1','ID2','ID3','ID4','CH1','Fin' )
+		accepts a string represention of a digital input ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		and returns a corresponding number
 		"""
 		
@@ -1193,7 +1193,7 @@ class Interface():
 		==============  ============================================================================================
 		**Arguments**
 		==============  ============================================================================================
-		pin             The input pin to measure frequency from : 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+		pin             The input pin to measure frequency from : ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		==============  ============================================================================================
 
 		:return: frequency
@@ -1219,7 +1219,7 @@ class Interface():
 		#self.__print__(hex(val))
 		return scale*(val)/1.0e-1 #100mS sampling
 
-	def get_freq(self,channel='Fin',timeout=0.1):
+	def get_freq(self,channel='CNTR',timeout=0.1):
 		"""
 		Frequency measurement on IDx.
 		Measures time taken for 16 rising edges of input signal.
@@ -1230,7 +1230,7 @@ class Interface():
 		==============  ============================================================================================
 		**Arguments** 
 		==============  ============================================================================================
-		channel         The input to measure frequency from. 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+		channel         The input to measure frequency from. ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		timeout         This is a blocking call which will wait for one full wavelength before returning the
 						calculated frequency.
 						Use the timeout option if you're unsure of the input signal.
@@ -1282,13 +1282,13 @@ class Interface():
 
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
-		==============  ============================================================================================
+		==============  ================================================================================================
 		**Arguments** 
-		==============  ============================================================================================
-		channel         The input to measure time between two rising edges.'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+		==============  ================================================================================================
+		channel         The input to measure time between two rising edges.['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		timeout         Use the timeout option if you're unsure of the input signal time period.
 						returns 0 if timed out
-		==============  ============================================================================================
+		==============  ================================================================================================
 
 		:return float: time between two rising edges of input signal
 		
@@ -1319,7 +1319,7 @@ class Interface():
 		==============  ==============================================================================================================
 		**Arguments** 
 		==============  ==============================================================================================================
-		channel         The input to measure time between two rising edges.'ID1' , 'ID2', 'ID3', 'ID4', 'Fin', 'SEN'
+		channel         The input to measure time between two rising edges.['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		skip_cycle      Number of points to skip. eg. Pendulums pass through light barriers twice every cycle. SO 1 must be skipped
 		timeout         Number of seconds to wait for datapoints. (Maximum 60 seconds)
 		==============  ==============================================================================================================
@@ -1351,7 +1351,7 @@ class Interface():
 		==============  ==============================================================================================================
 		**Arguments** 
 		==============  ==============================================================================================================
-		channel         The input to measure time between two falling edges.'ID1' , 'ID2', 'ID3', 'ID4', 'Fin', 'SEN'
+		channel         The input to measure time between two falling edges.['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		skip_cycle      Number of points to skip. eg. Pendulums pass through light barriers twice every cycle. SO 1 must be skipped
 		timeout         Number of seconds to wait for datapoints. (Maximum 60 seconds)
 		==============  ==============================================================================================================
@@ -1391,7 +1391,7 @@ class Interface():
 		==============  ============================================================================================
 		channel1        The input pin to measure first logic level change
 		channel2        The input pin to measure second logic level change
-						 -'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+						 -['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		edge1           The type of level change to detect in order to start the timer
 							* 'rising'
 							* 'falling'
@@ -1446,13 +1446,13 @@ class Interface():
 
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
-		==============  ============================================================================================
+		==============  ==============================================================================================
 		**Arguments** 
-		==============  ============================================================================================
-		channel         The input pin to measure wavelength and high time. 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+		==============  ==============================================================================================
+		channel         The input pin to measure wavelength and high time.['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		timeout         Use the timeout option if you're unsure of the input signal time period.
 						returns 0 if timed out
-		==============  ============================================================================================
+		==============  ==============================================================================================
 
 		:return : wavelength,duty cycle
 
@@ -1485,14 +1485,14 @@ class Interface():
 
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
-		==============  ============================================================================================
+		==============  ==============================================================================================
 		**Arguments** 
-		==============  ============================================================================================
-		channel         The input pin to measure wavelength and high time. 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin','SEN'
+		==============  ==============================================================================================
+		channel         The input pin to measure wavelength and high time.['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		PulseType		Type of pulse to detect. May be 'HIGH' or 'LOW'
 		timeout         Use the timeout option if you're unsure of the input signal time period.
 						returns 0 if timed out
-		==============  ============================================================================================
+		==============  ==============================================================================================
 
 		:return : pulse width
 
@@ -1530,7 +1530,7 @@ class Interface():
 		==============  ============================================================================================
 		channel1        The input pin to measure first logic level change
 		channel2        The input pin to measure second logic level change
-						 -'ID1' , 'ID2', 'ID3', 'ID4', 'Fin'
+						 -['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		edgeType1       The type of level change that should be recorded
 							* 'rising'
 							* 'falling'
@@ -1544,7 +1544,7 @@ class Interface():
 		timeout         Use the timeout option if you're unsure of the input signal time period.
 						returns -1 if timed out
 		**kwargs
-		  SQ1			set the state of SQ1 output(LOW or HIGH) and then start the timer.  eg. SQ1='LOW'
+		  SQ1			set the state of SQR1 output(LOW or HIGH) and then start the timer.  eg. SQR1='LOW'
 		  zero			subtract the timestamp of the first point from all the others before returning. default:True
 		==============  ============================================================================================
 
@@ -1569,9 +1569,9 @@ class Interface():
 		elif edgeType2=='falling': params |= 2<<3
 		else:              params |= 4<<3
 
-		if('SQ1' in kwargs):  # User wants to toggle SQ1 before starting the timer
+		if('SQR1' in kwargs):  # User wants to toggle SQ1 before starting the timer
 			params|=(1<<6)
-			if kwargs['SQ1']=='HIGH':params|=(1<<7)
+			if kwargs['SQR1']=='HIGH':params|=(1<<7)
 		self.H.__sendByte__(params)
 		if points1>4:points1=4
 		if points2>4:points2=4
@@ -1654,7 +1654,7 @@ class Interface():
 		**Arguments** 
 		================== ======================================================================================================
 		trigger            Bool . Enable edge trigger on ID1. use keyword argument edge='rising' or 'falling'
-		channel            'ID1',...'LMETER','CH1'
+		channel            ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		maximum_time       Total time to sample. If total time exceeds 67 seconds, a prescaler will be used in the reference clock
 		kwargs
 		triggger_channels  array of digital input names that can trigger the acquisition.eg. trigger= ['ID1','ID2','ID3']
@@ -1709,8 +1709,8 @@ class Interface():
 			**Arguments** 
 			================== ======================================================================================================
 			args
-			channel             'ID1',...'LMETER','CH1'
-			trigger_channel     'ID1',...'LMETER','CH1'
+			channel             ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
+			trigger_channel     ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 
 			channel_mode        acquisition mode\n
 								default value: 1(EVERY_EDGE)
@@ -1785,8 +1785,8 @@ class Interface():
 		**Arguments** 
 		================== ======================================================================================================
 		args
-		channel            'ID1',...'LMETER','CH1'
-		trigger_channel    'ID1',...'LMETER','CH1'
+		channel            ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
+		trigger_channel    ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 
 		channel_mode       acquisition mode.
 						   default value: 1
@@ -1885,7 +1885,7 @@ class Interface():
 		**Arguments** 
 		================== ======================================================================================================
 		args
-		trigger_channel     'ID1',...'LMETER','CH1'
+		trigger_channel     ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 
 		modes               modes for each channel. Array .\n
 							default value: [1,1,1]
@@ -2217,7 +2217,7 @@ class Interface():
 		==============  ============================================================================================
 		**Arguments** 
 		==============  ============================================================================================
-		channel         The input pin to measure rising edges on : 'ID1' , 'ID2', 'ID3', 'ID4', 'Fin', 'SEN'
+		channel         The input pin to measure rising edges on : ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		==============  ============================================================================================
 		"""
 		self.H.__sendByte__(CP.COMMON)
@@ -2560,9 +2560,9 @@ class Interface():
 		:return: frequency
 		"""
 		if chan=='W1':
-			self.set_sine1(freq)
+			self.set_w1(freq)
 		elif chan=='W2':
-			self.set_sine2(freq)
+			self.set_w2(freq)
 
 	def set_sine1(self,freq):
 		"""

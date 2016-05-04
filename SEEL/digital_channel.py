@@ -1,7 +1,7 @@
 from __future__ import print_function
 import numpy as np
 
-digital_channel_names=['ID1','ID2','ID3','ID4','SEN']
+digital_channel_names=['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 
 class digital_channel:
 	EVERY_SIXTEENTH_RISING_EDGE = 5
