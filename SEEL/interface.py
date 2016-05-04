@@ -86,6 +86,7 @@ class Interface():
 	DAC_SHIFTS_PV3A=8
 	DAC_SHIFTS_PV3B=9
 	BAUD = 1000000
+	WType={'W1':'sine','W2':'sine'}
 	def __init__(self,timeout=1.0,**kwargs):
 		self.verbose=kwargs.get('verbose',False)
 		self.initialArgs = kwargs
@@ -2565,7 +2566,41 @@ class Interface():
 
 	def set_sine1(self,freq):
 		"""
-		Set the frequency of wavegen
+		Set the frequency of wavegen 1 after setting its waveform type to sinusoidal
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		frequency       Frequency to set on wave generator 1. 
+		==============  ============================================================================================
+		
+		
+		:return: frequency
+		"""
+		return self.set_w1(freq,'sine')
+
+	def set_sine2(self,freq):
+		"""
+		Set the frequency of wavegen 2 after setting its waveform type to sinusoidal
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		frequency       Frequency to set on wave generator 1. 
+		==============  ============================================================================================
+		
+		
+		:return: frequency
+		"""
+		return self.set_w2(freq,'sine')
+
+	def set_w1(self,freq,waveType=None):
+		"""
+		Set the frequency of wavegen 1
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
@@ -2587,6 +2622,14 @@ class Interface():
 		else:
 			HIGHRES=0
 			table_size = 32
+
+		if waveType: #User wants to set a particular waveform type. sine or tria
+			if waveType in ['sine','tria']:
+				if(self.WType['W1']!=waveType):
+					self.load_equation('W1',waveType)
+			else:
+				print ('Not a valid waveform. try sine or tria')
+
 
 
 		p=[1,8,64,256]
@@ -2611,9 +2654,9 @@ class Interface():
 		self.sine1freq = freq
 		return freq
 
-	def set_sine2(self,freq):
+	def set_w2(self,freq,waveType=None):
 		"""
-		Set the frequency of wavegen
+		Set the frequency of wavegen 2
 				
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
@@ -2634,6 +2677,14 @@ class Interface():
 		else:
 			HIGHRES=0
 			table_size = 32
+
+		if waveType: #User wants to set a particular waveform type. sine or tria
+			if waveType in ['sine','tria']:
+				if(self.WType['W2']!=waveType):
+					self.load_equation('W2',waveType)
+			else:
+				print ('Not a valid waveform. try sine or tria')
+
 
 
 		p=[1,8,64,256]
@@ -2744,7 +2795,7 @@ class Interface():
 
 		return retfreq
 
-	def load_equation(self,chan,function,span):
+	def load_equation(self,chan,function,span=None):
 		'''
 		Load an arbitrary waveform to the waveform generators
 		
@@ -2761,19 +2812,29 @@ class Interface():
 		example::
 		  
 		  >>> fn = lambda x:abs(x-50)  #Triangular waveform 
-		  >>> self.I.load_waveform(fn,[0,100])
+		  >>> self.I.load_waveform('W1',fn,[0,100])
 		  #Load triangular wave to wavegen 1
 		  
 		  #Load sinusoidal wave to wavegen 2
-		  >>> self.I.load_waveform(2,np.sin,[0,2*np.pi])
+		  >>> self.I.load_waveform('W2',np.sin,[0,2*np.pi])
 
 		'''
+		if function=='sine' or function==np.sin:
+			function = np.sin; span = [0,2*np.pi]
+			self.WType[chan] = 'sine'
+		elif function=='tria':
+			function = lambda x: abs(x%4-2)-1
+			span = [-1,3]
+			self.WType[chan] = 'tria'
+		else:
+			self.WType[chan] = 'arbit'
 
+		self.__print__('reloaded wave equation for %s : %s'%( chan, self.WType[chan]) )
 		x1=np.linspace(span[0],span[1],512+1)[:-1]
 		y1=function(x1)
-		self.load_table(chan,y1)
+		self.load_table(chan,y1,self.WType[chan])
 
-	def load_table(self,chan,points):
+	def load_table(self,chan,points,mode='arbit'):
 		'''
 		Load an arbitrary waveform table to the waveform generators
 		
@@ -2784,6 +2845,7 @@ class Interface():
 		==============  ============================================================================================
 		chan             The waveform generator to alter. 'W1' or 'W2'
 		points          A list of 512 datapoints exactly
+		mode			Optional argument. Type of waveform. default value 'arbit'. accepts 'sine', 'tria'
 		==============  ============================================================================================
 		
 		example::
@@ -2791,6 +2853,8 @@ class Interface():
 		  >>> self.I.load_waveform_table(1,range(512))
 		  #Load sawtooth wave to wavegen 1
 		'''
+		self.__print__('reloaded wave table for %s : %s'%( chan, mode) )
+		self.WType[chan] = mode
 		chans = ['W1', 'W2']
 		if chan in chans:
 			num = chans.index(chan)+1
