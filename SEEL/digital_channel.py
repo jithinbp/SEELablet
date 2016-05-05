@@ -48,8 +48,8 @@ class digital_channel:
 		else: self.maxT=0
 
 	def generate_axes(self):
-		HIGH = (4-self.channel_number)*(3)
-		LOW = HIGH - 2.5
+		HIGH = 1#(4-self.channel_number)*(3)
+		LOW = 0#HIGH - 2.5
 		state = HIGH if self.initial_state else LOW
 
 
