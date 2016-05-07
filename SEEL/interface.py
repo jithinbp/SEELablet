@@ -597,7 +597,7 @@ class Interface():
 		.. code-block:: python
 
 			I.sqr1(40e3 , 50, True )   # Prepare a 40KHz, 50% square wave. Do not output it yet
-			x,y = I.capture_fullspeed('CH1',2000,1,'FIRE_PULSES',interval = 1000) #Output the prepared 40KHz(25uS) wave for 1000uS before acquisition
+			x,y = I.capture_fullspeed('CH1',2000,1,'FIRE_PULSES',interval = 250) #Output the prepared 40KHz(25uS) wave for 250uS(10 cycles) before acquisition
 			plot(x,y)               
 			show()
 
@@ -605,7 +605,7 @@ class Interface():
 
 		"""
 		self.__capture_fullspeed__(chan,samples,tg,*args,**kwargs)
-		time.sleep(1e-6*self.samples*self.timebase+kwargs.get('interval',0)+0.1)
+		time.sleep(1e-6*self.samples*self.timebase+kwargs.get('interval',0)*1e-6+0.1)
 		x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
 		return x,self.analogInputSources[chan].calPoly10(y)
 
@@ -1153,7 +1153,7 @@ class Interface():
 		fill a section of the ADC hardware buffer with data
 		"""
 		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.CLEAR_BUFFER)
+		self.H.__sendByte__(CP.FILL_BUFFER)
 		self.H.__sendInt__(starting_position)
 		self.H.__sendInt__(len(point_array))
 		for a in point_array:
@@ -2959,6 +2959,8 @@ class Interface():
 			return 0
 		high_time = wavelength*duty_cycle/100.
 		self.__print__(wavelength,high_time,prescaler)
+		if onlyPrepare: self.set_state(SQR1=False)
+		
 		self.H.__sendByte__(CP.WAVEGEN)
 		self.H.__sendByte__(CP.SET_SQR1)
 		self.H.__sendInt__(int(round(wavelength)))
@@ -2967,7 +2969,7 @@ class Interface():
 		self.H.__sendByte__(prescaler)
 		self.H.__get_ack__()
 
-		return 64e6/wavelength/p[prescaler]
+		return 64e6/wavelength/p[prescaler&0x3]
 
 	def sqr1_pattern(self,timing_array):
 		"""
@@ -2987,7 +2989,8 @@ class Interface():
 			I.sqr1(38e3 , 50, True )   # Prepare a 38KHz, 50% square wave. Do not output it yet
 			I.sqr1_pattern([1000,1000,1000,1000,1000])  #On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off: indefinitely..
 		"""
-		self.fill_buffer(0,timing_array)  #Load the array to the ADCBuffer
+		self.fill_buffer(self.MAX_SAMPLES/2,timing_array)  #Load the array to the ADCBuffer(second half)
+		
 		self.H.__sendByte__(CP.WAVEGEN)
 		self.H.__sendByte__(CP.SQR1_PATTERN)
 		self.H.__sendInt__(len(timing_array))
