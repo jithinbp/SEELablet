@@ -244,6 +244,7 @@ class Interface():
 				
 		
 		time.sleep(0.001)
+
 	def __ignoreCalibration__(self):
 			for a in self.analogInputSources:
 				self.analogInputSources[a].__ignoreCalibration__()
@@ -525,7 +526,7 @@ class Interface():
 		for a in range(int(total_chans)):
 			yield self.buff[a:total_samples][::total_chans]
 
-	def __capture_fullspeed__(self,chan,samples,tg,*args):
+	def __capture_fullspeed__(self,chan,samples,tg,*args, **kwargs):
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
 		if(tg<0.5):tg=int(0.5*8)/8.
 		if(samples>self.MAX_SAMPLES):
@@ -541,14 +542,21 @@ class Interface():
 			self.H.__sendByte__(CP.SET_LO_CAPTURE)     
 		elif 'SET_HIGH' in args:
 			self.H.__sendByte__(CP.SET_HI_CAPTURE)     
+		elif 'FIRE_PULSES' in args:
+			self.H.__sendByte__(CP.PULSE_TRAIN)
+			self.__print__('firing sqr1 pulses for ',kwargs.get('interval',1000) , 'uS')  
 		else:
 			self.H.__sendByte__(CP.CAPTURE_DMASPEED)       
 		self.H.__sendByte__(CHOSA)
 		self.H.__sendInt__(samples)         #total number of samples to record
 		self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
+		if 'FIRE_PULSES' in args:
+			t = kwargs.get('interval',1000)
+			self.H.__sendInt__(t)
+			time.sleep(t*1e-6)    #Wait for hardware to free up from firing pulses(blocking call). Background capture starts immediately after this
 		self.H.__get_ack__()
 
-	def capture_fullspeed(self,chan,samples,tg,*args):
+	def capture_fullspeed(self,chan,samples,tg,*args,**kwargs):
 		"""
 		Blocking call that fetches oscilloscope traces from a single oscilloscope channel at a maximum speed of 2MSPS
 		
@@ -560,24 +568,44 @@ class Interface():
 		chan                channel name 'CH1' / 'CH2' ... 'SEN'
 		samples             Number of samples to fetch. Maximum 10000/(total specified channels)
 		tg                  Timegap between samples in microseconds. minimum 0.5uS
-		\*args              specify if SQR1 must be toggled right before capturing. 'SET_LOW' will set it to 0V,
-							'SET_HIGH' will set it to 5V.  if no arguments are specified, a regular capture will 
-							be executed.
+		\*args              specify if SQR1 must be toggled right before capturing.
+		 'SET_LOW' 			will set SQR1 to 0V
+		 'SET_HIGH'			will set it to 5V.  
+		 'FIRE_PULSES' 		will output a preset frequency on SQR1 for a given interval (keyword arg 'interval' 
+							must be specified or it will default to 1000uS) before acquiring data. This is
+							used for measuring speed of sound using piezos
+							if no arguments are specified, a regular capture will be executed.
+		\*\*kwargs			
+			interval		units:uS . Necessary if 'FIRE_PULSES' argument was supplied. default 1000uS
 		==============  ============================================================================================
 
-		Example
+		.. code-block:: python
 
-		>>> from pylab import *
-		>>> I=interface.Interface()
-		>>> x,y = I.capture_fullspeed('CH1',2000,1)
-		>>> plot(x,y)               
-		>>> show()              
+			from pylab import *
+			I=interface.Interface()
+			x,y = I.capture_fullspeed('CH1',2000,1)
+			plot(x,y)               
+			show()
 		
+
+		.. code-block:: python
+
+			x,y = I.capture_fullspeed('CH1',2000,1,'SET_LOW')
+			plot(x,y)               
+			show()
+
+		.. code-block:: python
+
+			I.sqr1(40e3 , 50, True )   # Prepare a 40KHz, 50% square wave. Do not output it yet
+			x,y = I.capture_fullspeed('CH1',2000,1,'FIRE_PULSES',interval = 1000) #Output the prepared 40KHz(25uS) wave for 1000uS before acquisition
+			plot(x,y)               
+			show()
+
 		:return: timestamp array ,voltage_value array
 
 		"""
-		self.__capture_fullspeed__(chan,samples,tg,*args)
-		time.sleep(1e-6*self.samples*self.timebase+.01)
+		self.__capture_fullspeed__(chan,samples,tg,*args,**kwargs)
+		time.sleep(1e-6*self.samples*self.timebase+kwargs.get('interval',0)+0.1)
 		x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
 		return x,self.analogInputSources[chan].calPoly10(y)
 
@@ -1118,6 +1146,18 @@ class Interface():
 		self.H.__sendByte__(CP.CLEAR_BUFFER)
 		self.H.__sendInt__(starting_position)
 		self.H.__sendInt__(total_points)
+		self.H.__get_ack__()
+
+	def fill_buffer(self,starting_position,point_array):
+		"""
+		fill a section of the ADC hardware buffer with data
+		"""
+		self.H.__sendByte__(CP.COMMON)
+		self.H.__sendByte__(CP.CLEAR_BUFFER)
+		self.H.__sendInt__(starting_position)
+		self.H.__sendInt__(len(point_array))
+		for a in point_array:
+			self.H.__sendInt__(int(a))
 		self.H.__get_ack__()
 
 	def start_streaming(self,tg,channel='CH1'):
@@ -2809,14 +2849,14 @@ class Interface():
 		span                the range of values in which to evaluate the given function
 		==============  ============================================================================================
 		
-		example::
+		.. code-block:: python
 		  
-		  >>> fn = lambda x:abs(x-50)  #Triangular waveform 
-		  >>> self.I.load_waveform('W1',fn,[0,100])
+		  fn = lambda x:abs(x-50)  #Triangular waveform 
+		  self.I.load_waveform('W1',fn,[0,100])
 		  #Load triangular wave to wavegen 1
 		  
 		  #Load sinusoidal wave to wavegen 2
-		  >>> self.I.load_waveform('W2',np.sin,[0,2*np.pi])
+		  self.I.load_waveform('W2',np.sin,[0,2*np.pi])
 
 		'''
 		if function=='sine' or function==np.sin:
@@ -2894,7 +2934,7 @@ class Interface():
 		time.sleep(0.01)
 		self.H.__get_ack__()        
 
-	def sqr1(self,freq,duty_cycle=50,echo=False):
+	def sqr1(self,freq,duty_cycle=50,onlyPrepare=False):
 		"""
 		Set the frequency of sqr1
 
@@ -2918,15 +2958,42 @@ class Interface():
 			self.__print__('out of range')
 			return 0
 		high_time = wavelength*duty_cycle/100.
-		if echo:self.__print__(wavelength,high_time,prescaler)
+		self.__print__(wavelength,high_time,prescaler)
 		self.H.__sendByte__(CP.WAVEGEN)
 		self.H.__sendByte__(CP.SET_SQR1)
 		self.H.__sendInt__(int(round(wavelength)))
 		self.H.__sendInt__(int(round(high_time)))
+		if onlyPrepare: prescaler |= 0x4   # Instruct hardware to prepare the square wave, but do not connect it to the output.
 		self.H.__sendByte__(prescaler)
 		self.H.__get_ack__()
 
 		return 64e6/wavelength/p[prescaler]
+
+	def sqr1_pattern(self,timing_array):
+		"""
+		output a preset sqr1 frequency in fixed intervals. Can be used for sending IR signals that are packets 
+		of 38KHz pulses.
+		refer to the example
+
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		timing_array    A list of on & off times in uS units
+		==============  ============================================================================================
+
+		.. code-block:: python
+			I.sqr1(38e3 , 50, True )   # Prepare a 38KHz, 50% square wave. Do not output it yet
+			I.sqr1_pattern([1000,1000,1000,1000,1000])  #On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off: indefinitely..
+		"""
+		self.fill_buffer(0,timing_array)  #Load the array to the ADCBuffer
+		self.H.__sendByte__(CP.WAVEGEN)
+		self.H.__sendByte__(CP.SQR1_PATTERN)
+		self.H.__sendInt__(len(timing_array))
+		time.sleep(sum(timing_array)*1e-6) #Sleep for the whole duration
+		self.H.__get_ack__()
+		return True
 
 	def sqr2(self,freq,duty_cycle):
 		"""

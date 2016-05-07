@@ -36,7 +36,8 @@ SET_HI_CAPTURE      = Byte.pack(15)
 SET_LO_CAPTURE      = Byte.pack(16)
 
 MULTIPOINT_CAPACITANCE= Byte.pack(20)
-SET_CAP= Byte.pack(21)
+SET_CAP				= Byte.pack(21)
+PULSE_TRAIN			= Byte.pack(22)
 
 #/*-----SPI--------*/
 SPI_HEADER         = Byte.pack(3)
@@ -102,7 +103,7 @@ SET_SINE2            = Byte.pack(14)
 
 LOAD_WAVEFORM1       = Byte.pack(15)
 LOAD_WAVEFORM2       = Byte.pack(16)
- 
+SQR1_PATTERN         = Byte.pack(17) 
 #/*-----digital outputs----*/
 DOUT      = Byte.pack(8)
 SET_STATE = Byte.pack(1)
@@ -172,6 +173,7 @@ STOP_CTMU		      = Byte.pack(24)
 
 START_COUNTING		  = Byte.pack(25)
 FETCH_COUNT  		  = Byte.pack(26)
+FILL_BUFFER           = Byte.pack(27)
 
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
