@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time,importlib
 import numpy as np
 
@@ -86,7 +87,7 @@ class AD7718:
 		self.caldata={}
 		for a in calibs.keys():
 			self.caldata[a] = np.poly1d(calibs[a])
-		print 'Loaded calibration',self.caldata
+		print ('Loaded calibration',self.caldata)
 
 	def start(self):
 		self.I.SPI.start(self.cs)
@@ -107,7 +108,7 @@ class AD7718:
 		self.start()
 		val = self.send16(0x4000|(regname<<8))
 		self.stop()
-		#print regname,val
+		#print (regname,val)
 		val&=0x00FF
 		return val
 
@@ -139,7 +140,7 @@ class AD7718:
 			caldone = self.send16(0x4000|(self.MODE<<8))&7
 			Printer('waiting for zero scale calibration... %.2f S, %d'%(time.time()-start_time,caldone))
 
-		print '\n'
+		print ('\n')
 		caldone=False
 		val = self.send16(0x0000|(self.MODE<<8)|5)
 		while caldone!=1:
@@ -147,7 +148,7 @@ class AD7718:
 			caldone = self.send16(0x4000|(self.MODE<<8))&7
 			Printer('waiting for full scale calibration... %.2f S %d'%(time.time()-start_time,caldone))
 
-		print '\n'
+		print ('\n')
 
 
 		self.stop()
@@ -180,7 +181,7 @@ class AD7718:
 				s+='\t'+ P[a]
 			else:
 				s+='\t'+ N[a]
-		print stat,s
+		print (stat,s)
 
 	def convert_unipolar(self,x):
 		return (1.024*self.VREF*x)/(self.gain * 2**24)
@@ -191,7 +192,7 @@ class AD7718:
 
 	def __startRead__(self,chan):
 		if chan not in self.CHAN_NAMES:
-			print 'invalid channel name. try AIN1AINCOM'
+			print ('invalid channel name. try AIN1AINCOM')
 			return False
 		chanid = self.CHAN_NAMES.index(chan)
 		self.configADC(self.CON_RANGE7|self.CON_UNIPOLAR|(chanid<<4))	
@@ -208,7 +209,7 @@ class AD7718:
 				return self.caldata[chan](data)
 			else:
 				time.sleep(0.01)
-				print 'increase delay'
+				print ('increase delay')
 		return False
 	
 	def readVoltage(self,chan):
@@ -226,7 +227,7 @@ class AD7718:
 				return self.convert_unipolar(data)
 			else:
 				time.sleep(0.01)
-				print 'increase delay'
+				print ('increase delay')
 		return False
 
 	def readRawVoltage(self,chan):
@@ -252,7 +253,7 @@ if __name__ == "__main__":
 	'AIN4AINCOM':[4.135213e-06,-1.973478e-05,1.000277e+00,2.115374e-04], }
 	A = AD7718(I,calibs )
 	for a in range(10):
-		print A.readRawVoltage('AIN1AINCOM')
+		print (A.readRawVoltage('AIN1AINCOM'))
 		time.sleep(0.3)
 
 
