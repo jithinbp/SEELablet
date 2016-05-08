@@ -19,8 +19,10 @@ IMAGEDIR=$(DESTDIR)/usr/share/doc/seelablet-common/images
 install:
 	# make in subdirectory SEELablet-apps-master if it is there
 	#[ -d SEELablet-apps-master ] && make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+
 	# install documents
 	install -d $(DESTDIR)/usr/share/doc/seelablet
+	#[ -d ../SEELablet_Experiments ] && make -C ../SEELablet_Experiments $@ DESTDIR=$(DESTDIR)
 	#cp -a docs/_build/html $(DESTDIR)/usr/share/doc/seelablet
 	#cp docs/misc/build/*.html $(DESTDIR)/usr/share/doc/seelablet/html
 	# create ditributions for Python2 and Python3
