@@ -123,7 +123,7 @@ class Interface():
 
 		self.streaming=False
 		self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]        
-		self.gain_values=[1,2,4,5,8,10,16,32]
+		self.gain_values=gains
 		self.buff=np.zeros(10000)
 		self.SOCKET_CAPACITANCE = 42e-12
 
@@ -1044,7 +1044,7 @@ class Interface():
 		**Arguments** 
 		==============  ============================================================================================
 		channel         'CH1','CH2'
-		gain            (0-8) -> (1x,2x,4x,5x,8x,10x,16x,32x,1/10x)
+		gain            (0-8) -> (1x,2x,4x,5x,8x,10x,16x,32x,1/11x)
 		==============  ============================================================================================
 		
 		.. note::
@@ -1053,7 +1053,7 @@ class Interface():
 			However, values read using functions like :func:`get_average_voltage` or    :func:`capture_traces` 
 			will not be 2x, or 4x times the input signal. These are calibrated to return accurate values of the original input signal.
 			
-			in case the gain supplied is 8 (1/10x) , an external 10MOhm resistor must be connected in series with the device. The input range will
+			in case the gain specified is 8 (1/11x) , an external 10MOhm resistor must be connected in series with the device. The input range will
 			be +/-160 Volts
 		
 		>>> I.set_gain('CH1',7)  #gain set to 32x on CH1
