@@ -1,17 +1,8 @@
 from __future__ import print_function
 import time
-ST=time.time()
-def timeit(arg=''):
-	global ST
-	T = time.time()
-	print(arg," : ",T-ST)
-	ST=T
-
-timeit('packet start')
 
 import SEEL.commands_proto as CP
 import serial, subprocess
-timeit('serial,sub,comm')
 
 
 
@@ -34,11 +25,9 @@ class Handler():
 			print('Connected to device at ',self.portname,' ,Version:',self.version_string)
 			return
 		else:	#Scan and pick a port	
-			timeit('ready')
 			for a in range(10):
 				try:
 					self.portname=self.BASE_PORT_NAME+str(a)
-					timeit('attempt %s'%self.portname)
 					self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
 					if self.connected:return
 					#print(self.BASE_PORT_NAME+str(a)+' .yes.',version)

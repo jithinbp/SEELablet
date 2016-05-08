@@ -19,7 +19,7 @@ inputRanges={'CH1':[16.5,-16.5],	#Specify inverted channels explicitly by revers
 picADCMultiplex={'CH1':3,'CH2':0,'CH3':1,'MIC':2,'AN4':4,'SEN':7,'CAP':5,'AN8':8,}
 
 class analogInputSource:
-	gain_values=[1,2,4,5,8,10,16,32]
+	gain_values=[1,2,4,5,8,10,16,32,1/10.]
 	gainEnabled=False
 	gain=None
 	gainPGA=None
@@ -98,7 +98,7 @@ class analogInputSource:
 
 		slope = B-A
 		intercept = A
-		if self.calibrationReady :
+		if self.calibrationReady and self.gain!=8 :  #special case for 1/10. gain
 			self.calPoly10 = self.__cal10__
 			self.calPoly12 = self.__cal12__
 			

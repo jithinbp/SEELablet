@@ -162,30 +162,35 @@ class Interface():
 				self.calibrated = True
 				adc_shifts = self.read_bulk_flash(self.ADC_SHIFTS_LOCATION1,2048)+self.read_bulk_flash(self.ADC_SHIFTS_LOCATION2,2048)
 				adc_shifts = [CP.Byte.unpack(a)[0] for a in adc_shifts]
+				#print(adc_shifts)
 				self.__print__('ADC INL correction table loaded.')
-				self.aboutArray.append(['ADC INL Correction found',adc_shifts[0],adc_shifts[1],'...'])
-
+				self.aboutArray.append(['ADC INL Correction found',adc_shifts[0],adc_shifts[1],adc_shifts[2],'...'])
 				poly_sections = polynomials.split('STOP')  #The 2K array is split into sections containing data for ADC_INL fit, ADC_CHANNEL fit, DAC_CHANNEL fit, PCS, CAP ...
 
-				slopes_offsets		= poly_sections[0]
+				adc_slopes_offsets		= poly_sections[0]
 				dac_slope_intercept = poly_sections[1]
 				inl_slope_intercept = poly_sections[2]
 				cap_and_pcs 		= poly_sections[3]
-
+				#print('COMMON#########',self.__stoa__(slopes_offsets))
+				#print('DAC#########',self.__stoa__(dac_slope_intercept))
+				#print('ADC INL ############',self.__stoa__(inl_slope_intercept),len(inl_slope_intercept))
+				#print('CAP PCS#########',self.__stoa__(cap_and_pcs))
 				#Load calibration data for ADC channels into an array that'll be evaluated in the next code block
-				for a in slopes_offsets.split('>|')[1:]:
-					S= a.split('|<')
-					self.__print__( '\n','>'*20,S[0],'<'*20)
+				for a in adc_slopes_offsets.split('>|')[1:]:
+					self.__print__( '\n','>'*20,a[:3],'<'*20)
 					self.aboutArray.append([])
-					self.aboutArray.append(['ADC Channel',S[0]])
+					self.aboutArray.append(['ADC Channel',a[:3]])
 					self.aboutArray.append(['Gain','X^3','X^2','X','C'])
-					cals=S[1]
-					polyDict[S[0]]=[]
+					cals=a[5:]
+					polyDict[a[:3]]=[]
 					for b in range(len(cals)//16):
-						poly=struct.unpack('4f',cals[b*16:(b+1)*16])
+						try:
+							poly=struct.unpack('4f',cals[b*16:(b+1)*16])
+						except:
+							self.__print__(a[:3], ' not calibrated')
 						self.__print__( b,poly)
 						self.aboutArray.append([b]+['%.3e'%v for v in poly])
-						polyDict[S[0]].append(poly)
+						polyDict[a[:3]].append(poly)
 
 				
 				#Load calibration data (slopes and offsets) for ADC channels
@@ -193,16 +198,21 @@ class Interface():
 				for a in self.analogInputSources:
 					self.analogInputSources[a].loadCalibrationTable(adc_shifts,inl_slope_intercept[0],inl_slope_intercept[1])
 					if a in polyDict:
+						self.__print__ ('loading polynomials for ',a,polyDict[a])
 						self.analogInputSources[a].loadPolynomials(polyDict[a])
 						self.analogInputSources[a].calibrationReady=True
 					self.analogInputSources[a].regenerateCalibration()
 				
 				#Load calibration data for DAC channels
 				for a in dac_slope_intercept.split('>|')[1:]:
-					S= a.split('|<')
-					NAME = S[0][:3]			#Name of the DAC channel . PV1, PV2 ...
+					NAME = a[:3]			#Name of the DAC channel . PV1, PV2 ...
 					self.aboutArray.append([]);	self.aboutArray.append(['Calibrated :',NAME])
-					fits = struct.unpack('6f',S[1])
+					try:
+						fits = struct.unpack('6f',a[5:])
+						self.__print__(NAME, ' calibrated' , a[5:])
+					except:
+						self.__print__(NAME, ' not calibrated' , a[5:], len(a[5:]),a)
+						continue
 					slope=fits[0];intercept=fits[1]
 					fitvals = fits[2:]
 					if NAME in ['PV1','PV2','PV3']:
@@ -240,12 +250,13 @@ class Interface():
 					self.__calibrate_ctmu__(self,scalers[:4])
 					self.DAC.CHANS['PCS'].load_calibration_twopoint(scalers[4],scalers[5]) #Slope and offset for current source
 				else:
-					print ('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
+					self.__print__('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
 				
 		
 		time.sleep(0.001)
 
 	def __ignoreCalibration__(self):
+			print ('CALIBRATION DISABLED')
 			for a in self.analogInputSources:
 				self.analogInputSources[a].__ignoreCalibration__()
 				self.analogInputSources[a].regenerateCalibration()
@@ -1033,7 +1044,7 @@ class Interface():
 		**Arguments** 
 		==============  ============================================================================================
 		channel         'CH1','CH2'
-		gain            (0-7) -> (1x,2x,4x,5x,8x,10x,16x,32x)
+		gain            (0-8) -> (1x,2x,4x,5x,8x,10x,16x,32x,1/10x)
 		==============  ============================================================================================
 		
 		.. note::
@@ -1041,11 +1052,14 @@ class Interface():
 			
 			However, values read using functions like :func:`get_average_voltage` or    :func:`capture_traces` 
 			will not be 2x, or 4x times the input signal. These are calibrated to return accurate values of the original input signal.
+			
+			in case the gain supplied is 8 (1/10x) , an external 10MOhm resistor must be connected in series with the device. The input range will
+			be +/-160 Volts
 		
 		>>> I.set_gain('CH1',7)  #gain set to 32x on CH1
 
 		"""
-		if gain<0 or gain>7:
+		if gain<0 or gain>8:
 			print('Invalid gain parameter. 0-7 only.')
 			return
 		if self.analogInputSources[channel].gainPGA==None:
@@ -1053,10 +1067,11 @@ class Interface():
 			return
 		
 		self.analogInputSources[channel].setGain(self.gain_values[gain])
+		if gain>7: gain = 0   # external attenuator mode. set gain 1x
 			
 		self.H.__sendByte__(CP.ADC)
 		self.H.__sendByte__(CP.SET_PGA_GAIN)
-		self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel
+		self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel. SPI, not multiplexer
 		self.H.__sendByte__(gain) #send the gain
 		self.H.__get_ack__()
 		return self.gain_values[gain]
@@ -1510,7 +1525,7 @@ class Interface():
 			#self.__print__(x,y,dt)
 			params = dt[1],dt[0]/dt[1]
 			if params[1]>0.5:
-				print(x,y,dt)
+				self.__print__(x,y,dt)
 			return params
 		else:
 			return -1,-1
@@ -2488,7 +2503,7 @@ class Interface():
 	def __atos__(self,a):
 		return ''.join(chr(e) for e in a)
 
-	def read_bulk_flash(self,page,bytes):
+	def read_bulk_flash(self,page,numbytes):
 		"""
 		Reads BYTES from the specified location
 
@@ -2505,11 +2520,11 @@ class Interface():
 		"""
 		self.H.__sendByte__(CP.FLASH)
 		self.H.__sendByte__(CP.READ_BULK_FLASH)
-		self.H.__sendInt__(bytes)   #send the location
+		self.H.__sendInt__(numbytes)   #send the location
 		self.H.__sendByte__(page)
-		ss=self.H.fd.read(int(bytes))
+		ss=self.H.fd.read(int(numbytes))
 		self.H.__get_ack__()
-		self.__print__('Read from ',page,',',bytes,' :',self.__stoa__(ss[:10]),'...')
+		self.__print__('Read from ',page,',',numbytes,' :',self.__stoa__(ss[:10]),'...')
 		return ss
 
 	def write_flash(self,page,location,string_to_write):
