@@ -11,7 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   SEEL
+   SEEL.interface
+   SEEL.Peripherals.I2C_class
+   SEEL.Peripherals.SPI_class
+   SEEL.Peripherals.MCP4728_class
+   SEEL.Peripherals.NRF24L01_class
+   SEEL.Peripherals.NRF_NODE
 
 
 Indices and tables
