@@ -3,14 +3,14 @@ all:
 	make -C docs html
 	#make -C docs/misc all
 	# make in subdirectory SEELablet-apps-master if it is there
-	[ -d SEELablet-apps-master ] && make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+	[ ! -d SEELablet-apps-master ] || make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
 	python setup.py build
 	python3 setup.py build
 
 clean:
 	rm -rf docs/_*
 	# make in subdirectory SEELablet-apps-master if it is there
-	[ -d SEELablet-apps-master ] && make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
+	[ ! -d SEELablet-apps-master ] || make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
 	rm -rf SEEL.egg-info build
 	find . -name "*~" -o -name "*.pyc" -o -name "__pycache__" | xargs rm -rf
 
@@ -18,8 +18,7 @@ IMAGEDIR=$(DESTDIR)/usr/share/doc/seelablet-common/images
 
 install:
 	# make in subdirectory SEELablet-apps-master if it is there
-	#[ -d SEELablet-apps-master ] && make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
-
+	[ ! -d SEELablet-apps-master ] || make -C SEELablet-apps-master $@ DESTDIR=$(DESTDIR)
 	# install documents
 	install -d $(DESTDIR)/usr/share/doc/seelablet
 	#[ -d ../SEELablet_Experiments ] && make -C ../SEELablet_Experiments $@ DESTDIR=$(DESTDIR)
