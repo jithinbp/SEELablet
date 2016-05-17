@@ -24,7 +24,7 @@ import SEEL.packet_handler as packet_handler
 
 from SEEL.achan import *
 from SEEL.digital_channel import *
-import serial,string
+import serial,string,inspect
 import time
 import sys
 import numpy as np
@@ -39,7 +39,7 @@ def connect(**kwargs):
         return obj
     else:
         print('Err')
-        return None
+        raise RuntimeError('Could Not Connect')
     
 
 class Interface():
@@ -109,10 +109,21 @@ class Interface():
 		self.sine1freq = None
 		self.sine2freq = None
 		self.aboutArray=[]
-
+		self.errmsg = ''
 		#--------------------------Initialize communication handler, and subclasses-----------------
-		self.H = packet_handler.Handler(**kwargs)
-		self.__runInitSequence__(**kwargs)
+		try:
+			self.H = packet_handler.Handler(**kwargs)
+		except Exception,ex:
+			self.errmsg = "failed to Connect. Please check connections/arguments\n"+ex.message
+			self.connected = False
+			print(self.errmsg)#raise RuntimeError(msg)
+		
+		try:
+			self.__runInitSequence__(**kwargs)
+		except Exception,ex:
+			self.errmsg = "failed to run init sequence. Check device connections\n"+ex.message
+			self.connected = False
+			print(self.errmsg)#raise RuntimeError(msg)
 
 	def __runInitSequence__(self,**kwargs):
 		self.aboutArray=[]
@@ -281,10 +292,16 @@ class Interface():
 		Returns the version string of the device
 		format: LTS-......
 		"""
-		return self.H.get_version(self.H.fd)
+		try:
+			return self.H.get_version(self.H.fd)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def getRadioLinks(self):
-		return self.NRF.get_nodelist()
+		try:
+			return self.NRF.get_nodelist()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def newRadioLink(self,**args):
 		'''
@@ -305,7 +322,10 @@ class Interface():
 		
 		'''
 		from SEEL.Peripherals import RadioLink
-		return RadioLink(self.NRF,**args)
+		try:
+			return RadioLink(self.NRF,**args)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
 
@@ -319,8 +339,13 @@ class Interface():
 		Attempts to reconnect to the device in case of a commmunication error or accidental disconnect.
 		
 		'''
-		self.H.reconnect(**kwargs)
-		self.__runInitSequence__(**kwargs)
+		try:
+			self.H.reconnect(**kwargs)
+			self.__runInitSequence__(**kwargs)
+		except Exception, ex:
+			self.errmsg = ex.message
+			self.H.disconnect()
+			raise RuntimeError(msg)
 		
 	def capture1(self,ch,ns,tg,*args):
 		"""
@@ -394,13 +419,17 @@ class Interface():
 		:return: Arrays X(timestamps),Y1(Voltage at CH1),Y2(Voltage at CH2)
 		
 		"""
-		self.capture_traces(2,ns,tg,TraceOneRemap)
-		time.sleep(1e-6*self.samples*self.timebase+.01)
-		while not self.oscilloscope_progress()[0]:
-			pass
-			
-		self.__fetch_channel__(1)
-		self.__fetch_channel__(2)
+		try:
+			self.capture_traces(2,ns,tg,TraceOneRemap)
+			time.sleep(1e-6*self.samples*self.timebase+.01)
+			while not self.oscilloscope_progress()[0]:
+				pass
+				
+			self.__fetch_channel__(1)
+			self.__fetch_channel__(2)
+
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		x=self.achans[0].get_xaxis()
 		y=self.achans[0].get_yaxis()
@@ -444,14 +473,18 @@ class Interface():
 		:return: Arrays X(timestamps),Y1(Voltage at CH1),Y2(Voltage at CH2),Y3(Voltage at CH3),Y4(Voltage at CH4)
 		
 		"""
-		self.capture_traces(4,ns,tg,TraceOneRemap)
-		time.sleep(1e-6*self.samples*self.timebase+.01)
-		while not self.oscilloscope_progress()[0]:
-			pass
-		x,y=self.fetch_trace(1)
-		x,y2=self.fetch_trace(2)
-		x,y3=self.fetch_trace(3)
-		x,y4=self.fetch_trace(4)
+		try:
+			self.capture_traces(4,ns,tg,TraceOneRemap)
+			time.sleep(1e-6*self.samples*self.timebase+.01)
+			while not self.oscilloscope_progress()[0]:
+				pass
+			x,y=self.fetch_trace(1)
+			x,y2=self.fetch_trace(2)
+			x,y3=self.fetch_trace(3)
+			x,y4=self.fetch_trace(4)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		
 		return x,y,y2,y3,y4     
 
 	def capture_multiple(self,samples,tg,*args):
@@ -502,40 +535,43 @@ class Interface():
 			CHANNEL_SELECTION|=(1<<C)
 		self.__print__( 'selection',CHANNEL_SELECTION,len(args),hex(CHANNEL_SELECTION|((total_chans-1)<<12)))
 
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.CAPTURE_MULTIPLE)       
-		self.H.__sendInt__(CHANNEL_SELECTION|((total_chans-1)<<12) )
-
-		self.H.__sendInt__(total_samples)           #total number of samples to record
-		self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
-		self.H.__get_ack__()
-		self.__print__( 'wait')
-		time.sleep(1e-6*total_samples*tg+.01)
-		self.__print__( 'done')
-		data=b''
-		for i in range(int(total_samples/self.data_splitting)):
+		try:
 			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(0)  #channel number . starts with A0 on PIC
-			self.H.__sendInt__(self.data_splitting)
-			self.H.__sendInt__(i*self.data_splitting)
-			data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. this works better.
-			self.H.__get_ack__()
+			self.H.__sendByte__(CP.CAPTURE_MULTIPLE)       
+			self.H.__sendInt__(CHANNEL_SELECTION|((total_chans-1)<<12) )
 
-		if total_samples%self.data_splitting:
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(0)  #channel number starts with A0 on PIC
-			self.H.__sendInt__(total_samples%self.data_splitting)
-			self.H.__sendInt__(total_samples-total_samples%self.data_splitting)
-			data += self.H.fd.read(int(2*(total_samples%self.data_splitting)))       #reading int by int may cause packets to be dropped. this works better.
+			self.H.__sendInt__(total_samples)           #total number of samples to record
+			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
 			self.H.__get_ack__()
+			self.__print__( 'wait')
+			time.sleep(1e-6*total_samples*tg+.01)
+			self.__print__( 'done')
+			data=b''
+			for i in range(int(total_samples/self.data_splitting)):
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(0)  #channel number . starts with A0 on PIC
+				self.H.__sendInt__(self.data_splitting)
+				self.H.__sendInt__(i*self.data_splitting)
+				data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. this works better.
+				self.H.__get_ack__()
 
-		for a in range(int(total_samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
-		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
-		yield np.linspace(0,tg*(samples-1),samples)
-		for a in range(int(total_chans)):
-			yield self.buff[a:total_samples][::total_chans]
+			if total_samples%self.data_splitting:
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(0)  #channel number starts with A0 on PIC
+				self.H.__sendInt__(total_samples%self.data_splitting)
+				self.H.__sendInt__(total_samples-total_samples%self.data_splitting)
+				data += self.H.fd.read(int(2*(total_samples%self.data_splitting)))       #reading int by int may cause packets to be dropped. this works better.
+				self.H.__get_ack__()
+
+			for a in range(int(total_samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
+			#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
+			yield np.linspace(0,tg*(samples-1),samples)
+			for a in range(int(total_chans)):
+				yield self.buff[a:total_samples][::total_chans]
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __capture_fullspeed__(self,chan,samples,tg,*args, **kwargs):
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
@@ -548,24 +584,27 @@ class Interface():
 		self.samples = samples
 		CHOSA=self.analogInputSources[chan].CHOSA
 
-		self.H.__sendByte__(CP.ADC)
-		if 'SET_LOW' in args:
-			self.H.__sendByte__(CP.SET_LO_CAPTURE)     
-		elif 'SET_HIGH' in args:
-			self.H.__sendByte__(CP.SET_HI_CAPTURE)     
-		elif 'FIRE_PULSES' in args:
-			self.H.__sendByte__(CP.PULSE_TRAIN)
-			self.__print__('firing sqr1 pulses for ',kwargs.get('interval',1000) , 'uS')  
-		else:
-			self.H.__sendByte__(CP.CAPTURE_DMASPEED)       
-		self.H.__sendByte__(CHOSA)
-		self.H.__sendInt__(samples)         #total number of samples to record
-		self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
-		if 'FIRE_PULSES' in args:
-			t = kwargs.get('interval',1000)
-			self.H.__sendInt__(t)
-			time.sleep(t*1e-6)    #Wait for hardware to free up from firing pulses(blocking call). Background capture starts immediately after this
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.ADC)
+			if 'SET_LOW' in args:
+				self.H.__sendByte__(CP.SET_LO_CAPTURE)     
+			elif 'SET_HIGH' in args:
+				self.H.__sendByte__(CP.SET_HI_CAPTURE)     
+			elif 'FIRE_PULSES' in args:
+				self.H.__sendByte__(CP.PULSE_TRAIN)
+				self.__print__('firing sqr1 pulses for ',kwargs.get('interval',1000) , 'uS')  
+			else:
+				self.H.__sendByte__(CP.CAPTURE_DMASPEED)       
+			self.H.__sendByte__(CHOSA)
+			self.H.__sendInt__(samples)         #total number of samples to record
+			self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
+			if 'FIRE_PULSES' in args:
+				t = kwargs.get('interval',1000)
+				self.H.__sendInt__(t)
+				time.sleep(t*1e-6)    #Wait for hardware to free up from firing pulses(blocking call). Background capture starts immediately after this
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_fullspeed(self,chan,samples,tg,*args,**kwargs):
 		"""
@@ -618,6 +657,7 @@ class Interface():
 		self.__capture_fullspeed__(chan,samples,tg,*args,**kwargs)
 		time.sleep(1e-6*self.samples*self.timebase+kwargs.get('interval',0)*1e-6+0.1)
 		x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
+
 		return x,self.analogInputSources[chan].calPoly10(y)
 
 	def __capture_fullspeed_hr__(self,chan,samples,tg,*args):
@@ -630,46 +670,60 @@ class Interface():
 		self.timebase = int(tg*8)/8.
 		self.samples = samples
 		CHOSA=self.analogInputSources[chan].CHOSA
-
-		self.H.__sendByte__(CP.ADC)
-		if 'SET_LOW' in args:
-			self.H.__sendByte__(CP.SET_LO_CAPTURE)     
-		elif 'SET_HIGH' in args:
-			self.H.__sendByte__(CP.SET_HI_CAPTURE)     
-		elif 'READ_CAP' in args:
-			self.H.__sendByte__(CP.MULTIPOINT_CAPACITANCE)     
-		else:
-			self.H.__sendByte__(CP.CAPTURE_DMASPEED)       
-		self.H.__sendByte__(CHOSA|0x80)
-		self.H.__sendInt__(samples)         #total number of samples to record
-		self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.ADC)
+			if 'SET_LOW' in args:
+				self.H.__sendByte__(CP.SET_LO_CAPTURE)     
+			elif 'SET_HIGH' in args:
+				self.H.__sendByte__(CP.SET_HI_CAPTURE)     
+			elif 'READ_CAP' in args:
+				self.H.__sendByte__(CP.MULTIPOINT_CAPACITANCE)     
+			else:
+				self.H.__sendByte__(CP.CAPTURE_DMASPEED)       
+			self.H.__sendByte__(CHOSA|0x80)
+			self.H.__sendInt__(samples)         #total number of samples to record
+			self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_fullspeed_hr(self,chan,samples,tg,*args):
-		self.__capture_fullspeed_hr__(chan,samples,tg,*args)
-		time.sleep(1e-6*self.samples*self.timebase+.01)
-		x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
+		try:
+			self.__capture_fullspeed_hr__(chan,samples,tg,*args)
+			time.sleep(1e-6*self.samples*self.timebase+.01)
+			x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 		return x,self.analogInputSources[chan].calPoly12(y)
 
 	def __charge_cap__(self,state,t):
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.SET_CAP)
-		self.H.__sendByte__(state)
-		self.H.__sendInt__(t)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.SET_CAP)
+			self.H.__sendByte__(state)
+			self.H.__sendInt__(t)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def __capture_capacitance__(self,samples,tg):
 		from SEEL.analyticsClass import analyticsClass
 		self.AC = analyticsClass()
 		self.__charge_cap__(1,50000)
-
-		x,y=self.capture_fullspeed_hr('CAP',samples,tg,'READ_CAP')
-		fitres =  self.AC.fit_exp(x,y)
-		if fitres:
-			cVal,newy = fitres
-			return x,y,newy,cVal
-		else:
-			return None
+		try:
+			x,y=self.capture_fullspeed_hr('CAP',samples,tg,'READ_CAP')
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		try:
+			fitres =  self.AC.fit_exp(x,y)
+			if fitres:
+				cVal,newy = fitres
+				return x,y,newy,cVal
+			else:
+				return None
+		except Exception, ex:
+			raise RuntimeError(" Fit Failed ")
 
 	def capacitance_via_RC_discharge(self,samples,tg):
 		return self.__capture_capacitance__(samples,tg)[3]
@@ -679,25 +733,33 @@ class Interface():
 		
 		''' 
 		data=b''
-		for i in range(int(samples/self.data_splitting)):
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(0)  #channel number . starts with A0 on PIC
-			self.H.__sendInt__(self.data_splitting)
-			self.H.__sendInt__(i*self.data_splitting)
-			data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. this works better.
-			self.H.__get_ack__()
+		try:
+			for i in range(int(samples/self.data_splitting)):
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(0)  #channel number . starts with A0 on PIC
+				self.H.__sendInt__(self.data_splitting)
+				self.H.__sendInt__(i*self.data_splitting)
+				data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. this works better.
+				self.H.__get_ack__()
 
-		if samples%self.data_splitting:
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(0)  #channel number starts with A0 on PIC
-			self.H.__sendInt__(samples%self.data_splitting)
-			self.H.__sendInt__(samples-samples%self.data_splitting)
-			data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped. this works better.
-			self.H.__get_ack__()
+			if samples%self.data_splitting:
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(0)  #channel number starts with A0 on PIC
+				self.H.__sendInt__(samples%self.data_splitting)
+				self.H.__sendInt__(samples-samples%self.data_splitting)
+				data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped. this works better.
+				self.H.__get_ack__()
 
-		for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		try:
+			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
+		except Exception, ex:
+			msg = "Incorrect Number of Bytes Received\n"
+			raise RuntimeError(msg)
+
 		#self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
 		return np.linspace(0,tg*(samples-1),samples),self.buff[:samples]
 
@@ -776,46 +838,50 @@ class Interface():
 		self.timebase=tg
 		self.timebase = int(self.timebase*8)/8.  # Round off the timescale to 1/8uS units
 		CHOSA = self.analogInputSources[channel_one_input].CHOSA
-		self.H.__sendByte__(CP.ADC)
-		if(num==1):
-			if(self.timebase<1.5):self.timebase=int(1.5*8)/8.
-			if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
+		try:
+			self.H.__sendByte__(CP.ADC)
+			if(num==1):
+				if(self.timebase<1.5):self.timebase=int(1.5*8)/8.
+				if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
 
-			self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
-			self.H.__sendByte__(CP.CAPTURE_ONE)        #read 1 channel
-			self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
+				self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
+				self.H.__sendByte__(CP.CAPTURE_ONE)        #read 1 channel
+				self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
 
-		elif(num==2):
-			if(self.timebase<1.75):self.timebase=int(1.75*8)/8.
-			if(samples>self.MAX_SAMPLES/2):samples=self.MAX_SAMPLES/2
+			elif(num==2):
+				if(self.timebase<1.75):self.timebase=int(1.75*8)/8.
+				if(samples>self.MAX_SAMPLES/2):samples=self.MAX_SAMPLES/2
 
-			self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
-			self.achans[1].set_params(channel='CH2',length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources['CH2'])
-			
-			self.H.__sendByte__(CP.CAPTURE_TWO)            #capture 2 channels
-			self.H.__sendByte__(CHOSA|triggerornot)             #channel 0 number
+				self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[channel_one_input])
+				self.achans[1].set_params(channel='CH2',length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources['CH2'])
+				
+				self.H.__sendByte__(CP.CAPTURE_TWO)            #capture 2 channels
+				self.H.__sendByte__(CHOSA|triggerornot)             #channel 0 number
 
-		elif(num==3 or num==4):
-			if(self.timebase<1.75):self.timebase=int(1.75*8)/8.
-			if(samples>self.MAX_SAMPLES/4):samples=self.MAX_SAMPLES/4
+			elif(num==3 or num==4):
+				if(self.timebase<1.75):self.timebase=int(1.75*8)/8.
+				if(samples>self.MAX_SAMPLES/4):samples=self.MAX_SAMPLES/4
 
-			self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,\
-			resolution=10,source=self.analogInputSources[channel_one_input])
+				self.achans[0].set_params(channel=channel_one_input,length=samples,timebase=self.timebase,\
+				resolution=10,source=self.analogInputSources[channel_one_input])
 
-			for a in range(1,4):
-				chans=['NONE','CH2','CH3','MIC']
-				self.achans[a].set_params(channel=chans[a],length=samples,timebase=self.timebase,\
-				resolution=10,source=self.analogInputSources[chans[a]])
-			
-			self.H.__sendByte__(CP.CAPTURE_FOUR)           #read 4 channels
-			self.H.__sendByte__(CHOSA|(CH123SA<<4)|triggerornot)        #channel number
+				for a in range(1,4):
+					chans=['NONE','CH2','CH3','MIC']
+					self.achans[a].set_params(channel=chans[a],length=samples,timebase=self.timebase,\
+					resolution=10,source=self.analogInputSources[chans[a]])
+				
+				self.H.__sendByte__(CP.CAPTURE_FOUR)           #read 4 channels
+				self.H.__sendByte__(CHOSA|(CH123SA<<4)|triggerornot)        #channel number
 
 
-		self.samples=samples
-		self.H.__sendInt__(samples)         #number of samples per channel to record
-		self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
-		self.H.__get_ack__()
-		self.channels_in_buffer=num
+			self.samples=samples
+			self.H.__sendInt__(samples)         #number of samples per channel to record
+			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
+			self.H.__get_ack__()
+			self.channels_in_buffer=num
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 
 	def capture_highres_traces(self,channel,samples,tg,**kwargs):
 		"""
@@ -844,21 +910,23 @@ class Interface():
 		"""
 		triggerornot=0x80 if kwargs.get('trigger',True) else 0
 		self.timebase=tg
-		self.H.__sendByte__(CP.ADC)
+		try:
+			self.H.__sendByte__(CP.ADC)
+			CHOSA = self.analogInputSources[channel].CHOSA
+			if(self.timebase<3):self.timebase=3
+			if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
+			self.achans[0].set_params(channel=channel,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
 
-		CHOSA = self.analogInputSources[channel].CHOSA
-		if(self.timebase<3):self.timebase=3
-		if(samples>self.MAX_SAMPLES):samples=self.MAX_SAMPLES
-		self.achans[0].set_params(channel=channel,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
+			self.H.__sendByte__(CP.CAPTURE_12BIT)          #read 1 channel
+			self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
 
-		self.H.__sendByte__(CP.CAPTURE_12BIT)          #read 1 channel
-		self.H.__sendByte__(CHOSA|triggerornot)     #channelk number
-
-		self.samples=samples
-		self.H.__sendInt__(samples)         #number of samples to read
-		self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
-		self.H.__get_ack__()
-		self.channels_in_buffer=1
+			self.samples=samples
+			self.H.__sendInt__(samples)         #number of samples to read
+			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
+			self.H.__get_ack__()
+			self.channels_in_buffer=1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_trace(self,channel_number):
 		"""
@@ -908,9 +976,8 @@ class Interface():
 			conversion_done = self.H.__getByte__()
 			samples = self.H.__getInt__()
 			self.H.__get_ack__()
-		except Exception as e:
-			self.__print__('disconnected!! Error =', e)
-			#sys.exit(1)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return conversion_done,samples
 
 	def __fetch_channel__(self,channel_number):
@@ -932,26 +999,34 @@ class Interface():
 			self.__print__('Channel unavailable')
 			return False
 		data=b''
-		for i in range(int(samples/self.data_splitting)):
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
-			self.H.__sendInt__(self.data_splitting)
-			self.H.__sendInt__(i*self.data_splitting)
-			data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. 
-			self.H.__get_ack__()
+		try:
+			for i in range(int(samples/self.data_splitting)):
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
+				self.H.__sendInt__(self.data_splitting)
+				self.H.__sendInt__(i*self.data_splitting)
+				data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. 
+				self.H.__get_ack__()
 
-		if samples%self.data_splitting:
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-			self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
-			self.H.__sendInt__(samples%self.data_splitting)
-			self.H.__sendInt__(samples-samples%self.data_splitting)
-			data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped.
-			self.H.__get_ack__()
+			if samples%self.data_splitting:
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+				self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
+				self.H.__sendInt__(samples%self.data_splitting)
+				self.H.__sendInt__(samples-samples%self.data_splitting)
+				data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped.
+				self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-		for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
-		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
+		try:
+			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
+			self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
+		except Exception, ex:
+			msg = "Incorrect Number of bytes received.\n"
+			raise RuntimeError(msg)
+
 		return True
 
 	def __fetch_channel_oneshot__(self,channel_number):
@@ -972,15 +1047,19 @@ class Interface():
 		if(channel_number>self.channels_in_buffer):
 			self.__print__('Channel unavailable')
 			return False
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-		self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
-		self.H.__sendInt__(samples)
-		self.H.__sendInt__(offset)
-		data = self.H.fd.read(int(samples*2))        #reading int by int sometimes causes a communication error. this works better.
-		self.H.__get_ack__()
-		for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
-		self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
+		try:
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
+			self.H.__sendByte__(channel_number-1)   #starts with A0 on PIC
+			self.H.__sendInt__(samples)
+			self.H.__sendInt__(offset)
+			data = self.H.fd.read(int(samples*2))        #reading int by int sometimes causes a communication error. this works better.
+			self.H.__get_ack__()
+			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
+			self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 		return True
 		
 	def configure_trigger(self,chan,name,voltage,resolution=10,**kwargs):
@@ -1017,22 +1096,25 @@ class Interface():
 
 		"""
 		prescaler = kwargs.get('prescaler',0)
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.CONFIGURE_TRIGGER)
-		self.H.__sendByte__((prescaler<<4)|(1<<chan))    #Trigger channel (4lsb) , trigger timeout prescaler (4msb)
-		
-		if resolution==12:
-			level = self.analogInputSources[name].voltToCode12(voltage)
-			level = np.clip(level,0,4095)
-		else:
-			level = self.analogInputSources[name].voltToCode10(voltage)
-			level = np.clip(level,0,1023)
+		try:
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.CONFIGURE_TRIGGER)
+			self.H.__sendByte__((prescaler<<4)|(1<<chan))    #Trigger channel (4lsb) , trigger timeout prescaler (4msb)
+			
+			if resolution==12:
+				level = self.analogInputSources[name].voltToCode12(voltage)
+				level = np.clip(level,0,4095)
+			else:
+				level = self.analogInputSources[name].voltToCode10(voltage)
+				level = np.clip(level,0,1023)
 
-		if level>(2**resolution - 1):level=(2**resolution - 1)
-		elif level<0:level=0
+			if level>(2**resolution - 1):level=(2**resolution - 1)
+			elif level<0:level=0
 
-		self.H.__sendInt__(int(level))  #Trigger
-		self.H.__get_ack__()
+			self.H.__sendInt__(int(level))  #Trigger
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_gain(self,channel,gain):
 		"""
@@ -1065,16 +1147,18 @@ class Interface():
 		if self.analogInputSources[channel].gainPGA==None:
 			self.__print__('No amplifier exists on this channel :',channel)
 			return
-		
-		self.analogInputSources[channel].setGain(self.gain_values[gain])
-		if gain>7: gain = 0   # external attenuator mode. set gain 1x
-			
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.SET_PGA_GAIN)
-		self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel. SPI, not multiplexer
-		self.H.__sendByte__(gain) #send the gain
-		self.H.__get_ack__()
-		return self.gain_values[gain]
+		try:
+			self.analogInputSources[channel].setGain(self.gain_values[gain])
+			if gain>7: gain = 0   # external attenuator mode. set gain 1x
+				
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.SET_PGA_GAIN)
+			self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel. SPI, not multiplexer
+			self.H.__sendByte__(gain) #send the gain
+			self.H.__get_ack__()
+			return self.gain_values[gain]
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __calcCHOSA__(self,name):
 		name=name.upper()
@@ -1114,7 +1198,11 @@ class Interface():
 		1.002
 		
 		"""
-		poly = self.analogInputSources[channel_name].calPoly12
+		try:
+			poly = self.analogInputSources[channel_name].calPoly12
+		except Exception, ex:
+			msg = "Invalid Channel"+ex
+			raise RuntimeError(msg)
 		vals = [self.__get_raw_average_voltage__(channel_name,**kwargs) for a in range(int(kwargs.get('samples',1)))]
 		#if vals[0]>2052:print (vals)
 		val = np.average([poly(a) for a in vals])
@@ -1134,46 +1222,59 @@ class Interface():
 		==============  ============================================================================================================
 
 		"""
-		chosa = self.__calcCHOSA__(channel_name)
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.GET_VOLTAGE_SUMMED)
-		self.H.__sendByte__(chosa) 
-		V_sum = self.H.__getInt__()
-		self.H.__get_ack__()
-		return  V_sum/16. #sum(V)/16.0  #
+		try:
+			chosa = self.__calcCHOSA__(channel_name)
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.GET_VOLTAGE_SUMMED)
+			self.H.__sendByte__(chosa) 
+			V_sum = self.H.__getInt__()
+			self.H.__get_ack__()
+			return  V_sum/16. #sum(V)/16.0  #
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_buffer(self,starting_position=0,total_points=100):
 		"""
 		fetches a section of the ADC hardware buffer
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.RETRIEVE_BUFFER)
-		self.H.__sendInt__(starting_position)
-		self.H.__sendInt__(total_points)
-		for a in range(int(total_points)): self.buff[a]=self.H.__getInt__()
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.RETRIEVE_BUFFER)
+			self.H.__sendInt__(starting_position)
+			self.H.__sendInt__(total_points)
+			for a in range(int(total_points)): self.buff[a]=self.H.__getInt__()
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 
 	def clear_buffer(self,starting_position,total_points):
 		"""
 		clears a section of the ADC hardware buffer
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.CLEAR_BUFFER)
-		self.H.__sendInt__(starting_position)
-		self.H.__sendInt__(total_points)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.CLEAR_BUFFER)
+			self.H.__sendInt__(starting_position)
+			self.H.__sendInt__(total_points)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fill_buffer(self,starting_position,point_array):
 		"""
 		fill a section of the ADC hardware buffer with data
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.FILL_BUFFER)
-		self.H.__sendInt__(starting_position)
-		self.H.__sendInt__(len(point_array))
-		for a in point_array:
-			self.H.__sendInt__(int(a))
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.FILL_BUFFER)
+			self.H.__sendInt__(starting_position)
+			self.H.__sendInt__(len(point_array))
+			for a in point_array:
+				self.H.__sendInt__(int(a))
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_streaming(self,tg,channel='CH1'):
 		"""
@@ -1190,12 +1291,14 @@ class Interface():
 
 		"""
 		if(self.streaming):self.stop_streaming()
-		
-		self.H.__sendByte__(CP.ADC)
-		self.H.__sendByte__(CP.START_ADC_STREAMING)
-		self.H.__sendByte__(self.__calcCHOSA__(channel))
-		self.H.__sendInt__(tg)      #Timegap between samples.  8MHz timer clock
-		self.streaming=True
+		try:
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.START_ADC_STREAMING)
+			self.H.__sendByte__(self.__calcCHOSA__(channel))
+			self.H.__sendInt__(tg)      #Timegap between samples.  8MHz timer clock
+			self.streaming=True
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop_streaming(self):
 		"""
@@ -1253,26 +1356,32 @@ class Interface():
 
 		:return: frequency
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_HIGH_FREQUENCY)
-		self.H.__sendByte__(self.__calcDChan__(pin))
-		scale=self.H.__getByte__()
-		val = self.H.__getLong__()
-		self.H.__get_ack__()
-		return scale*(val)/1.0e-1 #100mS sampling
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_HIGH_FREQUENCY)
+			self.H.__sendByte__(self.__calcDChan__(pin))
+			scale=self.H.__getByte__()
+			val = self.H.__getLong__()
+			self.H.__get_ack__()
+			return scale*(val)/1.0e-1 #100mS sampling
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_high_freq(self,pin):
 		""" 
 		experimental feature. Attempt to use fewer timers
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_ALTERNATE_HIGH_FREQUENCY)
-		self.H.__sendByte__(self.__calcDChan__(pin))
-		scale=self.H.__getByte__()
-		val = self.H.__getLong__()
-		self.H.__get_ack__()
-		#self.__print__(hex(val))
-		return scale*(val)/1.0e-1 #100mS sampling
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_ALTERNATE_HIGH_FREQUENCY)
+			self.H.__sendByte__(self.__calcDChan__(pin))
+			scale=self.H.__getByte__()
+			val = self.H.__getLong__()
+			self.H.__get_ack__()
+			#self.__print__(hex(val))
+			return scale*(val)/1.0e-1 #100mS sampling
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_freq(self,channel='CNTR',timeout=0.1):
 		"""
@@ -1316,16 +1425,19 @@ class Interface():
 			(0.00025,6.25e-05)          
 		
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_FREQUENCY)
-		timeout_msb = int((timeout*64e6))>>16
-		self.H.__sendInt__(timeout_msb)
-		self.H.__sendByte__(self.__calcDChan__(channel))
-		tmt = self.H.__getByte__()
-		x=[self.H.__getLong__() for a in range(2)]
-		self.H.__get_ack__()
-		freq = lambda t: 16*64e6/t if(t) else 0
-		#self.__print__(x,tmt,timeout_msb)
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_FREQUENCY)
+			timeout_msb = int((timeout*64e6))>>16
+			self.H.__sendInt__(timeout_msb)
+			self.H.__sendByte__(self.__calcDChan__(channel))
+			tmt = self.H.__getByte__()
+			x=[self.H.__getLong__() for a in range(2)]
+			self.H.__get_ack__()
+			freq = lambda t: 16*64e6/t if(t) else 0
+			#self.__print__(x,tmt,timeout_msb)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		if(tmt):return 0
 		return freq(x[1]-x[0])
 
@@ -1382,20 +1494,23 @@ class Interface():
 		:return list: Array of points
 		
 		"""
-		if timeout>60:timeout=60
-		self.start_one_channel_LA(channel=channel,channel_mode=3,trigger_mode=0)  #every rising edge
-		startTime=time.time()
-		while time.time() - startTime <timeout:
-			a,b,c,d,e = self.get_LA_initial_states()
-			if a==self.MAX_SAMPLES/4:
-				a = 0
-			if a>=skip_cycle+2:
-				tmp = self.fetch_long_data_from_LA(a,1)
-				self.dchans[0].load_data(e,tmp)
-				#print (self.dchans[0].timestamps)
-				return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
-			time.sleep(0.1)
-		return []
+		try:
+			if timeout>60:timeout=60
+			self.start_one_channel_LA(channel=channel,channel_mode=3,trigger_mode=0)  #every rising edge
+			startTime=time.time()
+			while time.time() - startTime <timeout:
+				a,b,c,d,e = self.get_LA_initial_states()
+				if a==self.MAX_SAMPLES/4:
+					a = 0
+				if a>=skip_cycle+2:
+					tmp = self.fetch_long_data_from_LA(a,1)
+					self.dchans[0].load_data(e,tmp)
+					#print (self.dchans[0].timestamps)
+					return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
+				time.sleep(0.1)
+			return []
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def f2f_time(self,channel,skip_cycle=0,timeout=5):
 		""" 
@@ -1414,20 +1529,23 @@ class Interface():
 		:return list: Array of points
 		
 		"""
-		if timeout>60:timeout=60
-		self.start_one_channel_LA(channel=channel,channel_mode=2,trigger_mode=0)  #every falling edge
-		startTime=time.time()
-		while time.time() - startTime <timeout:
-			a,b,c,d,e = self.get_LA_initial_states()
-			if a==self.MAX_SAMPLES/4:
-				a = 0
-			if a>=skip_cycle+2:
-				tmp = self.fetch_long_data_from_LA(a,1)
-				self.dchans[0].load_data(e,tmp)
-				#print (self.dchans[0].timestamps)
-				return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
-			time.sleep(0.1)
-		return []
+		try:
+			if timeout>60:timeout=60
+			self.start_one_channel_LA(channel=channel,channel_mode=2,trigger_mode=0)  #every falling edge
+			startTime=time.time()
+			while time.time() - startTime <timeout:
+				a,b,c,d,e = self.get_LA_initial_states()
+				if a==self.MAX_SAMPLES/4:
+					a = 0
+				if a>=skip_cycle+2:
+					tmp = self.fetch_long_data_from_LA(a,1)
+					self.dchans[0].load_data(e,tmp)
+					#print (self.dchans[0].timestamps)
+					return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
+				time.sleep(0.1)
+			return []
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def MeasureInterval(self,channel1,channel2,edge1,edge2,timeout=0.1):
 		""" 
@@ -1465,31 +1583,34 @@ class Interface():
 		
 		
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.INTERVAL_MEASUREMENTS)
-		timeout_msb = int((timeout*64e6))>>16
-		self.H.__sendInt__(timeout_msb)
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.INTERVAL_MEASUREMENTS)
+			timeout_msb = int((timeout*64e6))>>16
+			self.H.__sendInt__(timeout_msb)
 
-		self.H.__sendByte__(self.__calcDChan__(channel1)|(self.__calcDChan__(channel2)<<4))
+			self.H.__sendByte__(self.__calcDChan__(channel1)|(self.__calcDChan__(channel2)<<4))
 
-		params =0
-		if edge1  == 'rising': params |= 3 
-		elif edge1=='falling': params |= 2
-		else:              params |= 4
+			params =0
+			if edge1  == 'rising': params |= 3 
+			elif edge1=='falling': params |= 2
+			else:              params |= 4
 
-		if edge2  == 'rising': params |= 3<<3 
-		elif edge2=='falling': params |= 2<<3
-		else:              params |= 4<<3
+			if edge2  == 'rising': params |= 3<<3 
+			elif edge2=='falling': params |= 2<<3
+			else:              params |= 4<<3
 
-		self.H.__sendByte__(params)
-		A=self.H.__getLong__()
-		B=self.H.__getLong__()
-		tmt = self.H.__getInt__()
-		self.H.__get_ack__()
-		#self.__print__(A,B)
-		if(tmt >= timeout_msb or B==0):return np.NaN
-		rtime = lambda t: t/64e6
-		return rtime(B-A+20)
+			self.H.__sendByte__(params)
+			A=self.H.__getLong__()
+			B=self.H.__getLong__()
+			tmt = self.H.__getInt__()
+			self.H.__get_ack__()
+			#self.__print__(A,B)
+			if(tmt >= timeout_msb or B==0):return np.NaN
+			rtime = lambda t: t/64e6
+			return rtime(B-A+20)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def DutyCycle(self,channel='ID1',timeout=1.):
 		""" 
@@ -1514,21 +1635,24 @@ class Interface():
 		.. seealso:: timing_example_
 
 		"""
-		x,y = self.MeasureMultipleDigitalEdges(channel,channel,'rising','falling',2,2,timeout,zero=True)
-		if x!=None and y!=None:  # Both timers registered something. did not timeout
-			if y[0]>0:   #rising edge occured first
-				dt = [y[0],x[1]]
-			else:       #falling edge occured first
-				if y[1]>x[1]:
-					return -1,-1 #Edge dropped. return False
-				dt = [y[1],x[1]]
-			#self.__print__(x,y,dt)
-			params = dt[1],dt[0]/dt[1]
-			if params[1]>0.5:
-				self.__print__(x,y,dt)
-			return params
-		else:
-			return -1,-1
+		try:
+			x,y = self.MeasureMultipleDigitalEdges(channel,channel,'rising','falling',2,2,timeout,zero=True)
+			if x!=None and y!=None:  # Both timers registered something. did not timeout
+				if y[0]>0:   #rising edge occured first
+					dt = [y[0],x[1]]
+				else:       #falling edge occured first
+					if y[1]>x[1]:
+						return -1,-1 #Edge dropped. return False
+					dt = [y[1],x[1]]
+				#self.__print__(x,y,dt)
+				params = dt[1],dt[0]/dt[1]
+				if params[1]>0.5:
+					self.__print__(x,y,dt)
+				return params
+			else:
+				return -1,-1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def PulseTime(self,channel='ID1',PulseType='LOW',timeout=0.1):
 		""" 
@@ -1554,15 +1678,18 @@ class Interface():
 		.. seealso:: timing_example_
 
 		"""
-		x,y = self.MeasureMultipleDigitalEdges(channel,channel,'rising','falling',2,2,timeout,zero=True)
-		if x!=None and y!=None:  # Both timers registered something. did not timeout
-			if y[0]>0:   #rising edge occured first
-				if PulseType=='HIGH': return y[0]
-				elif PulseType=='LOW': return x[1]-y[0]
-			else:       #falling edge occured first
-				if PulseType=='HIGH': return y[1]
-				elif PulseType=='LOW': return abs(y[0])
-		return -1,-1
+		try:
+			x,y = self.MeasureMultipleDigitalEdges(channel,channel,'rising','falling',2,2,timeout,zero=True)
+			if x!=None and y!=None:  # Both timers registered something. did not timeout
+				if y[0]>0:   #rising edge occured first
+					if PulseType=='HIGH': return y[0]
+					elif PulseType=='LOW': return x[1]-y[0]
+				else:       #falling edge occured first
+					if PulseType=='HIGH': return y[1]
+					elif PulseType=='LOW': return abs(y[0])
+			return -1,-1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def MeasureMultipleDigitalEdges(self,channel1,channel2,edgeType1,edgeType2,points1,points2,timeout=0.1,**kwargs):
 		""" 
@@ -1609,42 +1736,45 @@ class Interface():
 		
 		
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.TIMING_MEASUREMENTS)
-		timeout_msb = int((timeout*64e6))>>16
-		#print ('timeout',timeout_msb)
-		self.H.__sendInt__(timeout_msb)
-		self.H.__sendByte__(self.__calcDChan__(channel1)|(self.__calcDChan__(channel2)<<4))
-		params =0
-		if edgeType1  == 'rising': params |= 3 
-		elif edgeType1=='falling': params |= 2
-		else:              params |= 4
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.TIMING_MEASUREMENTS)
+			timeout_msb = int((timeout*64e6))>>16
+			#print ('timeout',timeout_msb)
+			self.H.__sendInt__(timeout_msb)
+			self.H.__sendByte__(self.__calcDChan__(channel1)|(self.__calcDChan__(channel2)<<4))
+			params =0
+			if edgeType1  == 'rising': params |= 3 
+			elif edgeType1=='falling': params |= 2
+			else:              params |= 4
 
-		if edgeType2  == 'rising': params |= 3<<3 
-		elif edgeType2=='falling': params |= 2<<3
-		else:              params |= 4<<3
+			if edgeType2  == 'rising': params |= 3<<3 
+			elif edgeType2=='falling': params |= 2<<3
+			else:              params |= 4<<3
 
-		if('SQR1' in kwargs):  # User wants to toggle SQ1 before starting the timer
-			params|=(1<<6)
-			if kwargs['SQR1']=='HIGH':params|=(1<<7)
-		self.H.__sendByte__(params)
-		if points1>4:points1=4
-		if points2>4:points2=4
-		self.H.__sendByte__(points1|(points2<<4))  #Number of points to fetch from either channel
+			if('SQR1' in kwargs):  # User wants to toggle SQ1 before starting the timer
+				params|=(1<<6)
+				if kwargs['SQR1']=='HIGH':params|=(1<<7)
+			self.H.__sendByte__(params)
+			if points1>4:points1=4
+			if points2>4:points2=4
+			self.H.__sendByte__(points1|(points2<<4))  #Number of points to fetch from either channel
 
-		self.H.waitForData(timeout)
+			self.H.waitForData(timeout)
 
-		A=np.array([self.H.__getLong__() for a in range(points1)])
-		B=np.array([self.H.__getLong__() for a in range(points2)])
-		tmt = self.H.__getInt__()
-		self.H.__get_ack__()
-		#print(A,B)
-		if(tmt >= timeout_msb ):return None,None
-		rtime = lambda t: t/64e6
-		if(kwargs.get('zero',True)):  # User wants set a reference timestamp
-			return rtime(A-A[0]),rtime(B-A[0])
-		else:
-			return rtime(A),rtime(B)
+			A=np.array([self.H.__getLong__() for a in range(points1)])
+			B=np.array([self.H.__getLong__() for a in range(points2)])
+			tmt = self.H.__getInt__()
+			self.H.__get_ack__()
+			#print(A,B)
+			if(tmt >= timeout_msb ):return None,None
+			rtime = lambda t: t/64e6
+			if(kwargs.get('zero',True)):  # User wants set a reference timestamp
+				return rtime(A-A[0]),rtime(B-A[0])
+			else:
+				return rtime(A),rtime(B)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_edges1(self,waiting_time=1.,**args):
 		""" 
@@ -1690,14 +1820,17 @@ class Interface():
 		aqmode = args.get('channel_mode',3)
 		trmode = args.get('trigger_mode',3)
 
-		self.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_channel=trchan,trigger_mode=trmode)
+		try:
+			self.start_one_channel_LA(channel=aqchan,channel_mode=aqmode,trigger_channel=trchan,trigger_mode=trmode)
 
-		time.sleep(waiting_time)
+			time.sleep(waiting_time)
 
-		data=self.get_LA_initial_states()
-		tmp = self.fetch_long_data_from_LA(data[0],1)
-		#data[4][0] -> initial state
-		return tmp/64e6     
+			data=self.get_LA_initial_states()
+			tmp = self.fetch_long_data_from_LA(data[0],1)
+			#data[4][0] -> initial state
+			return tmp/64e6     
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_one_channel_LA_backup__(self,trigger=1,channel='ID1',maximum_time=67,**args):
 		""" 
@@ -1721,38 +1854,42 @@ class Interface():
 		:return: Nothing
 
 		"""
-		self.clear_buffer(0,self.MAX_SAMPLES/2);
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.START_ONE_CHAN_LA)
-		self.H.__sendInt__(self.MAX_SAMPLES/4)
-		#trigchan bit functions
-			# b0 - trigger or not
-			# b1 - trigger edge . 1 => rising. 0 => falling
-			# b2, b3 - channel to acquire data from. ID1,ID2,ID3,ID4,COMPARATOR
-			# b4 - trigger channel ID1
-			# b5 - trigger channel ID2
-			# b6 - trigger channel ID3
+		try:
+			self.clear_buffer(0,self.MAX_SAMPLES/2);
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.START_ONE_CHAN_LA)
+			self.H.__sendInt__(self.MAX_SAMPLES/4)
+			#trigchan bit functions
+				# b0 - trigger or not
+				# b1 - trigger edge . 1 => rising. 0 => falling
+				# b2, b3 - channel to acquire data from. ID1,ID2,ID3,ID4,COMPARATOR
+				# b4 - trigger channel ID1
+				# b5 - trigger channel ID2
+				# b6 - trigger channel ID3
 
-		if ('trigger_channels' in args) and trigger&1:
-			trigchans = args.get('trigger_channels',0)
-			if 'ID1' in trigchans : trigger|= (1<<4)
-			if 'ID2' in trigchans : trigger|= (1<<5)
-			if 'ID3' in trigchans : trigger|= (1<<6)
-		else:
-			trigger |= 1<<(self.__calcDChan__(channel)+4) #trigger on specified input channel if not trigger_channel argument provided
+			if ('trigger_channels' in args) and trigger&1:
+				trigchans = args.get('trigger_channels',0)
+				if 'ID1' in trigchans : trigger|= (1<<4)
+				if 'ID2' in trigchans : trigger|= (1<<5)
+				if 'ID3' in trigchans : trigger|= (1<<6)
+			else:
+				trigger |= 1<<(self.__calcDChan__(channel)+4) #trigger on specified input channel if not trigger_channel argument provided
 
-		trigger |= 2 if args.get('edge',0)=='rising' else 0
-		trigger |= self.__calcDChan__(channel)<<2
+			trigger |= 2 if args.get('edge',0)=='rising' else 0
+			trigger |= self.__calcDChan__(channel)<<2
 
-		self.H.__sendByte__(trigger)
-		self.H.__get_ack__()
-		self.digital_channels_in_buffer = 1
-		for a in self.dchans:
-			a.prescaler = 0
-			a.datatype='long'
-			a.length = self.MAX_SAMPLES/4
-			a.maximum_time = maximum_time*1e6 #conversion to uS
-			a.mode = EVERY_EDGE
+			self.H.__sendByte__(trigger)
+			self.H.__get_ack__()
+			self.digital_channels_in_buffer = 1
+			for a in self.dchans:
+				a.prescaler = 0
+				a.datatype='long'
+				a.length = self.MAX_SAMPLES/4
+				a.maximum_time = maximum_time*1e6 #conversion to uS
+				a.mode = EVERY_EDGE
+
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		#def start_one_channel_LA(self,**args):
 			""" 
@@ -1863,33 +2000,36 @@ class Interface():
 		see :ref:`LA_video`
 
 		"""
-		self.clear_buffer(0,self.MAX_SAMPLES/2);
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.START_ALTERNATE_ONE_CHAN_LA)
-		self.H.__sendInt__(self.MAX_SAMPLES/4)
-		aqchan = self.__calcDChan__(args.get('channel','ID1'))
-		aqmode = args.get('channel_mode',1)
-		trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
-		trmode = args.get('trigger_mode',3)
-		
-		self.H.__sendByte__((aqchan<<4)|aqmode)
-		self.H.__sendByte__((trchan<<4)|trmode)
-		
-		self.H.__get_ack__()
-		self.digital_channels_in_buffer = 1
+		try:
+			self.clear_buffer(0,self.MAX_SAMPLES/2);
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.START_ALTERNATE_ONE_CHAN_LA)
+			self.H.__sendInt__(self.MAX_SAMPLES/4)
+			aqchan = self.__calcDChan__(args.get('channel','ID1'))
+			aqmode = args.get('channel_mode',1)
+			trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
+			trmode = args.get('trigger_mode',3)
+			
+			self.H.__sendByte__((aqchan<<4)|aqmode)
+			self.H.__sendByte__((trchan<<4)|trmode)
+			
+			self.H.__get_ack__()
+			self.digital_channels_in_buffer = 1
 
-		a = self.dchans[0]
-		a.prescaler = 0
-		a.datatype='long'
-		a.length = self.MAX_SAMPLES/4
-		a.maximum_time = 67*1e6 #conversion to uS
-		a.mode = args.get('channel_mode',1)
-		a.name = args.get('channel','ID1')
-		
-		if trmode in [3,4,5]:
-			a.initial_state_override = 2
-		elif trmode == 2:
-			a.initial_state_override = 1
+			a = self.dchans[0]
+			a.prescaler = 0
+			a.datatype='long'
+			a.length = self.MAX_SAMPLES/4
+			a.maximum_time = 67*1e6 #conversion to uS
+			a.mode = args.get('channel_mode',1)
+			a.name = args.get('channel','ID1')
+			
+			if trmode in [3,4,5]:
+				a.initial_state_override = 2
+			elif trmode == 2:
+				a.initial_state_override = 1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_two_channel_LA(self,trigger=1,maximum_time=67):
 		""" 
@@ -1912,23 +2052,25 @@ class Interface():
 		"""
 		chans=[0,1]
 		modes=[1,1]
+		try:
+			self.clear_buffer(0,self.MAX_SAMPLES);
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.START_TWO_CHAN_LA)
+			self.H.__sendInt__(self.MAX_SAMPLES/4)
+			self.H.__sendByte__(trigger|chans[0])
 
-		self.clear_buffer(0,self.MAX_SAMPLES);
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.START_TWO_CHAN_LA)
-		self.H.__sendInt__(self.MAX_SAMPLES/4)
-		self.H.__sendByte__(trigger|chans[0])
-
-		self.H.__sendByte__((modes[1]<<4)|modes[0]) #Modes. four bits each
-		self.H.__sendByte__((chans[1]<<4)|chans[0]) #Channels. four bits each
-		self.H.__get_ack__()
-		n=0;
-		for a in self.dchans[:2]:
-			a.prescaler = 0;a.length = self.MAX_SAMPLES/4;  a.datatype='long';a.maximum_time = maximum_time*1e6 #conversion to uS
-			a.mode = modes[n];a.channel_number=chans[n]
-			a.name = a.digital_channel_names[n]
-			n+=1
-		self.digital_channels_in_buffer = 2
+			self.H.__sendByte__((modes[1]<<4)|modes[0]) #Modes. four bits each
+			self.H.__sendByte__((chans[1]<<4)|chans[0]) #Channels. four bits each
+			self.H.__get_ack__()
+			n=0;
+			for a in self.dchans[:2]:
+				a.prescaler = 0;a.length = self.MAX_SAMPLES/4;  a.datatype='long';a.maximum_time = maximum_time*1e6 #conversion to uS
+				a.mode = modes[n];a.channel_number=chans[n]
+				a.name = a.digital_channel_names[n]
+				n+=1
+			self.digital_channels_in_buffer = 2
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_three_channel_LA(self,**args):
 		""" 
@@ -1960,33 +2102,36 @@ class Interface():
 		:return: Nothing
 
 		"""
-		self.clear_buffer(0,self.MAX_SAMPLES);
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.START_THREE_CHAN_LA)
-		self.H.__sendInt__(self.MAX_SAMPLES/4)
-		modes = args.get('modes',[1,1,1,1])
-		trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
-		trmode = args.get('trigger_mode',3)
-		
-		self.H.__sendInt__(modes[0]|(modes[1]<<4)|(modes[2]<<8))
-		self.H.__sendByte__((trchan<<4)|trmode)
-		
-		self.H.__get_ack__()
-		self.digital_channels_in_buffer = 3
+		try:
+			self.clear_buffer(0,self.MAX_SAMPLES);
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.START_THREE_CHAN_LA)
+			self.H.__sendInt__(self.MAX_SAMPLES/4)
+			modes = args.get('modes',[1,1,1,1])
+			trchan = self.__calcDChan__(args.get('trigger_channel','ID1'))
+			trmode = args.get('trigger_mode',3)
+			
+			self.H.__sendInt__(modes[0]|(modes[1]<<4)|(modes[2]<<8))
+			self.H.__sendByte__((trchan<<4)|trmode)
+			
+			self.H.__get_ack__()
+			self.digital_channels_in_buffer = 3
 
-		n=0
-		for a in self.dchans[:3]:
-			a.prescaler = 0
-			a.length = self.MAX_SAMPLES/4
-			a.datatype='int'
-			a.maximum_time = 1e3 #< 1 mS between each consecutive level changes in the input signal must be ensured to prevent rollover
-			a.mode=modes[n]
-			a.name = a.digital_channel_names[n]
-			if trmode in [3,4,5]:
-				a.initial_state_override = 2
-			elif trmode == 2:
-				a.initial_state_override = 1
-			n+=1
+			n=0
+			for a in self.dchans[:3]:
+				a.prescaler = 0
+				a.length = self.MAX_SAMPLES/4
+				a.datatype='int'
+				a.maximum_time = 1e3 #< 1 mS between each consecutive level changes in the input signal must be ensured to prevent rollover
+				a.mode=modes[n]
+				a.name = a.digital_channel_names[n]
+				if trmode in [3,4,5]:
+					a.initial_state_override = 2
+				elif trmode == 2:
+					a.initial_state_override = 1
+				n+=1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_four_channel_LA(self,trigger=1,maximum_time=0.001,mode=[1,1,1,1],**args):
 		""" 
@@ -2039,30 +2184,33 @@ class Interface():
 		elif(maximum_time > 0.0010239):
 			prescale = 1
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.START_FOUR_CHAN_LA)
-		self.H.__sendInt__(self.MAX_SAMPLES/4)
-		self.H.__sendInt__(mode[0]|(mode[1]<<4)|(mode[2]<<8)|(mode[3]<<12))
-		self.H.__sendByte__(prescale) #prescaler
-		trigopts=0
-		trigopts |= 4 if args.get('trigger_ID1',0) else 0
-		trigopts |= 8 if args.get('trigger_ID2',0) else 0
-		trigopts |= 16 if args.get('trigger_ID3',0) else 0
-		if (trigopts==0): trigger|=4    #select one trigger channel(ID1) if none selected
-		trigopts |= 2 if args.get('edge',0)=='rising' else 0
-		trigger|=trigopts
-		self.H.__sendByte__(trigger)
-		self.H.__get_ack__()
-		self.digital_channels_in_buffer = 4
-		n=0
-		for a in self.dchans:
-			a.prescaler = prescale
-			a.length = self.MAX_SAMPLES/4
-			a.datatype='int'
-			a.name = a.digital_channel_names[n]
-			a.maximum_time = maximum_time*1e6 #conversion to uS
-			a.mode=mode[n]
-			n+=1
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.START_FOUR_CHAN_LA)
+			self.H.__sendInt__(self.MAX_SAMPLES/4)
+			self.H.__sendInt__(mode[0]|(mode[1]<<4)|(mode[2]<<8)|(mode[3]<<12))
+			self.H.__sendByte__(prescale) #prescaler
+			trigopts=0
+			trigopts |= 4 if args.get('trigger_ID1',0) else 0
+			trigopts |= 8 if args.get('trigger_ID2',0) else 0
+			trigopts |= 16 if args.get('trigger_ID3',0) else 0
+			if (trigopts==0): trigger|=4    #select one trigger channel(ID1) if none selected
+			trigopts |= 2 if args.get('edge',0)=='rising' else 0
+			trigger|=trigopts
+			self.H.__sendByte__(trigger)
+			self.H.__get_ack__()
+			self.digital_channels_in_buffer = 4
+			n=0
+			for a in self.dchans:
+				a.prescaler = prescale
+				a.length = self.MAX_SAMPLES/4
+				a.datatype='int'
+				a.name = a.digital_channel_names[n]
+				a.maximum_time = maximum_time*1e6 #conversion to uS
+				a.mode=mode[n]
+				n+=1
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_LA_initial_states(self):
 		""" 
@@ -2070,26 +2218,29 @@ class Interface():
 
 		:return: chan1 progress,chan2 progress,chan3 progress,chan4 progress,[ID1,ID2,ID3,ID4]. eg. [1,0,1,1]
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.GET_INITIAL_DIGITAL_STATES)
-		initial=self.H.__getInt__()
-		A=(self.H.__getInt__()-initial)/2
-		B=(self.H.__getInt__()-initial)/2-self.MAX_SAMPLES/4
-		C=(self.H.__getInt__()-initial)/2-2*self.MAX_SAMPLES/4
-		D=(self.H.__getInt__()-initial)/2-3*self.MAX_SAMPLES/4
-		s=self.H.__getByte__()
-		s_err=self.H.__getByte__()
-		self.H.__get_ack__()
-		
-		if A==0: A=self.MAX_SAMPLES/4
-		if B==0: B=self.MAX_SAMPLES/4
-		if C==0: C=self.MAX_SAMPLES/4
-		if D==0: D=self.MAX_SAMPLES/4
-		
-		if A<0: A=0
-		if B<0: B=0
-		if C<0: C=0
-		if D<0: D=0
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.GET_INITIAL_DIGITAL_STATES)
+			initial=self.H.__getInt__()
+			A=(self.H.__getInt__()-initial)/2
+			B=(self.H.__getInt__()-initial)/2-self.MAX_SAMPLES/4
+			C=(self.H.__getInt__()-initial)/2-2*self.MAX_SAMPLES/4
+			D=(self.H.__getInt__()-initial)/2-3*self.MAX_SAMPLES/4
+			s=self.H.__getByte__()
+			s_err=self.H.__getByte__()
+			self.H.__get_ack__()
+			
+			if A==0: A=self.MAX_SAMPLES/4
+			if B==0: B=self.MAX_SAMPLES/4
+			if C==0: C=self.MAX_SAMPLES/4
+			if D==0: D=self.MAX_SAMPLES/4
+			
+			if A<0: A=0
+			if B<0: B=0
+			if C<0: C=0
+			if D<0: D=0
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return A,B,C,D,{'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0),'SEN':(s&16!=16)}  #SEN is inverted comparator output.
 
@@ -2097,9 +2248,12 @@ class Interface():
 		""" 
 		Stop any running logic analyzer function
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.STOP_LA)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.STOP_LA)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def fetch_int_data_from_LA(self,bytes,chan=1):
 		""" 
@@ -2114,17 +2268,21 @@ class Interface():
 		chan:           channel number (1-4)
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.FETCH_INT_DMA_DATA)
-		self.H.__sendInt__(bytes)
-		self.H.__sendByte__(chan-1)
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.FETCH_INT_DMA_DATA)
+			self.H.__sendInt__(bytes)
+			self.H.__sendByte__(chan-1)
 
-		ss = self.H.fd.read(int(bytes*2))
-		t = np.zeros(bytes*2)
-		for a in range(int(bytes)):
-			t[a] = CP.ShortInt.unpack(ss[a*2:a*2+2])[0]
+			ss = self.H.fd.read(int(bytes*2))
+			t = np.zeros(bytes*2)
+			for a in range(int(bytes)):
+				t[a] = CP.ShortInt.unpack(ss[a*2:a*2+2])[0]
 
-		self.H.__get_ack__()
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 		t=np.trim_zeros(t)
 		b=1;rollovers=0
 		while b<len(t):
@@ -2147,17 +2305,20 @@ class Interface():
 		chan:           channel number (1,2)
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.TIMING)
-		self.H.__sendByte__(CP.FETCH_LONG_DMA_DATA)
-		self.H.__sendInt__(bytes)
-		self.H.__sendByte__(chan-1)
-		ss = self.H.fd.read(int(bytes*4))
-		self.H.__get_ack__()
-		tmp = np.zeros(bytes)
-		for a in range(int(bytes)):
-			tmp[a] = CP.Integer.unpack(ss[a*4:a*4+4])[0]
-		tmp = np.trim_zeros(tmp) 
-		return tmp
+		try:
+			self.H.__sendByte__(CP.TIMING)
+			self.H.__sendByte__(CP.FETCH_LONG_DMA_DATA)
+			self.H.__sendInt__(bytes)
+			self.H.__sendByte__(chan-1)
+			ss = self.H.fd.read(int(bytes*4))
+			self.H.__get_ack__()
+			tmp = np.zeros(bytes)
+			for a in range(int(bytes)):
+				tmp[a] = CP.Integer.unpack(ss[a*4:a*4+4])[0]
+			tmp = np.trim_zeros(tmp) 
+			return tmp
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_LA_channels(self,trigchan=1):
 		"""
@@ -2170,31 +2331,37 @@ class Interface():
 						is subtracted from the rest of the channels.
 		==============  ============================================================================================
 		"""
-		data=self.get_LA_initial_states()
-		print (data)
-		for a in range(4):
-			if(self.dchans[a].channel_number<self.digital_channels_in_buffer):self.__fetch_LA_channel__(a,data)
-		return True
+		try:
+			data=self.get_LA_initial_states()
+			print (data)
+			for a in range(4):
+				if(self.dchans[a].channel_number<self.digital_channels_in_buffer):self.__fetch_LA_channel__(a,data)
+			return True
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __fetch_LA_channel__(self,channel_number,initial_states):
-		s=initial_states[4]
-		a=self.dchans[channel_number]
-		if a.channel_number>=self.digital_channels_in_buffer:
-			self.__print__('channel unavailable')
-			return False
+		try:
+			s=initial_states[4]
+			a=self.dchans[channel_number]
+			if a.channel_number>=self.digital_channels_in_buffer:
+				self.__print__('channel unavailable')
+				return False
 
-		samples = a.length
-		if a.datatype=='int':
-			tmp = self.fetch_int_data_from_LA(initial_states[a.channel_number],a.channel_number+1)
-			a.load_data(s,tmp)
-		else:
-			tmp = self.fetch_long_data_from_LA(initial_states[a.channel_number*2],a.channel_number+1)
-			a.load_data(s,tmp)
-		
-		#offset=0
-		#a.timestamps -= offset
-		a.generate_axes()
-		return True
+			samples = a.length
+			if a.datatype=='int':
+				tmp = self.fetch_int_data_from_LA(initial_states[a.channel_number],a.channel_number+1)
+				a.load_data(s,tmp)
+			else:
+				tmp = self.fetch_long_data_from_LA(initial_states[a.channel_number*2],a.channel_number+1)
+				a.load_data(s,tmp)
+			
+			#offset=0
+			#a.timestamps -= offset
+			a.generate_axes()
+			return True
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_states(self):
 		"""
@@ -2204,11 +2371,14 @@ class Interface():
 		{'ID1': True, 'ID2': True, 'ID3': True, 'ID4': False}
 		
 		"""
-		self.H.__sendByte__(CP.DIN)
-		self.H.__sendByte__(CP.GET_STATES)
-		s=self.H.__getByte__()
-		self.H.__get_ack__()
-		return {'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0)}
+		try:
+			self.H.__sendByte__(CP.DIN)
+			self.H.__sendByte__(CP.GET_STATES)
+			s=self.H.__getByte__()
+			self.H.__get_ack__()
+			return {'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0)}
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_state(self,input_id):
 		"""
@@ -2257,10 +2427,13 @@ class Interface():
 			data|= 0x40|(kwargs.get('SQR3')<<2)
 		if 'SQR4' in kwargs:
 			data|= 0x80|(kwargs.get('SQR4')<<3)
-		self.H.__sendByte__(CP.DOUT)
-		self.H.__sendByte__(CP.SET_STATE)
-		self.H.__sendByte__(data)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.DOUT)
+			self.H.__sendByte__(CP.SET_STATE)
+			self.H.__sendByte__(data)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def countPulses(self,channel='SEN'):
 		"""
@@ -2275,10 +2448,13 @@ class Interface():
 		channel         The input pin to measure rising edges on : ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.START_COUNTING)
-		self.H.__sendByte__(self.__calcDChan__(channel))
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.START_COUNTING)
+			self.H.__sendByte__(self.__calcDChan__(channel))
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readPulseCount(self):
 		"""
@@ -2292,22 +2468,28 @@ class Interface():
 		==============  ============================================================================================
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.FETCH_COUNT)
-		count = self.H.__getInt__()
-		self.H.__get_ack__()
-		return count
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.FETCH_COUNT)
+			count = self.H.__getInt__()
+			self.H.__get_ack__()
+			return count
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __get_capacitor_range__(self,ctime):
-		self.__charge_cap__(0,30000)
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_CAP_RANGE)
-		self.H.__sendInt__(ctime) 
-		V_sum = self.H.__getInt__()
-		self.H.__get_ack__()
-		V=V_sum*3.3/16/4095
-		C = -ctime*1e-6/1e4/np.log(1-V/3.3)
-		return  V,C
+		try:
+			self.__charge_cap__(0,30000)
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_CAP_RANGE)
+			self.H.__sendInt__(ctime) 
+			V_sum = self.H.__getInt__()
+			self.H.__get_ack__()
+			V=V_sum*3.3/16/4095
+			C = -ctime*1e-6/1e4/np.log(1-V/3.3)
+			return  V,C
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_capacitor_range(self):
 		""" 
@@ -2351,56 +2533,62 @@ class Interface():
 		CR=1
 		iterations = 0
 		start_time=time.time()
-		while (time.time()-start_time)<1:
-			#self.__print__('vals',CR,',',CT)
-			if CT>65000:
-				self.__print__('CT too high')
-				return 0
-			V,C = self.__get_capacitance__(CR,0,CT)
-			#print(CR,CT,V,C)
-			if CT>30000 and V<0.1:
-				self.__print__('Capacitance too high for this method')
-				return 0
-
-			elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
-				return C
-			elif V<GOOD_VOLTS[0] and V>0.1 and CT<40000:
-				if GOOD_VOLTS[0]/V >1.1 and iterations<10:
-					CT=int(CT*GOOD_VOLTS[0]/V)
-					iterations+=1
-					self.__print__('increased CT ',CT)
-				elif iterations==10:
+		try:
+			while (time.time()-start_time)<1:
+				#self.__print__('vals',CR,',',CT)
+				if CT>65000:
+					self.__print__('CT too high')
 					return 0
-				else:
+				V,C = self.__get_capacitance__(CR,0,CT)
+				#print(CR,CT,V,C)
+				if CT>30000 and V<0.1:
+					self.__print__('Capacitance too high for this method')
+					return 0
+
+				elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
 					return C
-			elif V<=0.1 and CR<3:
-				CR+=1
-			elif CR==3:
-				self.__print__('Constant voltage mode ')
-				return self.get_capacitor_range()[1]
+				elif V<GOOD_VOLTS[0] and V>0.1 and CT<40000:
+					if GOOD_VOLTS[0]/V >1.1 and iterations<10:
+						CT=int(CT*GOOD_VOLTS[0]/V)
+						iterations+=1
+						self.__print__('increased CT ',CT)
+					elif iterations==10:
+						return 0
+					else:
+						return C
+				elif V<=0.1 and CR<3:
+					CR+=1
+				elif CR==3:
+					self.__print__('Constant voltage mode ')
+					return self.get_capacitor_range()[1]
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __calibrate_ctmu__(self,currents):
 		self.currents=[0.55e-3*currents[0],0.55e-6*currents[1],0.55e-5*currents[2],0.55e-4*currents[3]]
 
 	def __get_capacitance__(self,current_range,trim, Charge_Time):  #time in uS
-		self.__charge_cap__(0,30000)
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_CAPACITANCE)
-		self.H.__sendByte__(current_range)
-		if(trim<0):
-			self.H.__sendByte__( int(31-abs(trim)/2)|32)
-		else:
-			self.H.__sendByte__(int(trim/2))
-		self.H.__sendInt__(Charge_Time)
-		time.sleep(Charge_Time*1e-6+.02)
-		VCode = self.H.__getInt__()
-		V = 3.3*VCode/4095
-		self.H.__get_ack__()
-		Charge_Current = self.currents[current_range]*(100+trim)/100.0
-		if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
-		else: C = 0
-		#self.__print__('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
-		return V,C
+		try:
+			self.__charge_cap__(0,30000)
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_CAPACITANCE)
+			self.H.__sendByte__(current_range)
+			if(trim<0):
+				self.H.__sendByte__( int(31-abs(trim)/2)|32)
+			else:
+				self.H.__sendByte__(int(trim/2))
+			self.H.__sendInt__(Charge_Time)
+			time.sleep(Charge_Time*1e-6+.02)
+			VCode = self.H.__getInt__()
+			V = 3.3*VCode/4095
+			self.H.__get_ack__()
+			Charge_Current = self.currents[current_range]*(100+trim)/100.0
+			if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
+			else: C = 0
+			#self.__print__('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
+			return V,C
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_temperature(self):
 		"""
@@ -2432,47 +2620,51 @@ class Interface():
 		:return: Voltage
 		""" 
 		if channel=='CAP':channel=5
-		
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.GET_CTMU_VOLTAGE)
-		self.H.__sendByte__((channel)|(Crange<<5)|(tgen<<7))
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_CTMU_VOLTAGE)
+			self.H.__sendByte__((channel)|(Crange<<5)|(tgen<<7))
 
-		#V = [self.H.__getInt__() for a in range(16)]
-		#print(V)
-		#V=V[3:]
-		v=self.H.__getInt__() #16*voltage across the current source
-		#v=sum(V)
+			#V = [self.H.__getInt__() for a in range(16)]
+			#print(V)
+			#V=V[3:]
+			v=self.H.__getInt__() #16*voltage across the current source
+			#v=sum(V)
 
-		self.H.__get_ack__()
-		V=3.3*v/16/4095.
-		#print(V)
-		return V
+			self.H.__get_ack__()
+			V=3.3*v/16/4095.
+			#print(V)
+			return V
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __start_ctmu__(self,Crange,trim,tgen=1):
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.START_CTMU)
-		self.H.__sendByte__((Crange)|(tgen<<7))
-		self.H.__sendByte__(trim)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.START_CTMU)
+			self.H.__sendByte__((Crange)|(tgen<<7))
+			self.H.__sendByte__(trim)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stop_ctmu__(self):
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.STOP_CTMU)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.STOP_CTMU)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
-	def restoreStandalone(self):
-		"""
-		Resets the device, and standalone mode will be enabled if an OLED is connected to the I2C port
-		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.RESTORE_STANDALONE)
-
 	def resetHardware(self):
 		"""
 		Resets the device, and standalone mode will be enabled if an OLED is connected to the I2C port
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.RESTORE_STANDALONE)
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.RESTORE_STANDALONE)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_flash(self,page,location):
 		"""
@@ -2489,13 +2681,16 @@ class Interface():
 
 		:return: a string of 16 characters read from the location
 		"""
-		self.H.__sendByte__(CP.FLASH)
-		self.H.__sendByte__(CP.READ_FLASH)
-		self.H.__sendByte__(page)   #send the page number. 20 pages with 2K bytes each
-		self.H.__sendByte__(location)   #send the location
-		ss=self.H.fd.read(16)
-		self.H.__get_ack__()
-		return ss
+		try:
+			self.H.__sendByte__(CP.FLASH)
+			self.H.__sendByte__(CP.READ_FLASH)
+			self.H.__sendByte__(page)   #send the page number. 20 pages with 2K bytes each
+			self.H.__sendByte__(location)   #send the location
+			ss=self.H.fd.read(16)
+			self.H.__get_ack__()
+			return ss
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stoa__(self,s):
 		return [ord(a) for a in s]
@@ -2518,14 +2713,17 @@ class Interface():
 
 		:return: a string of 16 characters read from the location
 		"""
-		self.H.__sendByte__(CP.FLASH)
-		self.H.__sendByte__(CP.READ_BULK_FLASH)
-		self.H.__sendInt__(numbytes)   #send the location
-		self.H.__sendByte__(page)
-		ss=self.H.fd.read(int(numbytes))
-		self.H.__get_ack__()
-		self.__print__('Read from ',page,',',numbytes,' :',self.__stoa__(ss[:10]),'...')
-		return ss
+		try:
+			self.H.__sendByte__(CP.FLASH)
+			self.H.__sendByte__(CP.READ_BULK_FLASH)
+			self.H.__sendInt__(numbytes)   #send the location
+			self.H.__sendByte__(page)
+			ss=self.H.fd.read(int(numbytes))
+			self.H.__get_ack__()
+			self.__print__('Read from ',page,',',numbytes,' :',self.__stoa__(ss[:10]),'...')
+			return ss
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_flash(self,page,location,string_to_write):
 		"""
@@ -2547,14 +2745,17 @@ class Interface():
 		================    ============================================================================================
 
 		"""
-		while(len(string_to_write)<16):string_to_write+='.'
-		self.H.__sendByte__(CP.FLASH)
-		self.H.__sendByte__(CP.WRITE_FLASH)    #indicate a flash write coming through
-		self.H.__sendByte__(page)   #send the page number. 20 pages with 2K bytes each
-		self.H.__sendByte__(location)   #send the location
-		self.H.fd.write(string_to_write)
-		time.sleep(0.1)
-		self.H.__get_ack__()
+		try:
+			while(len(string_to_write)<16):string_to_write+='.'
+			self.H.__sendByte__(CP.FLASH)
+			self.H.__sendByte__(CP.WRITE_FLASH)    #indicate a flash write coming through
+			self.H.__sendByte__(page)   #send the page number. 20 pages with 2K bytes each
+			self.H.__sendByte__(location)   #send the location
+			self.H.fd.write(string_to_write)
+			time.sleep(0.1)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_bulk_flash(self,location,data):
 		"""
@@ -2577,20 +2778,23 @@ class Interface():
 		"""
 		if(type(data)==str):data = [ord(a) for a in data]
 		if len(data)%2==1:data.append(0)
-		
-		#self.__print__('Dumping at',location,',',len(bytearray),' bytes into flash',bytearray[:10])
-		self.H.__sendByte__(CP.FLASH)
-		self.H.__sendByte__(CP.WRITE_BULK_FLASH)   #indicate a flash write coming through
-		self.H.__sendInt__(len(data))  #send the length
-		self.H.__sendByte__(location)
-		for n in range(len(data)):
-			self.H.__sendByte__(data[n])
-			#Printer('Bytes written: %d'%(n+1))
-		self.H.__get_ack__()
-		#verification by readback
-		tmp=[ord(a) for a in self.read_bulk_flash(location,len(data))]
-		print ('Verification done',tmp == data)
-		return tmp==data
+		try:
+			#self.__print__('Dumping at',location,',',len(bytearray),' bytes into flash',bytearray[:10])
+			self.H.__sendByte__(CP.FLASH)
+			self.H.__sendByte__(CP.WRITE_BULK_FLASH)   #indicate a flash write coming through
+			self.H.__sendInt__(len(data))  #send the length
+			self.H.__sendByte__(location)
+			for n in range(len(data)):
+				self.H.__sendByte__(data[n])
+				#Printer('Bytes written: %d'%(n+1))
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+			#verification by readback
+			tmp=[ord(a) for a in self.read_bulk_flash(location,len(data))]
+			print ('Verification done',tmp == data)
+			if tmp!=data: raise Exception('Verification by readback failed')
 
 	#-------------------------------------------------------------------------------------------------------------------#
 
@@ -2699,15 +2903,17 @@ class Interface():
 			return 0
 
 
-
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_SINE1)
-		self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
-		self.H.__sendInt__(wavelength-1)        
-		self.H.__get_ack__()
-		if self.sine1freq == None: time.sleep(0.2)
-		self.sine1freq = freq
-		return freq
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_SINE1)
+			self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
+			self.H.__sendInt__(wavelength-1)        
+			self.H.__get_ack__()
+			if self.sine1freq == None: time.sleep(0.2)
+			self.sine1freq = freq
+			return freq
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_w2(self,freq,waveType=None):
 		"""
@@ -2752,14 +2958,16 @@ class Interface():
 		if prescaler==4:
 			self.__print__('out of range')
 			return 0
-
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_SINE2)
-		self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
-		self.H.__sendInt__(wavelength-1)        
-		self.H.__get_ack__()
-		if self.sine1freq == None: time.sleep(0.2)
-		self.sine2freq = freq
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_SINE2)
+			self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
+			self.H.__sendInt__(wavelength-1)        
+			self.H.__get_ack__()
+			if self.sine1freq == None: time.sleep(0.2)
+			self.sine2freq = freq
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return freq
 
@@ -2832,23 +3040,25 @@ class Interface():
 		phase_coarse = int(table_size2*( phase)/360.  )
 		phase_fine = int(wavelength2*(phase - (phase_coarse)*360./table_size2)/(360./table_size2))
 		
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_BOTH_WG)
 
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_BOTH_WG)
+			self.H.__sendInt__(wavelength-1)        #not really wavelength. time between each datapoint
+			self.H.__sendInt__(wavelength2-1)        #not really wavelength. time between each datapoint
+			self.H.__sendInt__(phase_coarse)    #table position for phase adjust
+			self.H.__sendInt__(phase_fine)      #timer delay / fine phase adjust
 
-		self.H.__sendInt__(wavelength-1)        #not really wavelength. time between each datapoint
-		self.H.__sendInt__(wavelength2-1)        #not really wavelength. time between each datapoint
-		self.H.__sendInt__(phase_coarse)    #table position for phase adjust
-		self.H.__sendInt__(phase_fine)      #timer delay / fine phase adjust
+			self.H.__sendByte__((prescaler2<<4)|(prescaler1<<2)|(HIGHRES2<<1)|(HIGHRES))     #use larger table for low frequencies
+			self.H.__get_ack__()
+			#print ( phase_coarse,phase_fine)
+			if self.sine1freq == None or self.sine2freq==None : time.sleep(0.2)
+			self.sine1freq = retfreq
+			self.sine2freq = retfreq2
 
-		self.H.__sendByte__((prescaler2<<4)|(prescaler1<<2)|(HIGHRES2<<1)|(HIGHRES))     #use larger table for low frequencies
-		self.H.__get_ack__()
-		#print ( phase_coarse,phase_fine)
-		if self.sine1freq == None or self.sine2freq==None : time.sleep(0.2)
-		self.sine1freq = retfreq
-		self.sine2freq = retfreq2
-
-		return retfreq
+			return retfreq
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def load_equation(self,chan,function,span=None):
 		'''
@@ -2935,19 +3145,23 @@ class Interface():
 		y2 = y2/float(max(y2))
 		y2=1.- y2
 		y2 = list(np.int16(np.round( SMALL_MAX - SMALL_MAX*y2 )))
-		self.H.__sendByte__(CP.WAVEGEN)
-		if(num==1):self.H.__sendByte__(CP.LOAD_WAVEFORM1)
-		elif(num==2):self.H.__sendByte__(CP.LOAD_WAVEFORM2)
 
-		#print(max(y1),max(y2))
-		for a in y1:
-			self.H.__sendInt__(a)
-			#time.sleep(0.001)
-		for a in y2:
-			self.H.__sendByte__(CP.Byte.pack(a))
-			#time.sleep(0.001)
-		time.sleep(0.01)
-		self.H.__get_ack__()        
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			if(num==1):self.H.__sendByte__(CP.LOAD_WAVEFORM1)
+			elif(num==2):self.H.__sendByte__(CP.LOAD_WAVEFORM2)
+
+			#print(max(y1),max(y2))
+			for a in y1:
+				self.H.__sendInt__(a)
+				#time.sleep(0.001)
+			for a in y2:
+				self.H.__sendByte__(CP.Byte.pack(a))
+				#time.sleep(0.001)
+			time.sleep(0.01)
+			self.H.__get_ack__()        
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def sqr1(self,freq,duty_cycle=50,onlyPrepare=False):
 		"""
@@ -2969,20 +3183,22 @@ class Interface():
 			wavelength = 64e6/freq/p[prescaler]
 			if wavelength<65525: break
 			prescaler+=1
-		if prescaler==4:
+		if prescaler==4 or wavelength==0:
 			self.__print__('out of range')
 			return 0
 		high_time = wavelength*duty_cycle/100.
 		self.__print__(wavelength,high_time,prescaler)
 		if onlyPrepare: self.set_state(SQR1=False)
-		
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_SQR1)
-		self.H.__sendInt__(int(round(wavelength)))
-		self.H.__sendInt__(int(round(high_time)))
-		if onlyPrepare: prescaler |= 0x4   # Instruct hardware to prepare the square wave, but do not connect it to the output.
-		self.H.__sendByte__(prescaler)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_SQR1)
+			self.H.__sendInt__(int(round(wavelength)))
+			self.H.__sendInt__(int(round(high_time)))
+			if onlyPrepare: prescaler |= 0x4   # Instruct hardware to prepare the square wave, but do not connect it to the output.
+			self.H.__sendByte__(prescaler)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return 64e6/wavelength/p[prescaler&0x3]
 
@@ -3005,12 +3221,14 @@ class Interface():
 			I.sqr1_pattern([1000,1000,1000,1000,1000])  #On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off: indefinitely..
 		"""
 		self.fill_buffer(self.MAX_SAMPLES/2,timing_array)  #Load the array to the ADCBuffer(second half)
-		
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SQR1_PATTERN)
-		self.H.__sendInt__(len(timing_array))
-		time.sleep(sum(timing_array)*1e-6) #Sleep for the whole duration
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SQR1_PATTERN)
+			self.H.__sendInt__(len(timing_array))
+			time.sleep(sum(timing_array)*1e-6) #Sleep for the whole duration
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return True
 
 	def sqr2(self,freq,duty_cycle):
@@ -3035,14 +3253,17 @@ class Interface():
 		if prescaler==4:
 			self.__print__('out of range')
 			return
-		high_time = wavelength*duty_cycle/100.
-		self.__print__(wavelength,high_time,prescaler)
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_SQR2)
-		self.H.__sendInt__(int(round(wavelength)))
-		self.H.__sendInt__(int(round(high_time)))
-		self.H.__sendByte__(prescaler)
-		self.H.__get_ack__()
+		try:
+			high_time = wavelength*duty_cycle/100.
+			self.__print__(wavelength,high_time,prescaler)
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_SQR2)
+			self.H.__sendInt__(int(round(wavelength)))
+			self.H.__sendInt__(int(round(high_time)))
+			self.H.__sendByte__(prescaler)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_sqrs(self,wavelength,phase,high_time1,high_time2,prescaler=1):
 		"""
@@ -3061,14 +3282,17 @@ class Interface():
 		==============  ============================================================================================
 		
 		"""
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SET_SQRS)
-		self.H.__sendInt__(wavelength)
-		self.H.__sendInt__(phase)
-		self.H.__sendInt__(high_time1)
-		self.H.__sendInt__(high_time2)
-		self.H.__sendByte__(prescaler)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SET_SQRS)
+			self.H.__sendInt__(wavelength)
+			self.H.__sendInt__(phase)
+			self.H.__sendInt__(high_time1)
+			self.H.__sendInt__(high_time2)
+			self.H.__sendByte__(prescaler)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def sqr4_continuous(self,freq,h0,p1,h1,p2,h2,p3,h3,**kwargs):
 		"""
@@ -3120,14 +3344,17 @@ class Interface():
 
 		#self.__print__(p1,h1,p2,h2,p3,h3)
 		#self.__print__(wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
-		self.H.__sendInt__(A1)
-		self.H.__sendInt__(B1)
-		self.H.__sendInt__(A2)
-		self.H.__sendInt__(B2)
-		self.H.__sendInt__(A3)
-		self.H.__sendInt__(B3)
-		self.H.__sendByte__(params)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendInt__(A1)
+			self.H.__sendInt__(B1)
+			self.H.__sendInt__(A2)
+			self.H.__sendInt__(B2)
+			self.H.__sendInt__(A3)
+			self.H.__sendInt__(B3)
+			self.H.__sendByte__(params)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def map_reference_clock(self,scaler,*args):
 		"""
@@ -3156,18 +3383,21 @@ class Interface():
 			0Hz to about 100KHz instead of the original 2MHz.
 		
 		"""
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.MAP_REFERENCE)
-		chan=0
-		if 'SQR1' in args:chan|=1
-		if 'SQR2' in args:chan|=2
-		if 'SQR3' in args:chan|=4
-		if 'SQR4' in args:chan|=8
-		if 'WAVEGEN' in args:chan|=16
-		self.H.__sendByte__(chan)
-		self.H.__sendByte__(scaler)
-		if 'WAVEGEN' in args: self.DDS_CLOCK = 128e6/(1<<scaler)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.MAP_REFERENCE)
+			chan=0
+			if 'SQR1' in args:chan|=1
+			if 'SQR2' in args:chan|=2
+			if 'SQR3' in args:chan|=4
+			if 'SQR4' in args:chan|=8
+			if 'WAVEGEN' in args:chan|=16
+			self.H.__sendByte__(chan)
+			self.H.__sendByte__(scaler)
+			if 'WAVEGEN' in args: self.DDS_CLOCK = 128e6/(1<<scaler)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
 
@@ -3254,16 +3484,19 @@ class Interface():
 		B               brightness of blue colour 0-255
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.SET_ONBOARD_RGB)
-		#G=reverse_bits(G);R=reverse_bits(R);B=reverse_bits(B)
-		self.H.__sendByte__(B)
-		self.H.__sendByte__(R)
-		self.H.__sendByte__(G)
-		self.__print__(B,R,G)
-		time.sleep(0.001)
-		self.H.__get_ack__()
-		return B,R,G    
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.SET_ONBOARD_RGB)
+			#G=reverse_bits(G);R=reverse_bits(R);B=reverse_bits(B)
+			self.H.__sendByte__(B)
+			self.H.__sendByte__(R)
+			self.H.__sendByte__(G)
+			self.__print__(B,R,G)
+			time.sleep(0.001)
+			self.H.__get_ack__()
+			return B,R,G    
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def WS2812B(self,cols,output='CS1'):
 		"""
@@ -3293,16 +3526,18 @@ class Interface():
 		else:
 			print('invalid output')
 			return
-		
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(pin)
-		self.H.__sendByte__(len(cols)*3)
-		for col in cols:
-			#R=reverse_bits(int(col[0]));G=reverse_bits(int(col[1]));B=reverse_bits(int(col[2]))
-			R=col[0];G=col[1];B=col[2];
-			self.H.__sendByte__(G); self.H.__sendByte__(R);self.H.__sendByte__(B)
-			#print(col)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(pin)
+			self.H.__sendByte__(len(cols)*3)
+			for col in cols:
+				#R=reverse_bits(int(col[0]));G=reverse_bits(int(col[1]));B=reverse_bits(int(col[2]))
+				R=col[0];G=col[1];B=col[2];
+				self.H.__sendByte__(G); self.H.__sendByte__(R);self.H.__sendByte__(B)
+				#print(col)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
 
@@ -3322,22 +3557,28 @@ class Interface():
 		address         Address to read from. Refer to PIC24EP64GP204 programming manual
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.READ_PROGRAM_ADDRESS)
-		self.H.__sendInt__(address&0xFFFF)
-		self.H.__sendInt__((address>>16)&0xFFFF)
-		v=self.H.__getInt__()
-		self.H.__get_ack__()
-		return v
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.READ_PROGRAM_ADDRESS)
+			self.H.__sendInt__(address&0xFFFF)
+			self.H.__sendInt__((address>>16)&0xFFFF)
+			v=self.H.__getInt__()
+			self.H.__get_ack__()
+			return v
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def device_id(self):
-		a=self.read_program_address(0x800FF8)
-		b=self.read_program_address(0x800FFa)
-		c=self.read_program_address(0x800FFc)
-		d=self.read_program_address(0x800FFe)
-		val = d|(c<<16)|(b<<32)|(a<<48)
-		self.__print__(a,b,c,d,hex(val))
-		return val
+		try:
+			a=self.read_program_address(0x800FF8)
+			b=self.read_program_address(0x800FFa)
+			c=self.read_program_address(0x800FFc)
+			d=self.read_program_address(0x800FFe)
+			val = d|(c<<16)|(b<<32)|(a<<48)
+			self.__print__(a,b,c,d,hex(val))
+			return val
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __write_program_address__(self,address,value):
 		"""
@@ -3351,12 +3592,15 @@ class Interface():
 						Do Not Screw around with this. It won't work anyway.            
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.WRITE_PROGRAM_ADDRESS)
-		self.H.__sendInt__(address&0xFFFF)
-		self.H.__sendInt__((address>>16)&0xFFFF)
-		self.H.__sendInt__(value)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.WRITE_PROGRAM_ADDRESS)
+			self.H.__sendInt__(address&0xFFFF)
+			self.H.__sendInt__((address>>16)&0xFFFF)
+			self.H.__sendInt__(value)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_data_address(self,address):
 		"""
@@ -3370,12 +3614,15 @@ class Interface():
 		address         Address to read from.  Refer to PIC24EP64GP204 programming manual|
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.READ_DATA_ADDRESS)
-		self.H.__sendInt__(address&0xFFFF)
-		v=self.H.__getInt__()
-		self.H.__get_ack__()
-		return v
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.READ_DATA_ADDRESS)
+			self.H.__sendInt__(address&0xFFFF)
+			v=self.H.__getInt__()
+			self.H.__get_ack__()
+			return v
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def write_data_address(self,address,value):
 		"""
@@ -3389,11 +3636,14 @@ class Interface():
 		address         Address to write to.  Refer to PIC24EP64GP204 programming manual|
 		==============  ============================================================================================
 		"""
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.WRITE_DATA_ADDRESS)
-		self.H.__sendInt__(address&0xFFFF)
-		self.H.__sendInt__(value)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.WRITE_DATA_ADDRESS)
+			self.H.__sendInt__(address&0xFFFF)
+			self.H.__sendInt__(value)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
 
@@ -3415,19 +3665,26 @@ class Interface():
 		angle           0-180. Angle corresponding to which the PWM waveform is generated.
 		==============  ============================================================================================
 		'''
-		self.H.__sendByte__(CP.WAVEGEN)
-		if chan==1:self.H.__sendByte__(CP.SET_SQR1)
-		else:self.H.__sendByte__(CP.SET_SQR2)
-		self.H.__sendInt__(10000)
-		self.H.__sendInt__(int(angle*1900/180))
-		self.H.__sendByte__(2)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.WAVEGEN)
+			if chan==1:self.H.__sendByte__(CP.SET_SQR1)
+			else:self.H.__sendByte__(CP.SET_SQR2)
+			self.H.__sendInt__(10000)
+			self.H.__sendInt__(int(angle*1900/180))
+			self.H.__sendByte__(2)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stepperMotor__(self,steps,delay,direction):
-		self.H.__sendByte__(CP.NONSTANDARD_IO)
-		self.H.__sendByte__(CP.STEPPER_MOTOR)
-		self.H.__sendInt__((steps<<1)|direction)
-		self.H.__sendInt__(delay)
+		try:
+			self.H.__sendByte__(CP.NONSTANDARD_IO)
+			self.H.__sendByte__(CP.STEPPER_MOTOR)
+			self.H.__sendInt__((steps<<1)|direction)
+			self.H.__sendInt__(delay)
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
 		t=time.time()
 		time.sleep(steps*delay*1e-3) #convert mS to S
 
@@ -3466,19 +3723,22 @@ class Interface():
 		==============  ============================================================================================
 		
 		"""
-		params = (1<<5)|2       #continuous waveform.  prescaler 2( 1:64)
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SQR4)
-		self.H.__sendInt__(10000)       #10mS wavelength
-		self.H.__sendInt__(750+int(a1*1900/180))
-		self.H.__sendInt__(0)
-		self.H.__sendInt__(750+int(a2*1900/180))
-		self.H.__sendInt__(0)
-		self.H.__sendInt__(750+int(a3*1900/180))
-		self.H.__sendInt__(0)
-		self.H.__sendInt__(750+int(a4*1900/180))
-		self.H.__sendByte__(params)
-		self.H.__get_ack__()
+		try:
+			params = (1<<5)|2       #continuous waveform.  prescaler 2( 1:64)
+			self.H.__sendByte__(CP.WAVEGEN)
+			self.H.__sendByte__(CP.SQR4)
+			self.H.__sendInt__(10000)       #10mS wavelength
+			self.H.__sendInt__(750+int(a1*1900/180))
+			self.H.__sendInt__(0)
+			self.H.__sendInt__(750+int(a2*1900/180))
+			self.H.__sendInt__(0)
+			self.H.__sendInt__(750+int(a3*1900/180))
+			self.H.__sendInt__(0)
+			self.H.__sendInt__(750+int(a4*1900/180))
+			self.H.__sendByte__(params)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def enableUartPassthrough(self,baudrate,persist=False):
 		'''
@@ -3500,13 +3760,16 @@ class Interface():
 						received for a period greater than one second at a time.
 		==============  ============================================================================================
 		'''
-		self.H.__sendByte__(CP.PASSTHROUGHS)
-		self.H.__sendByte__(CP.PASS_UART)
-		self.H.__sendByte__(1 if persist else 0)
-		self.H.__sendInt__(int( round(((64e6/baudrate)/4)-1) ))
-		self.__print__('BRGVAL:',int( round(((64e6/baudrate)/4)-1) ))
-		time.sleep(0.1)
-		self.__print__('junk bytes read:',len(self.H.fd.read(100)))
+		try:
+			self.H.__sendByte__(CP.PASSTHROUGHS)
+			self.H.__sendByte__(CP.PASS_UART)
+			self.H.__sendByte__(1 if persist else 0)
+			self.H.__sendInt__(int( round(((64e6/baudrate)/4)-1) ))
+			self.__print__('BRGVAL:',int( round(((64e6/baudrate)/4)-1) ))
+			time.sleep(0.1)
+			self.__print__('junk bytes read:',len(self.H.fd.read(100)))
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def estimateDistance(self):
 		'''
@@ -3528,30 +3791,36 @@ class Interface():
 		
 		returns 0 upon timeout
 		'''
-		self.H.__sendByte__(CP.NONSTANDARD_IO)
-		self.H.__sendByte__(CP.HCSR04_HEADER)
+		try:
+			self.H.__sendByte__(CP.NONSTANDARD_IO)
+			self.H.__sendByte__(CP.HCSR04_HEADER)
 
-		timeout_msb = int((0.3*64e6))>>16
-		self.H.__sendInt__(timeout_msb)
+			timeout_msb = int((0.3*64e6))>>16
+			self.H.__sendInt__(timeout_msb)
 
-		A=self.H.__getLong__()
-		B=self.H.__getLong__()
-		tmt = self.H.__getInt__()
-		self.H.__get_ack__()
-		#self.__print__(A,B)
-		if(tmt >= timeout_msb or B==0):return 0
-		rtime = lambda t: t/64e6
-		return 330.*rtime(B-A+20)/2.
+			A=self.H.__getLong__()
+			B=self.H.__getLong__()
+			tmt = self.H.__getInt__()
+			self.H.__get_ack__()
+			#self.__print__(A,B)
+			if(tmt >= timeout_msb or B==0):return 0
+			rtime = lambda t: t/64e6
+			return 330.*rtime(B-A+20)/2.
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def TemperatureAndHumidity(self):
 		'''
 		init  AM2302.  
 		This effort was a waste.  There are better humidity and temperature sensors available which use well documented I2C
 		'''
-		self.H.__sendByte__(CP.NONSTANDARD_IO)
-		self.H.__sendByte__(CP.AM2302_HEADER)
+		try:
+			self.H.__sendByte__(CP.NONSTANDARD_IO)
+			self.H.__sendByte__(CP.AM2302_HEADER)
 
-		self.H.__get_ack__()
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
 
 	def opticalArray(self,tg,delay,tp):
@@ -3562,54 +3831,77 @@ class Interface():
 
 		'''
 		samples=3694
-		self.H.__sendByte__(CP.NONSTANDARD_IO)
-		self.H.__sendByte__(CP.TCD1304_HEADER)
-		self.H.__sendByte__(self.__calcCHOSA__('CH3'))
-		self.H.__sendByte__(int(tg*8))
-		self.H.__sendInt__(delay)
-		
-		self.H.__sendInt__(tp)
-		self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources['CH3'])
-		self.samples=samples
-		self.channels_in_buffer=1
-		time.sleep(0.005)
-		self.H.__get_ack__()
+		try:
+			self.H.__sendByte__(CP.NONSTANDARD_IO)
+			self.H.__sendByte__(CP.TCD1304_HEADER)
+			self.H.__sendByte__(self.__calcCHOSA__('CH3'))
+			self.H.__sendByte__(int(tg*8))
+			self.H.__sendInt__(delay)
+			
+			self.H.__sendInt__(tp)
+			self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources['CH3'])
+			self.samples=samples
+			self.channels_in_buffer=1
+			time.sleep(0.005)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def setUART2(self,BAUD):
-		self.H.__sendByte__(CP.UART_2)
-		self.H.__sendByte__(CP.SET_BAUD)
-		self.H.__sendInt__(int( round(((64e6/BAUD)/4)-1) ))
-		self.__print__('BRG2VAL:',int( round(((64e6/BAUD)/4)-1) ))
-		self.H.__get_ack__()
+	def setUARTBAUD(self,BAUD):
+		try:
+			self.H.__sendByte__(CP.UART_2)
+			self.H.__sendByte__(CP.SET_BAUD)
+			self.H.__sendInt__(int( round(((64e6/BAUD)/4)-1) ))
+			self.__print__('BRG2VAL:',int( round(((64e6/BAUD)/4)-1) ))
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def writeUART2(self,character):
-		self.H.__sendByte__(CP.UART_2)
-		self.H.__sendByte__(CP.SEND_BYTE)
-		self.H.__sendByte__(character)
-		self.H.__get_ack__()
+	def writeUART(self,character):
+		try:
+			self.H.__sendByte__(CP.UART_2)
+			self.H.__sendByte__(CP.SEND_BYTE)
+			self.H.__sendByte__(character)
+			self.H.__get_ack__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def readUART2(self):
-		self.H.__sendByte__(CP.UART_2)
-		self.H.__sendByte__(CP.READ_BYTE)
-		return self.H.__getByte__()
+	def readUART(self):
+		try:
+			self.H.__sendByte__(CP.UART_2)
+			self.H.__sendByte__(CP.READ_BYTE)
+			return self.H.__getByte__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def readUART2Status(self):
-		self.H.__sendByte__(CP.UART_2)
-		self.H.__sendByte__(CP.READ_UART2_STATUS)
-		return self.H.__getByte__()
+	def readUARTStatus(self):
+		'''
+		return available bytes in UART buffer
+		'''
+		try:
+			self.H.__sendByte__(CP.UART_2)
+			self.H.__sendByte__(CP.READ_UART2_STATUS)
+			return self.H.__getByte__()
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readLog(self):
 		'''
-		read hardware debug log. 
-		
+		read hardware debug log. 		
 		'''
-		self.H.__sendByte__(CP.COMMON)
-		self.H.__sendByte__(CP.READ_LOG)
-		log  = self.H.fd.readline().strip()
-		self.H.__get_ack__()
-		return log
-
-
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.READ_LOG)
+			log  = self.H.fd.readline().strip()
+			self.H.__get_ack__()
+			return log
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+	
+	def raiseException(self,ex, msg):
+			msg += '\n' + ex.message
+			self.H.disconnect()
+			raise RuntimeError(msg)
 
 
 if __name__ == "__main__":

@@ -18,48 +18,61 @@ class Handler():
 		self.connected=False
 		self.fd = None
 		self.expected_version=b'CS'
-		self.occupiedPorts=[]
+		self.occupiedPorts=set()
+		self.blockingSocket = None
 		if 'port' in kwargs:
 			self.portname=kwargs.get('port',None)
-			self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
-			print('Connected to device at ',self.portname,' ,Version:',self.version_string)
-			return
+			try:
+				self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
+				if self.connected:return
+			except Exception,ex:
+				print('Failed to connect to ',self.portname,ex.message)
+				
 		else:	#Scan and pick a port	
 			for a in range(10):
 				try:
 					self.portname=self.BASE_PORT_NAME+str(a)
 					self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
 					if self.connected:return
-					#print(self.BASE_PORT_NAME+str(a)+' .yes.',version)
-				except IOError:
+					print(self.BASE_PORT_NAME+str(a)+' .yes.',version)
+				except :
 					#print(self.BASE_PORT_NAME+str(a)+' .no.')
 					pass
 			if not self.connected:
-					print('Device not found')
+					if len(self.occupiedPorts) : print('Device not found. Programs already using :',self.occupiedPorts)
 		
 	def connectToPort(self,portname):
 		try:
 			import socket
-			self.s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-			self.s.bind( '\0SEELablet%s'%portname) 
-			fd = serial.Serial(portname, 9600, stopbits=1, timeout = 0.02)
-			fd.read(100);fd.close()
-			fd = serial.Serial(portname, self.BAUD, stopbits=1, timeout = 1.0)
-			if(fd.inWaiting()):
-				fd.setTimeout(0.1)
-				fd.read(1000)
-				fd.flush()
-				fd.setTimeout(1.0)
-			version= self.get_version(fd)
-			if version[:len(self.expected_version)]==self.expected_version:
-				return fd,version,True
+			self.blockingSocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+			self.blockingSocket.bind('\0SEELablet%s'%portname) 
+			self.blockingSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		except socket.error as e:
-			error_code = e.args[0]
-			error_string = e.args[1]
-			self.occupiedPorts.append(portname)
-			print("Process already using %s (%d). Exiting" % (portname, error_code) )
+			self.occupiedPorts.add(portname)
+			raise RuntimeError("Another program is using %s (%d)" % (portname) )
+
+		fd = serial.Serial(portname, 9600, stopbits=1, timeout = 0.02)
+		fd.read(100);fd.close()
+		fd = serial.Serial(portname, self.BAUD, stopbits=1, timeout = 1.0)
+		if(fd.inWaiting()):
+			fd.setTimeout(0.1)
+			fd.read(1000)
+			fd.flush()
+			fd.setTimeout(1.0)
+		version= self.get_version(fd)
+		if version[:len(self.expected_version)]==self.expected_version:
+			return fd,version,True
 
 		return None,'',False
+
+	def disconnect(self):
+		if self.connected:
+			self.fd.close()
+		if self.blockingSocket:
+			print ('Releasing port')
+			self.blockingSocket.shutdown(1)
+			self.blockingSocket.close()
+			self.blockingSocket = None
 
 	def get_version(self,fd):
 		fd.write(CP.COMMON)
@@ -75,20 +88,11 @@ class Handler():
 			self.portname=kwargs.get('port',None)
 
 		try:
-			time.sleep(1.0)
-			self.fd = serial.Serial(self.portname, 9600, stopbits=1, timeout = 0.1)
-			self.fd.close()
-			time.sleep(0.2)
-			self.fd = serial.Serial(self.portname, self.BAUD, stopbits=1, timeout = self.timeout)
-			if(self.fd.inWaiting()):
-				self.fd.read(1000)
-				self.fd.flush()
-			version = self.get_version(self.fd)
-			print('Connected to device at:',self.portname,' ,Version:',version)
-			self.connected=True
-			self.version_string=version
+			self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
 		except serial.SerialException as ex:
-			print("failed to connect. Check device connections ,Or\nls /dev/TestBench\nOr, check if symlink has been created in /etc/udev/rules.d/proto.rules for the relevant Vid,Pid")
+			msg = "failed to reconnect. Check device connections."
+			print(msg)
+			raise RuntimeError(msg)
 
 	def __del__(self):
 		#print('closing port')
@@ -142,7 +146,7 @@ class Handler():
 		if len(ss): return CP.Byte.unpack(ss)[0]
 		else:
 			print('byte communication error.',time.ctime())
-			return -1
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 			#sys.exit(1)
 
 	def __getInt__(self):
@@ -154,7 +158,7 @@ class Handler():
 		if len(ss)==2: return CP.ShortInt.unpack(ss)[0]
 		else:
 			print('int communication error.',time.ctime())
-			return -1
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 			#sys.exit(1)
 
 	def __getLong__(self):

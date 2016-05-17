@@ -208,7 +208,7 @@ class AD7718:
 				if int(chan[3])>4:data = (data-3.3/2)*4
 				return self.caldata[chan](data)
 			else:
-				time.sleep(0.01)
+				time.sleep(0.1)
 				print ('increase delay')
 		return False
 	
