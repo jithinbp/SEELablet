@@ -225,3 +225,19 @@ class analyticsClass():
 			return False,[],[]
 
 
+	def fft(self,ya, si):
+		'''
+		Returns positive half of the Fourier transform of the signal ya. 
+		Sampling interval 'si', in milliseconds
+		'''
+		ns = len(ya)
+		if ns %2 == 1:  # odd values of np give exceptions
+			ns=ns-1 # make it even
+			ya=ya[:-1]
+		v = np.array(ya)
+		tr = abs(np.fft.fft(v))/ns
+		frq = np.fft.fftfreq(ns, si)
+		x = frq.reshape(2,ns/2)
+		y = tr.reshape(2,ns/2)
+		return x[0], y[0]    
+

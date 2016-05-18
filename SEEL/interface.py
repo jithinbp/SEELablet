@@ -337,7 +337,6 @@ class Interface():
 	def reconnect(self,**kwargs):
 		'''
 		Attempts to reconnect to the device in case of a commmunication error or accidental disconnect.
-		
 		'''
 		try:
 			self.H.reconnect(**kwargs)

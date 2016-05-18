@@ -251,7 +251,7 @@ if __name__ == "__main__":
 	'AIN9AINCOM':[7.652808e+00,1.479229e+00,2.832601e-01,4.495232e-02], 
 	'AIN8AINCOM':[8.290843e-07,-7.129532e-07,9.993159e-01,3.307947e-03], 
 	'AIN4AINCOM':[4.135213e-06,-1.973478e-05,1.000277e+00,2.115374e-04], }
-	A = AD7718(I,calibs )
+	A = AD7718(I,calibs)
 	for a in range(10):
 		print (A.readRawVoltage('AIN1AINCOM'))
 		time.sleep(0.3)

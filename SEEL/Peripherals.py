@@ -2,7 +2,7 @@ from __future__ import print_function
 #from SEEL.commands_proto import *
 import SEEL.commands_proto as CP
 import numpy as np 
-import time
+import time,inspect
 
 	
 class I2C():
@@ -47,9 +47,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_INIT)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def enable_smbus(self):
 		try:
@@ -57,9 +55,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_ENABLE_SMBUS)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def pullSCLLow(self,uS):
 		"""
@@ -81,9 +77,7 @@ class I2C():
 			self.H.__sendInt__(uS)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 		 
 	def config(self,freq,verbose=True):
@@ -132,9 +126,7 @@ class I2C():
 			self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
 			return self.H.__get_ack__()>>4
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop(self):
 		"""
@@ -147,9 +139,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_STOP)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def wait(self):
 		"""
@@ -162,9 +152,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_WAIT)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def send(self,data):
 		"""
@@ -188,9 +176,7 @@ class I2C():
 			self.H.__sendByte__(data)        #data byte
 			return self.H.__get_ack__()>>4
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def send_burst(self,data):
 		"""
@@ -214,9 +200,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_SEND_BURST)
 			self.H.__sendByte__(data)        #data byte
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		#No handshake. for the sake of speed. e.g. loading a frame buffer onto an I2C display such as ssd1306
 
 	def restart(self,address,rw):
@@ -240,9 +224,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_RESTART)
 			self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return self.H.__get_ack__()>>4
 
 	def simpleRead(self,addr,numbytes):
@@ -287,9 +269,7 @@ class I2C():
 			data.append(self.H.__getByte__())
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return data
 
 	def read_repeat(self):
@@ -299,9 +279,7 @@ class I2C():
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
 	def read_end(self):
@@ -311,9 +289,7 @@ class I2C():
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
 
@@ -324,9 +300,7 @@ class I2C():
 			val=self.H.__getInt__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
 
@@ -345,9 +319,7 @@ class I2C():
 				print ('Transaction failed')
 				return False
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def writeBulk(self,device_address,bytestream):
 		"""
@@ -371,9 +343,7 @@ class I2C():
 				self.H.__sendByte__(a)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def scan(self,frequency = 100000,verbose=False):
 		"""
@@ -508,9 +478,7 @@ class I2C():
 				data=data[:-1]
 				#print ('Final Pass : len=',len(data))
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
 		try:
@@ -560,9 +528,7 @@ class SPI():
 			self.H.__sendByte__(secondary_prescaler|(primary_prescaler<<3)|(CKE<<5)|(CKP<<6)|(SMP<<7)) 
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start(self,channel):
 		"""
@@ -586,9 +552,7 @@ class SPI():
 			self.H.__sendByte__(channel)    #value byte
 			#self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_cs(self,channel,state):
 		"""
@@ -614,9 +578,7 @@ class SPI():
 				self.H.__sendByte__(csnum)   
 			else: print('Channel does not exist')
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def stop(self,channel):
 		"""
@@ -638,9 +600,7 @@ class SPI():
 			self.H.__sendByte__(CP.STOP_SPI)
 			self.H.__sendByte__(channel)    #value byte
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		#self.H.__get_ack__()
 
 	def send8(self,value):
@@ -664,9 +624,7 @@ class SPI():
 			v=self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return v
 
 	def send16(self,value):
@@ -691,9 +649,7 @@ class SPI():
 			v=self.H.__getInt__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return v
 
 	def send8_burst(self,value):
@@ -716,9 +672,7 @@ class SPI():
 			self.H.__sendByte__(CP.SEND_SPI8_BURST)
 			self.H.__sendByte__(value)  #value byte
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def send16_burst(self,value):
 		"""
@@ -740,9 +694,7 @@ class SPI():
 			self.H.__sendByte__(CP.SEND_SPI16_BURST)
 			self.H.__sendInt__(value)   #value byte
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 class DACCHAN:
 	def __init__(self,name,span,channum,**kwargs):
@@ -946,9 +898,7 @@ class NRF24L01():
 			self.flush()
 			return True
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def rxmode(self):
 		'''
@@ -959,9 +909,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_RXMODE)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def txmode(self):
 		'''
@@ -972,9 +920,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_TXMODE)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def triggerAll(self,val):
 		self.txmode()
@@ -990,9 +936,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_POWER_DOWN)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def rxchar(self):
 		'''
@@ -1004,9 +948,7 @@ class NRF24L01():
 			value = self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return value
 		
 	def txchar(self,char):
@@ -1019,9 +961,7 @@ class NRF24L01():
 			self.H.__sendByte__(char)
 			return self.H.__get_ack__()>>4
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def hasData(self):
 		'''
@@ -1033,9 +973,7 @@ class NRF24L01():
 			value = self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return value
 		
 	def flush(self):
@@ -1047,9 +985,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_FLUSH)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_register(self,address,value):
 		'''
@@ -1065,9 +1001,7 @@ class NRF24L01():
 			self.H.__sendByte__(value)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_register(self,address):
 		'''
@@ -1081,9 +1015,7 @@ class NRF24L01():
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
 	def get_status(self):
@@ -1098,9 +1030,7 @@ class NRF24L01():
 			self.H.__get_ack__()
 			return val
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_command(self,cmd):
 		try:
@@ -1109,9 +1039,7 @@ class NRF24L01():
 			self.H.__sendByte__(cmd)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_address(self,register,address):
 		'''
@@ -1129,9 +1057,7 @@ class NRF24L01():
 			self.H.__sendByte__((address>>16)&0xFF);
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def selectAddress(self,address):
 		'''
@@ -1148,9 +1074,7 @@ class NRF24L01():
 			if address not in self.sigs:
 				self.sigs[address]=1
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def read_payload(self,numbytes):
 		try:
@@ -1161,9 +1085,7 @@ class NRF24L01():
 			self.H.__get_ack__()
 			return [ord(a) for a in data]
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_payload(self,data,verbose=False,**args): 
 		try:
@@ -1182,9 +1104,7 @@ class NRF24L01():
 				return
 			return val
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def I2C_scan(self):
 		'''
@@ -1256,9 +1176,7 @@ class NRF24L01():
 			self.sigs[self.CURRENT_ADDRESS] = (self.sigs[self.CURRENT_ADDRESS]*50+1)/51.
 			return [ord(a) for a in data]
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def transactionWithRetries(self,data,**args):
 		retries = args.get('retries',5)
@@ -1288,9 +1206,7 @@ class NRF24L01():
 				self.H.__sendByte__(a)
 			return self.H.__get_ack__()>>4
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
 
@@ -1302,9 +1218,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_START_TOKEN_MANAGER)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop_token_manager(self):
 		'''
@@ -1314,9 +1228,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_STOP_TOKEN_MANAGER)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def total_tokens(self):
 		'''
@@ -1328,9 +1240,7 @@ class NRF24L01():
 			self.H.__get_ack__()
 			return x
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_report(self,num):
 		'''
@@ -1343,9 +1253,7 @@ class NRF24L01():
 			self.H.__get_ack__()
 			return data
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
 
@@ -1398,9 +1306,7 @@ class NRF24L01():
 			self.H.__sendByte__(num)
 			self.H.__get_ack__()
 		except Exception, ex:
-			msg = "Communication error. Check Connections\n"
-			self.H.disconnect()
-			raise RuntimeError(msg)
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def __delete_all_registered_nodes__(self):
 			while self.total_tokens():
