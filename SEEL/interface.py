@@ -344,7 +344,8 @@ class Interface():
 		except Exception, ex:
 			self.errmsg = ex.message
 			self.H.disconnect()
-			raise RuntimeError(msg)
+			print(self.errmsg)
+			raise RuntimeError(self.errmsg)
 		
 	def capture1(self,ch,ns,tg,*args):
 		"""

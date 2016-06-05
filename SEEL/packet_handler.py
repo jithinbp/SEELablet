@@ -12,7 +12,6 @@ class Handler():
 		self.loadBurst=False
 		self.inputQueueSize=0
 		self.BAUD = 1000000
-		self.BASE_PORT_NAME = "/dev/ttyACM"
 		self.timeout=timeout
 		self.version_string=b''
 		self.connected=False
@@ -29,18 +28,41 @@ class Handler():
 				print('Failed to connect to ',self.portname,ex.message)
 				
 		else:	#Scan and pick a port	
-			for a in range(10):
+			L = self.listPorts()
+			for a in L:
 				try:
-					self.portname=self.BASE_PORT_NAME+str(a)
+					self.portname=a
 					self.fd,self.version_string,self.connected=self.connectToPort(self.portname)
 					if self.connected:return
-					print(self.BASE_PORT_NAME+str(a)+' .yes.',version)
+					print(a+' .yes.',version)
 				except :
-					#print(self.BASE_PORT_NAME+str(a)+' .no.')
 					pass
 			if not self.connected:
 					if len(self.occupiedPorts) : print('Device not found. Programs already using :',self.occupiedPorts)
 		
+
+	def listPorts(self):
+		import platform,glob
+		system_name = platform.system()
+		if system_name == "Windows":
+			# Scan for available ports.
+			available = []
+			for i in range(256):
+				try:
+					s = serial.Serial(i)
+					available.append(i)
+					s.close()
+				except serial.SerialException:
+					pass
+			return available
+		elif system_name == "Darwin":
+			# Mac
+			return glob.glob('/dev/tty*') + glob.glob('/dev/cu*')
+		else:
+			# Assume Linux or something else
+			return glob.glob('/dev/ttyACM*') + glob.glob('/dev/ttyUSB*')
+
+
 	def connectToPort(self,portname):
 		try:
 			import socket
