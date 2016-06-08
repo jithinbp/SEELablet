@@ -1332,15 +1332,26 @@ class Interface():
 			return 0
 		
 	def __get_high_freq__backup__(self,pin):
+		try:
+			self.H.__sendByte__(CP.COMMON)
+			self.H.__sendByte__(CP.GET_HIGH_FREQUENCY)
+			self.H.__sendByte__(self.__calcDChan__(pin))
+			scale=self.H.__getByte__()
+			val = self.H.__getLong__()
+			self.H.__get_ack__()
+			return scale*(val)/1.0e-1 #100mS sampling
+		except Exception, ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+	def get_high_freq(self,pin):
 		""" 
-		retrieves the frequency of the signal connected to ID1. >10MHz
+		retrieves the frequency of the signal connected to ID1. for frequencies > 1MHz
 		also good for lower frequencies, but avoid using it since
-		the ADC cannot be used simultaneously. It shares a TIMER with the ADC.
+		the oscilloscope cannot be used simultaneously due to hardware limitations.
 		
 		The input frequency is fed to a 32 bit counter for a period of 100mS.
 		The value of the counter at the end of 100mS is used to calculate the frequency.
 		
-
 		see :ref:`freq_video`
 
 
@@ -1358,21 +1369,6 @@ class Interface():
 		"""
 		try:
 			self.H.__sendByte__(CP.COMMON)
-			self.H.__sendByte__(CP.GET_HIGH_FREQUENCY)
-			self.H.__sendByte__(self.__calcDChan__(pin))
-			scale=self.H.__getByte__()
-			val = self.H.__getLong__()
-			self.H.__get_ack__()
-			return scale*(val)/1.0e-1 #100mS sampling
-		except Exception, ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-
-	def get_high_freq(self,pin):
-		""" 
-		experimental feature. Attempt to use fewer timers
-		"""
-		try:
-			self.H.__sendByte__(CP.COMMON)
 			self.H.__sendByte__(CP.GET_ALTERNATE_HIGH_FREQUENCY)
 			self.H.__sendByte__(self.__calcDChan__(pin))
 			scale=self.H.__getByte__()
@@ -1383,7 +1379,7 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def get_freq(self,channel='CNTR',timeout=0.1):
+	def get_freq(self,channel='CNTR',timeout=2):
 		"""
 		Frequency measurement on IDx.
 		Measures time taken for 16 rising edges of input signal.
@@ -1431,6 +1427,9 @@ class Interface():
 			timeout_msb = int((timeout*64e6))>>16
 			self.H.__sendInt__(timeout_msb)
 			self.H.__sendByte__(self.__calcDChan__(channel))
+
+			self.H.waitForData(timeout)
+
 			tmt = self.H.__getByte__()
 			x=[self.H.__getLong__() for a in range(2)]
 			self.H.__get_ack__()
@@ -3177,10 +3176,14 @@ class Interface():
 		==============  ============================================================================================
 		"""
 		if freq==0 or duty_cycle==0 : return None
+		if freq>10e6:
+			print ('Frequency is greater than 10MHz. Please use map_reference_clock for 16 & 32MHz outputs')
+			return 0
+			
 		p=[1,8,64,256]
 		prescaler=0
 		while prescaler<=3:
-			wavelength = 64e6/freq/p[prescaler]
+			wavelength = int(64e6/freq/p[prescaler])
 			if wavelength<65525: break
 			prescaler+=1
 		if prescaler==4 or wavelength==0:
@@ -3294,9 +3297,9 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def sqr4_continuous(self,freq,h0,p1,h1,p2,h2,p3,h3,**kwargs):
+	def sqrPWM(self,freq,h0,p1,h1,p2,h2,p3,h3,**kwargs):
 		"""
-		Initialize continuously running phase correlated square waves on SQR1,SQR2,OD1,OD2
+		Initialize phase correlated square waves on SQR1,SQR2,SQR3,SQR4
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
@@ -3314,26 +3317,26 @@ class Interface():
 		==============  ============================================================================================
 		
 		"""
+		if freq==0 or h0==0 or h1==0 or h2==0 or h3==0: return 0
+		if freq>10e6:
+			print ('Frequency is greater than 10MHz. Please use map_reference_clock for 16 & 32MHz outputs')
+			return 0
 
-		wavelength = int(64e6/freq)
-		params=0
-		if wavelength>0xFFFF00:
-			self.__print__('frequency too low.')
-			return
-		elif wavelength>0x3FFFC0:
-			wavelength = int(64e6/freq/256)
-			params=3
-		elif wavelength>0x7FFF8:
-			params=2
-			wavelength = int(64e6/freq/64)
-		elif wavelength>0xFFFF:
-			params=1
-			wavelength = int(64e6/freq/8)
-		if not kwargs.get('pulse',False):params|= (1<<5)
+		p=[1,8,64,256]
+		prescaler=0
+		while prescaler<=3:
+			wavelength = int(64e6/freq/p[prescaler])
+			if wavelength<65525: break
+			prescaler+=1
+		if prescaler==4 or wavelength==0:
+			self.__print__('out of range')
+			return 0
+
+		if not kwargs.get('pulse',False):prescaler|= (1<<5)
 		self.H.__sendByte__(CP.WAVEGEN)
 		self.H.__sendByte__(CP.SQR4)
-		self.H.__sendInt__(wavelength)
-		self.H.__sendInt__(int(wavelength*h0))
+		self.H.__sendInt__(wavelength-1)
+		self.H.__sendInt__(int(wavelength*h0)-1)
 
 		A1 = int(p1%1*wavelength)
 		B1 = int((h1+p1)%1*wavelength)
@@ -3343,18 +3346,20 @@ class Interface():
 		B3 = int((h3+p3)%1*wavelength)
 
 		#self.__print__(p1,h1,p2,h2,p3,h3)
-		#self.__print__(wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3)
+		#print(wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3,prescaler)
 		try:
-			self.H.__sendInt__(A1)
-			self.H.__sendInt__(B1)
-			self.H.__sendInt__(A2)
-			self.H.__sendInt__(B2)
-			self.H.__sendInt__(A3)
-			self.H.__sendInt__(B3)
-			self.H.__sendByte__(params)
+			self.H.__sendInt__(max(0,A1-1))
+			self.H.__sendInt__(max(1,B1-1))
+			self.H.__sendInt__(max(0,A2-1))
+			self.H.__sendInt__(max(1,B2-1))
+			self.H.__sendInt__(max(0,A3-1))
+			self.H.__sendInt__(max(1,B3-1))
+			self.H.__sendByte__(prescaler)
 			self.H.__get_ack__()
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+		return 64e6/wavelength/p[prescaler&0x3]
 
 	def map_reference_clock(self,scaler,*args):
 		"""
