@@ -74,6 +74,7 @@ class Interface():
 		
 	"""
 
+	CAP_AND_PCS=0
 	ADC_SHIFTS_LOCATION1=1
 	ADC_SHIFTS_LOCATION2=2
 	ADC_POLYNOMIALS_LOCATION=3
@@ -101,6 +102,8 @@ class Interface():
 		self.channels_in_buffer=0
 		self.digital_channels_in_buffer=0
 		self.currents=[0.55e-3,0.55e-6,0.55e-5,0.55e-4]
+		self.currentScalers=[1.0,1.0,1.0,1.0]
+		
 		self.data_splitting = kwargs.get('data_splitting',CP.DATA_SPLITTING)
 		self.allAnalogChannels=allAnalogChannels
 		self.analogInputSources={}
@@ -136,7 +139,7 @@ class Interface():
 		self.achans=[analogAcquisitionChannel(a) for a in ['CH1','CH2','CH3','MIC']]        
 		self.gain_values=gains
 		self.buff=np.zeros(10000)
-		self.SOCKET_CAPACITANCE = 42e-12
+		self.SOCKET_CAPACITANCE = 0# 42e-12 is typical for the SEElablet. Actual values will be updated during calibration loading
 
 		self.digital_channel_names=digital_channel_names
 		self.allDigitalChannels = self.digital_channel_names
@@ -163,13 +166,29 @@ class Interface():
 		self.calibrated = False
 		#-------Check for calibration data if connected. And process them if found---------------
 		if kwargs.get('load_calibration',True) and self.H.connected:
+			import struct
+			#Load constants for CTMU and PCS
+			cap_and_pcs=self.read_bulk_flash(self.CAP_AND_PCS,8*4+5)  #READY+calibration_string
+			if cap_and_pcs[:5]=='READY':
+				scalers = list(struct.unpack('8f',cap_and_pcs[5:]))
+				self.SOCKET_CAPACITANCE = scalers[0]
+				self.DAC.CHANS['PCS'].load_calibration_twopoint(scalers[1],scalers[2]) #Slope and offset for current source
+				self.__calibrate_ctmu__(scalers[4:])
+				print ('loaded cap and pcs')
+				self.aboutArray.append(['Capacitance[sock,550uA,55uA,5.5uA,.55uA]']+scalers[:1]+scalers[4:])
+				self.aboutArray.append(['PCS slope,offset']+scalers[1:3])
+			else:
+				self.SOCKET_CAPACITANCE = 42e-12  #approx
+				self.__print__('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
+
+
+			#Load constants for ADC and DAC
 			polynomials = self.read_bulk_flash(self.ADC_POLYNOMIALS_LOCATION,2048)
 			polyDict={}
 			if polynomials[:9]=='SEELablet':
 				self.__print__('ADC calibration found...')
 				self.aboutArray.append(['Calibration Found'])
 				self.aboutArray.append([])
-				import struct
 				self.calibrated = True
 				adc_shifts = self.read_bulk_flash(self.ADC_SHIFTS_LOCATION1,2048)+self.read_bulk_flash(self.ADC_SHIFTS_LOCATION2,2048)
 				adc_shifts = [CP.Byte.unpack(a)[0] for a in adc_shifts]
@@ -181,11 +200,9 @@ class Interface():
 				adc_slopes_offsets		= poly_sections[0]
 				dac_slope_intercept = poly_sections[1]
 				inl_slope_intercept = poly_sections[2]
-				cap_and_pcs 		= poly_sections[3]
 				#print('COMMON#########',self.__stoa__(slopes_offsets))
 				#print('DAC#########',self.__stoa__(dac_slope_intercept))
 				#print('ADC INL ############',self.__stoa__(inl_slope_intercept),len(inl_slope_intercept))
-				#print('CAP PCS#########',self.__stoa__(cap_and_pcs))
 				#Load calibration data for ADC channels into an array that'll be evaluated in the next code block
 				for a in adc_slopes_offsets.split('>|')[1:]:
 					self.__print__( '\n','>'*20,a[:3],'<'*20)
@@ -256,12 +273,7 @@ class Interface():
 						self.aboutArray.append(['Err min:',min(OFF),'Err max:',max(OFF)])
 						self.DAC.CHANS[NAME].load_calibration_table(OFF)
 
-				if len(cap_and_pcs)==24:
-					scalers = struct.unpack('6f',cap_and_pcs)
-					self.__calibrate_ctmu__(self,scalers[:4])
-					self.DAC.CHANS['PCS'].load_calibration_twopoint(scalers[4],scalers[5]) #Slope and offset for current source
-				else:
-					self.__print__('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
+				
 				
 		
 		time.sleep(0.001)
@@ -1977,7 +1989,6 @@ class Interface():
 		================== ======================================================================================================
 		args
 		channel            ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
-		trigger_channel    ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
 
 		channel_mode       acquisition mode.
 						   default value: 1
@@ -1989,8 +2000,6 @@ class Interface():
 							- EVERY_EDGE                  = 1
 							- DISABLED                    = 0
 		
-		trigger_mode       same as channel_mode.
-						   default_value : 3
 
 		================== ======================================================================================================
 		
@@ -1999,6 +2008,9 @@ class Interface():
 		see :ref:`LA_video`
 
 		"""
+		#trigger_channel    ['ID1','ID2','ID3','ID4','SEN','EXT','CNTR']
+		#trigger_mode       same as channel_mode.
+		#				   default_value : 3
 		try:
 			self.clear_buffer(0,self.MAX_SAMPLES/2);
 			self.H.__sendByte__(CP.TIMING)
@@ -2011,7 +2023,6 @@ class Interface():
 			
 			self.H.__sendByte__((aqchan<<4)|aqmode)
 			self.H.__sendByte__((trchan<<4)|trmode)
-			
 			self.H.__get_ack__()
 			self.digital_channels_in_buffer = 1
 
@@ -2030,18 +2041,31 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def start_two_channel_LA(self,trigger=1,maximum_time=67):
+	def start_two_channel_LA(self,**args):
 		""" 
 		start logging timestamps of rising/falling edges on ID1,AD2     
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
-		==============  ============================================================================================
+		==============  =======================================================================================================
 		**Arguments** 
-		==============  ============================================================================================
+		==============  =======================================================================================================
 		trigger         Bool . Enable rising edge trigger on ID1
+		\*\*args
+		chans			Channels to acquire data from . default ['ID1','ID2']
+		modes               modes for each channel. Array .\n
+							default value: [1,1]
+
+							- EVERY_SIXTEENTH_RISING_EDGE = 5
+							- EVERY_FOURTH_RISING_EDGE    = 4
+							- EVERY_RISING_EDGE           = 3
+							- EVERY_FALLING_EDGE          = 2
+							- EVERY_EDGE                  = 1
+							- DISABLED                    = 0
+
 		maximum_time    Total time to sample. If total time exceeds 67 seconds, a prescaler will be used in the reference clock
-		==============  ============================================================================================
+
+		==============  =======================================================================================================
 
 		::
 
@@ -2049,14 +2073,32 @@ class Interface():
 			"fetch_long_data_from_dma(samples,2)" to get data acquired from channel 2
 			The read data can be accessed from self.dchans[0 or 1]
 		"""
-		chans=[0,1]
-		modes=[1,1]
+		#Trigger not working up to expectations. DMA keeps dumping Null values even though not triggered.
+
+		#trigger         True/False  : Whether or not to trigger the Logic Analyzer using the first channel of the two.
+		#trig_type		'rising' / 'falling' .  Type of logic change to trigger on
+		#trig_chan		channel to trigger on . Any digital input. default chans[0]
+		
+		
+		modes = args.get('modes',[1,1])
+		strchans = args.get('chans',['ID1','ID2'])
+		chans = [self.__calcDChan__(strchans[0]),self.__calcDChan__(strchans[1])] #Convert strings to index
+		maximum_time = args.get('maximum_time',67)
+		trigger = args.get('trigger',0)
+		if trigger:
+			trigger = 1
+			if args.get('edge','rising')=='falling' : trigger|=2
+			trigger |= (self.__calcDChan__(args.get('trig_chan',strchans[0]))<<4)
+			#print (args.get('trigger',0),args.get('edge'),args.get('trig_chan',strchans[0]),hex(trigger),args)
+		else:
+			trigger = 0
+
 		try:
 			self.clear_buffer(0,self.MAX_SAMPLES);
 			self.H.__sendByte__(CP.TIMING)
 			self.H.__sendByte__(CP.START_TWO_CHAN_LA)
 			self.H.__sendInt__(self.MAX_SAMPLES/4)
-			self.H.__sendByte__(trigger|chans[0])
+			self.H.__sendByte__(trigger)
 
 			self.H.__sendByte__((modes[1]<<4)|modes[0]) #Modes. four bits each
 			self.H.__sendByte__((chans[1]<<4)|chans[0]) #Channels. four bits each
@@ -2065,7 +2107,7 @@ class Interface():
 			for a in self.dchans[:2]:
 				a.prescaler = 0;a.length = self.MAX_SAMPLES/4;  a.datatype='long';a.maximum_time = maximum_time*1e6 #conversion to uS
 				a.mode = modes[n];a.channel_number=chans[n]
-				a.name = a.digital_channel_names[n]
+				a.name = strchans[n]
 				n+=1
 			self.digital_channels_in_buffer = 2
 		except Exception, ex:
@@ -2319,20 +2361,14 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def fetch_LA_channels(self,trigchan=1):
+	def fetch_LA_channels(self):
 		"""
 		reads and stores the channels in self.dchans.
 
-		==============  ============================================================================================
-		**Arguments** 
-		==============  ============================================================================================
-		trigchan:       channel number which should be treated as a trigger. (1,2,3,4). Its first timestamp
-						is subtracted from the rest of the channels.
-		==============  ============================================================================================
 		"""
 		try:
 			data=self.get_LA_initial_states()
-			print (data)
+			#print (data)
 			for a in range(4):
 				if(self.dchans[a].channel_number<self.digital_channels_in_buffer):self.__fetch_LA_channel__(a,data)
 			return True
@@ -2509,7 +2545,7 @@ class Interface():
 
 	def get_capacitance(self):  #time in uS
 		"""
-		measures capacitance of component connected between IN1 and ground
+		measures capacitance of component connected between CAP and ground
 
 		
 		:return: Capacitance (F)
@@ -2528,7 +2564,7 @@ class Interface():
 
 		"""
 		GOOD_VOLTS=[2.5,2.8]
-		CT=100
+		CT=10
 		CR=1
 		iterations = 0
 		start_time=time.time()
@@ -2546,7 +2582,7 @@ class Interface():
 
 				elif V>GOOD_VOLTS[0] and V<GOOD_VOLTS[1]:
 					return C
-				elif V<GOOD_VOLTS[0] and V>0.1 and CT<40000:
+				elif V<GOOD_VOLTS[0] and V>0.01 and CT<40000:
 					if GOOD_VOLTS[0]/V >1.1 and iterations<10:
 						CT=int(CT*GOOD_VOLTS[0]/V)
 						iterations+=1
@@ -2563,8 +2599,11 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def __calibrate_ctmu__(self,currents):
-		self.currents=[0.55e-3*currents[0],0.55e-6*currents[1],0.55e-5*currents[2],0.55e-4*currents[3]]
+	def __calibrate_ctmu__(self,scalers):
+		#self.currents=[0.55e-3/scalers[0],0.55e-6/scalers[1],0.55e-5/scalers[2],0.55e-4/scalers[3]]
+		self.currents=[0.55e-3,0.55e-6,0.55e-5,0.55e-4]
+		self.currentScalers = scalers
+		print (self.currentScalers,scalers,self.SOCKET_CAPACITANCE)
 
 	def __get_capacitance__(self,current_range,trim, Charge_Time):  #time in uS
 		try:
@@ -2582,7 +2621,7 @@ class Interface():
 			V = 3.3*VCode/4095
 			self.H.__get_ack__()
 			Charge_Current = self.currents[current_range]*(100+trim)/100.0
-			if V:C = Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE
+			if V:C = (Charge_Current*Charge_Time*1e-6/V - self.SOCKET_CAPACITANCE)/self.currentScalers[current_range]
 			else: C = 0
 			#self.__print__('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
 			return V,C
@@ -2707,7 +2746,7 @@ class Interface():
 		**Arguments** 
 		================    ============================================================================================
 		page                Block number. 0-20. each block is 2kB.
-		bytes               Total bytes to read
+		numbytes               Total bytes to read
 		================    ============================================================================================
 
 		:return: a string of 16 characters read from the location
@@ -2715,11 +2754,14 @@ class Interface():
 		try:
 			self.H.__sendByte__(CP.FLASH)
 			self.H.__sendByte__(CP.READ_BULK_FLASH)
-			self.H.__sendInt__(numbytes)   #send the location
+			bytes_to_read = numbytes
+			if numbytes%2: bytes_to_read+=1     #bytes+1 . stuff is stored as integers (byte+byte) in the hardware
+			self.H.__sendInt__(bytes_to_read)   
 			self.H.__sendByte__(page)
-			ss=self.H.fd.read(int(numbytes))
+			ss=self.H.fd.read(int(bytes_to_read))
 			self.H.__get_ack__()
-			self.__print__('Read from ',page,',',numbytes,' :',self.__stoa__(ss[:10]),'...')
+			self.__print__('Read from ',page,',',bytes_to_read,' :',self.__stoa__(ss[:40]),'...')
+			if numbytes%2: return ss[:-1]   #Kill the extra character we read. Don't surprise the user with extra data
 			return ss
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
@@ -3473,7 +3515,7 @@ class Interface():
 
 		:return: value attempted to set on pcs
 		"""
-		return self.DAC.setVoltage('PCS',val)
+		return self.DAC.setCurrent(val)
 		
 	def setOnboardLED(self,R,G,B):
 		"""
