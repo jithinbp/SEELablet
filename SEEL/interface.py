@@ -140,6 +140,7 @@ class Interface():
 		self.gain_values=gains
 		self.buff=np.zeros(10000)
 		self.SOCKET_CAPACITANCE = 0# 42e-12 is typical for the SEElablet. Actual values will be updated during calibration loading
+		self.resistanceScaling = 1.
 
 		self.digital_channel_names=digital_channel_names
 		self.allDigitalChannels = self.digital_channel_names
@@ -174,9 +175,10 @@ class Interface():
 				self.SOCKET_CAPACITANCE = scalers[0]
 				self.DAC.CHANS['PCS'].load_calibration_twopoint(scalers[1],scalers[2]) #Slope and offset for current source
 				self.__calibrate_ctmu__(scalers[4:])
-				print ('loaded cap and pcs')
+				self.resistanceScaling = scalers[3]   #SEN
 				self.aboutArray.append(['Capacitance[sock,550uA,55uA,5.5uA,.55uA]']+scalers[:1]+scalers[4:])
 				self.aboutArray.append(['PCS slope,offset']+scalers[1:3])
+				self.aboutArray.append(['SEN']+[scalers[3]])
 			else:
 				self.SOCKET_CAPACITANCE = 42e-12  #approx
 				self.__print__('Cap and PCS calibration invalid')#,cap_and_pcs[:10],'...')
@@ -277,6 +279,13 @@ class Interface():
 				
 		
 		time.sleep(0.001)
+
+	def get_resistance(self):
+		V = self.get_average_voltage('SEN')
+		if V==3.3 or V==0:return None
+		I = (3.3-V)/5.1e3
+		res = V/I
+		return res*self.resistanceScaling
 
 	def __ignoreCalibration__(self):
 			print ('CALIBRATION DISABLED')

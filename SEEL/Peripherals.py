@@ -718,12 +718,15 @@ class DACCHAN:
 
 	def load_calibration_twopoint(self,slope,offset):
 		self.calibration_enabled='twopoint'
+		self.slope = slope
+		self.offset = offset
 
 
 	def apply_calibration(self,v):
 		if self.calibration_enabled=='table':			#Each point is individually calibrated 
 			return int(np.clip(v+self.calibration_table[v]	,0,4095))
 		elif self.calibration_enabled=='twopoint':		#Overall slope and offset correction is applied
+			#print (self.slope,self.offset,v)
 			return int(np.clip(v*self.slope+self.offset,0,4095)	)
 		else:
 			return v
@@ -786,7 +789,7 @@ class MCP4728:
 		'''
 		val = self.CHANS[name].apply_calibration(v)
 		self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(val>>8)&0x0F,val&0xFF])
-		return CHAN.CodeToV(val)
+		return CHAN.CodeToV(v)
 
 
 	def __writeall__(self,v1,v2,v3,v4):
