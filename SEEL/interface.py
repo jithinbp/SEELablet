@@ -1181,6 +1181,39 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
+
+	def set_range(self,channel,voltage_range):
+		"""
+		set the gain of the selected PGA
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		channel         'CH1','CH2'
+		voltage_range   choose from [16,8,4,3,2,1.5,1,.5,160]
+		==============  ============================================================================================
+		
+		.. note::
+			Setting the right voltage range will result in better resolution.
+			
+			in case the range specified is 160 , an external 10MOhm resistor must be connected in series with the device. 
+		
+		>>> I.set_range('CH1',8)  #gain set to 2x on CH1. Voltage range +/-8V
+
+		"""
+		ranges = [16,8,4,3,2,1.5,1,.5,160]
+		if voltage_range in ranges:
+			g = ranges.index(voltage_range)
+			print (g)
+			return self.set_gain( channel, g)
+		else:
+			print ('not a valid range. try : ',ranges)
+			return None
+
+
+
 	def __calcCHOSA__(self,name):
 		name=name.upper()
 		source = self.analogInputSources[name]
@@ -2612,7 +2645,7 @@ class Interface():
 		#self.currents=[0.55e-3/scalers[0],0.55e-6/scalers[1],0.55e-5/scalers[2],0.55e-4/scalers[3]]
 		self.currents=[0.55e-3,0.55e-6,0.55e-5,0.55e-4]
 		self.currentScalers = scalers
-		print (self.currentScalers,scalers,self.SOCKET_CAPACITANCE)
+		#print (self.currentScalers,scalers,self.SOCKET_CAPACITANCE)
 
 	def __get_capacitance__(self,current_range,trim, Charge_Time):  #time in uS
 		try:
