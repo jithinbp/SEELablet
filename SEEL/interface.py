@@ -282,7 +282,7 @@ class Interface():
 
 	def get_resistance(self):
 		V = self.get_average_voltage('SEN')
-		if V==3.3 or V==0:return None
+		if V==3.3:return 'Open'
 		I = (3.3-V)/5.1e3
 		res = V/I
 		return res*self.resistanceScaling
@@ -368,7 +368,7 @@ class Interface():
 			print(self.errmsg)
 			raise RuntimeError(self.errmsg)
 		
-	def capture1(self,ch,ns,tg,*args):
+	def capture1(self,ch,ns,tg,*args,**kwargs):
 		"""
 		Blocking call that fetches an oscilloscope trace from the specified input channel
 		
@@ -403,7 +403,7 @@ class Interface():
 		:return: Arrays X(timestamps),Y(Corresponding Voltage values)
 		
 		"""
-		return self.capture_fullspeed(ch,ns,tg,*args)
+		return self.capture_fullspeed(ch,ns,tg,*args,**kwargs)
 
 	def capture2(self,ns,tg,TraceOneRemap='CH1'):
 		"""
@@ -621,6 +621,7 @@ class Interface():
 			self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
 			if 'FIRE_PULSES' in args:
 				t = kwargs.get('interval',1000)
+				print ('Firing for',t,'uS')
 				self.H.__sendInt__(t)
 				time.sleep(t*1e-6)    #Wait for hardware to free up from firing pulses(blocking call). Background capture starts immediately after this
 			self.H.__get_ack__()
@@ -1182,7 +1183,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
-	def set_range(self,channel,voltage_range):
+	def select_range(self,channel,voltage_range):
 		"""
 		set the gain of the selected PGA
 		
@@ -1196,9 +1197,10 @@ class Interface():
 		==============  ============================================================================================
 		
 		.. note::
-			Setting the right voltage range will result in better resolution.
-			
+			Setting the right voltage range will result in better resolution.			
 			in case the range specified is 160 , an external 10MOhm resistor must be connected in series with the device. 
+			
+			Note : this function internally calls set_gain with the appropriate gain value
 		
 		>>> I.set_range('CH1',8)  #gain set to 2x on CH1. Voltage range +/-8V
 
@@ -1206,7 +1208,6 @@ class Interface():
 		ranges = [16,8,4,3,2,1.5,1,.5,160]
 		if voltage_range in ranges:
 			g = ranges.index(voltage_range)
-			print (g)
 			return self.set_gain( channel, g)
 		else:
 			print ('not a valid range. try : ',ranges)
@@ -1225,7 +1226,21 @@ class Interface():
 		return source.CHOSA
 
 	def get_voltage(self,channel_name,**kwargs):
+		self.voltmeter_autorange(channel_name)
 		return self.get_average_voltage(channel_name,**kwargs)
+
+	def voltmeter_autorange(self,channel_name):
+		self.set_gain(channel_name,0)
+		V1 = self.get_average_voltage(channel_name)
+		keys = [8,4,3,2,1.5,1,.5,0]
+		cutoffs = {8:0,4:1,3:2,2:3,1.5:4,1.:5,.5:6,0:7}
+		for a in keys:
+			if abs(V1)>a:
+				g=cutoffs[a]
+				break
+		self.set_gain(channel_name,g)
+		return g
+
 
 	def get_average_voltage(self,channel_name,**kwargs):
 		""" 
@@ -3912,18 +3927,21 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
 
-	def opticalArray(self,tg,delay,tp):
+	def opticalArray(self,tg,delay,tp,channel = 'CH3'):
 		'''
-		read from 3648 element optical sensor array TCD3648P from Toshiba
+		read from 3648 element optical sensor array TCD3648P from Toshiba. Experimental feature.
+		Neither Sine waves will be available.
+		Connect SQR1 to MS , SQR2 to MS , A0 to CHannel , and CS1(on the expansion slot) to ICG
 
-		see :ref:`tcd_video`
+		delay : ICG low duration
+		tp : clock wavelength=tp*15nS,  SS=clock/4
 
 		'''
 		samples=3694
 		try:
 			self.H.__sendByte__(CP.NONSTANDARD_IO)
 			self.H.__sendByte__(CP.TCD1304_HEADER)
-			self.H.__sendByte__(self.__calcCHOSA__('CH3'))
+			self.H.__sendByte__(self.__calcCHOSA__(channel))
 			self.H.__sendByte__(int(tg*8))
 			self.H.__sendInt__(delay)
 			

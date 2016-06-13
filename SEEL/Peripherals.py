@@ -754,6 +754,7 @@ class MCP4728:
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
 		self.CHANS = {'PCS':DACCHAN('PCS',[0,3.3e-3],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
 		self.CHANNEL_MAP={0:'PCS',1:'PV3',2:'PV2',3:'PV1'}
+		self.values = {'PV1':0,'PV2':0,'PV3':0,'PCS':0}
 
 
 
@@ -789,7 +790,8 @@ class MCP4728:
 		'''
 		val = self.CHANS[name].apply_calibration(v)
 		self.I2C.writeBulk(self.addr,[64|(CHAN.channum<<1),(val>>8)&0x0F,val&0xFF])
-		return CHAN.CodeToV(v)
+		self.values[name] =  CHAN.CodeToV(v)
+		return self.values[name]
 
 
 	def __writeall__(self,v1,v2,v3,v4):
