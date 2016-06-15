@@ -116,14 +116,14 @@ class Interface():
 		#--------------------------Initialize communication handler, and subclasses-----------------
 		try:
 			self.H = packet_handler.Handler(**kwargs)
-		except Exception,ex:
+		except Exception as ex:
 			self.errmsg = "failed to Connect. Please check connections/arguments\n"+ex.message
 			self.connected = False
 			print(self.errmsg)#raise RuntimeError(msg)
 		
 		try:
 			self.__runInitSequence__(**kwargs)
-		except Exception,ex:
+		except Exception as ex:
 			self.errmsg = "failed to run init sequence. Check device connections\n"+ex.message
 			self.connected = False
 			print(self.errmsg)#raise RuntimeError(msg)
@@ -315,13 +315,13 @@ class Interface():
 		"""
 		try:
 			return self.H.get_version(self.H.fd)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def getRadioLinks(self):
 		try:
 			return self.NRF.get_nodelist()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def newRadioLink(self,**args):
@@ -345,7 +345,7 @@ class Interface():
 		from SEEL.Peripherals import RadioLink
 		try:
 			return RadioLink(self.NRF,**args)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
@@ -362,7 +362,7 @@ class Interface():
 		try:
 			self.H.reconnect(**kwargs)
 			self.__runInitSequence__(**kwargs)
-		except Exception, ex:
+		except Exception as ex:
 			self.errmsg = ex.message
 			self.H.disconnect()
 			print(self.errmsg)
@@ -449,7 +449,7 @@ class Interface():
 			self.__fetch_channel__(1)
 			self.__fetch_channel__(2)
 
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		x=self.achans[0].get_xaxis()
@@ -503,7 +503,7 @@ class Interface():
 			x,y2=self.fetch_trace(2)
 			x,y3=self.fetch_trace(3)
 			x,y4=self.fetch_trace(4)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 		return x,y,y2,y3,y4     
@@ -591,7 +591,7 @@ class Interface():
 			yield np.linspace(0,tg*(samples-1),samples)
 			for a in range(int(total_chans)):
 				yield self.buff[a:total_samples][::total_chans]
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __capture_fullspeed__(self,chan,samples,tg,*args, **kwargs):
@@ -625,7 +625,7 @@ class Interface():
 				self.H.__sendInt__(t)
 				time.sleep(t*1e-6)    #Wait for hardware to free up from firing pulses(blocking call). Background capture starts immediately after this
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_fullspeed(self,chan,samples,tg,*args,**kwargs):
@@ -706,7 +706,7 @@ class Interface():
 			self.H.__sendInt__(samples)         #total number of samples to record
 			self.H.__sendInt__(int(tg*8))       #Timegap between samples.  8MHz timer clock
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_fullspeed_hr(self,chan,samples,tg,*args):
@@ -714,7 +714,7 @@ class Interface():
 			self.__capture_fullspeed_hr__(chan,samples,tg,*args)
 			time.sleep(1e-6*self.samples*self.timebase+.01)
 			x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return x,self.analogInputSources[chan].calPoly12(y)
@@ -726,7 +726,7 @@ class Interface():
 			self.H.__sendByte__(state)
 			self.H.__sendInt__(t)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def __capture_capacitance__(self,samples,tg):
@@ -735,7 +735,7 @@ class Interface():
 		self.__charge_cap__(1,50000)
 		try:
 			x,y=self.capture_fullspeed_hr('CAP',samples,tg,'READ_CAP')
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		try:
 			fitres =  self.AC.fit_exp(x,y)
@@ -744,7 +744,7 @@ class Interface():
 				return x,y,newy,cVal
 			else:
 				return None
-		except Exception, ex:
+		except Exception as ex:
 			raise RuntimeError(" Fit Failed ")
 
 	def capacitance_via_RC_discharge(self,samples,tg):
@@ -774,11 +774,11 @@ class Interface():
 				data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped. this works better.
 				self.H.__get_ack__()
 
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		try:
 			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
-		except Exception, ex:
+		except Exception as ex:
 			msg = "Incorrect Number of Bytes Received\n"
 			raise RuntimeError(msg)
 
@@ -901,7 +901,7 @@ class Interface():
 			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
 			self.H.__get_ack__()
 			self.channels_in_buffer=num
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -947,7 +947,7 @@ class Interface():
 			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
 			self.H.__get_ack__()
 			self.channels_in_buffer=1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_trace(self,channel_number):
@@ -998,7 +998,7 @@ class Interface():
 			conversion_done = self.H.__getByte__()
 			samples = self.H.__getInt__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return conversion_done,samples
 
@@ -1039,13 +1039,13 @@ class Interface():
 				self.H.__sendInt__(samples-samples%self.data_splitting)
 				data += self.H.fd.read(int(2*(samples%self.data_splitting)))         #reading int by int may cause packets to be dropped.
 				self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		try:
 			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
 			self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
-		except Exception, ex:
+		except Exception as ex:
 			msg = "Incorrect Number of bytes received.\n"
 			raise RuntimeError(msg)
 
@@ -1079,7 +1079,7 @@ class Interface():
 			self.H.__get_ack__()
 			for a in range(int(samples)): self.buff[a] = CP.ShortInt.unpack(data[a*2:a*2+2])[0]
 			self.achans[channel_number-1].yaxis = self.achans[channel_number-1].fix_value(self.buff[:samples])
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return True
@@ -1135,7 +1135,7 @@ class Interface():
 
 			self.H.__sendInt__(int(level))  #Trigger
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_gain(self,channel,gain):
@@ -1179,7 +1179,7 @@ class Interface():
 			self.H.__sendByte__(gain) #send the gain
 			self.H.__get_ack__()
 			return self.gain_values[gain]
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -1269,7 +1269,7 @@ class Interface():
 		"""
 		try:
 			poly = self.analogInputSources[channel_name].calPoly12
-		except Exception, ex:
+		except Exception as ex:
 			msg = "Invalid Channel"+ex
 			raise RuntimeError(msg)
 		vals = [self.__get_raw_average_voltage__(channel_name,**kwargs) for a in range(int(kwargs.get('samples',1)))]
@@ -1299,7 +1299,7 @@ class Interface():
 			V_sum = self.H.__getInt__()
 			self.H.__get_ack__()
 			return  V_sum/16. #sum(V)/16.0  #
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_buffer(self,starting_position=0,total_points=100):
@@ -1313,7 +1313,7 @@ class Interface():
 			self.H.__sendInt__(total_points)
 			for a in range(int(total_points)): self.buff[a]=self.H.__getInt__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -1327,7 +1327,7 @@ class Interface():
 			self.H.__sendInt__(starting_position)
 			self.H.__sendInt__(total_points)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fill_buffer(self,starting_position,point_array):
@@ -1342,7 +1342,7 @@ class Interface():
 			for a in point_array:
 				self.H.__sendInt__(int(a))
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_streaming(self,tg,channel='CH1'):
@@ -1366,7 +1366,7 @@ class Interface():
 			self.H.__sendByte__(self.__calcCHOSA__(channel))
 			self.H.__sendInt__(tg)      #Timegap between samples.  8MHz timer clock
 			self.streaming=True
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop_streaming(self):
@@ -1409,7 +1409,7 @@ class Interface():
 			val = self.H.__getLong__()
 			self.H.__get_ack__()
 			return scale*(val)/1.0e-1 #100mS sampling
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_high_freq(self,pin):
@@ -1445,7 +1445,7 @@ class Interface():
 			self.H.__get_ack__()
 			#self.__print__(hex(val))
 			return scale*(val)/1.0e-1 #100mS sampling
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_freq(self,channel='CNTR',timeout=2):
@@ -1504,7 +1504,7 @@ class Interface():
 			self.H.__get_ack__()
 			freq = lambda t: 16*64e6/t if(t) else 0
 			#self.__print__(x,tmt,timeout_msb)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		if(tmt):return 0
 		return freq(x[1]-x[0])
@@ -1577,7 +1577,7 @@ class Interface():
 					return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
 				time.sleep(0.1)
 			return []
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def f2f_time(self,channel,skip_cycle=0,timeout=5):
@@ -1612,7 +1612,7 @@ class Interface():
 					return [1e-6*(self.dchans[0].timestamps[skip_cycle+1]-self.dchans[0].timestamps[0])]
 				time.sleep(0.1)
 			return []
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def MeasureInterval(self,channel1,channel2,edge1,edge2,timeout=0.1):
@@ -1677,7 +1677,7 @@ class Interface():
 			if(tmt >= timeout_msb or B==0):return np.NaN
 			rtime = lambda t: t/64e6
 			return rtime(B-A+20)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def DutyCycle(self,channel='ID1',timeout=1.):
@@ -1719,7 +1719,7 @@ class Interface():
 				return params
 			else:
 				return -1,-1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def PulseTime(self,channel='ID1',PulseType='LOW',timeout=0.1):
@@ -1756,7 +1756,7 @@ class Interface():
 					if PulseType=='HIGH': return y[1]
 					elif PulseType=='LOW': return abs(y[0])
 			return -1,-1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def MeasureMultipleDigitalEdges(self,channel1,channel2,edgeType1,edgeType2,points1,points2,timeout=0.1,**kwargs):
@@ -1841,7 +1841,7 @@ class Interface():
 				return rtime(A-A[0]),rtime(B-A[0])
 			else:
 				return rtime(A),rtime(B)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def capture_edges1(self,waiting_time=1.,**args):
@@ -1897,7 +1897,7 @@ class Interface():
 			tmp = self.fetch_long_data_from_LA(data[0],1)
 			#data[4][0] -> initial state
 			return tmp/64e6     
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_one_channel_LA_backup__(self,trigger=1,channel='ID1',maximum_time=67,**args):
@@ -1956,7 +1956,7 @@ class Interface():
 				a.maximum_time = maximum_time*1e6 #conversion to uS
 				a.mode = EVERY_EDGE
 
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		#def start_one_channel_LA(self,**args):
@@ -2095,7 +2095,7 @@ class Interface():
 				a.initial_state_override = 2
 			elif trmode == 2:
 				a.initial_state_override = 1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_two_channel_LA(self,**args):
@@ -2167,7 +2167,7 @@ class Interface():
 				a.name = strchans[n]
 				n+=1
 			self.digital_channels_in_buffer = 2
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_three_channel_LA(self,**args):
@@ -2228,7 +2228,7 @@ class Interface():
 				elif trmode == 2:
 					a.initial_state_override = 1
 				n+=1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start_four_channel_LA(self,trigger=1,maximum_time=0.001,mode=[1,1,1,1],**args):
@@ -2307,7 +2307,7 @@ class Interface():
 				a.maximum_time = maximum_time*1e6 #conversion to uS
 				a.mode=mode[n]
 				n+=1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_LA_initial_states(self):
@@ -2337,7 +2337,7 @@ class Interface():
 			if B<0: B=0
 			if C<0: C=0
 			if D<0: D=0
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return A,B,C,D,{'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0),'SEN':(s&16!=16)}  #SEN is inverted comparator output.
@@ -2350,7 +2350,7 @@ class Interface():
 			self.H.__sendByte__(CP.TIMING)
 			self.H.__sendByte__(CP.STOP_LA)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def fetch_int_data_from_LA(self,bytes,chan=1):
@@ -2378,7 +2378,7 @@ class Interface():
 				t[a] = CP.ShortInt.unpack(ss[a*2:a*2+2])[0]
 
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		t=np.trim_zeros(t)
@@ -2415,7 +2415,7 @@ class Interface():
 				tmp[a] = CP.Integer.unpack(ss[a*4:a*4+4])[0]
 			tmp = np.trim_zeros(tmp) 
 			return tmp
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_LA_channels(self):
@@ -2429,7 +2429,7 @@ class Interface():
 			for a in range(4):
 				if(self.dchans[a].channel_number<self.digital_channels_in_buffer):self.__fetch_LA_channel__(a,data)
 			return True
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __fetch_LA_channel__(self,channel_number,initial_states):
@@ -2452,7 +2452,7 @@ class Interface():
 			#a.timestamps -= offset
 			a.generate_axes()
 			return True
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_states(self):
@@ -2469,7 +2469,7 @@ class Interface():
 			s=self.H.__getByte__()
 			self.H.__get_ack__()
 			return {'ID1':(s&1!=0),'ID2':(s&2!=0),'ID3':(s&4!=0),'ID4':(s&8!=0)}
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_state(self,input_id):
@@ -2524,7 +2524,7 @@ class Interface():
 			self.H.__sendByte__(CP.SET_STATE)
 			self.H.__sendByte__(data)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def countPulses(self,channel='SEN'):
@@ -2545,7 +2545,7 @@ class Interface():
 			self.H.__sendByte__(CP.START_COUNTING)
 			self.H.__sendByte__(self.__calcDChan__(channel))
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readPulseCount(self):
@@ -2566,7 +2566,7 @@ class Interface():
 			count = self.H.__getInt__()
 			self.H.__get_ack__()
 			return count
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __get_capacitor_range__(self,ctime):
@@ -2580,7 +2580,7 @@ class Interface():
 			V=V_sum*3.3/16/4095
 			C = -ctime*1e-6/1e4/np.log(1-V/3.3)
 			return  V,C
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_capacitor_range(self):
@@ -2653,7 +2653,7 @@ class Interface():
 				elif CR==3:
 					self.__print__('Constant voltage mode ')
 					return self.get_capacitor_range()[1]
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __calibrate_ctmu__(self,scalers):
@@ -2682,7 +2682,7 @@ class Interface():
 			else: C = 0
 			#self.__print__('Current if C=470pF :',V*(470e-12+self.SOCKET_CAPACITANCE)/(Charge_Time*1e-6))
 			return V,C
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def get_temperature(self):
@@ -2730,7 +2730,7 @@ class Interface():
 			V=3.3*v/16/4095.
 			#print(V)
 			return V
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __start_ctmu__(self,Crange,trim,tgen=1):
@@ -2740,7 +2740,7 @@ class Interface():
 			self.H.__sendByte__((Crange)|(tgen<<7))
 			self.H.__sendByte__(trim)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stop_ctmu__(self):
@@ -2748,7 +2748,7 @@ class Interface():
 			self.H.__sendByte__(CP.COMMON)
 			self.H.__sendByte__(CP.STOP_CTMU)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def resetHardware(self):
@@ -2758,7 +2758,7 @@ class Interface():
 		try:
 			self.H.__sendByte__(CP.COMMON)
 			self.H.__sendByte__(CP.RESTORE_STANDALONE)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_flash(self,page,location):
@@ -2784,7 +2784,7 @@ class Interface():
 			ss=self.H.fd.read(16)
 			self.H.__get_ack__()
 			return ss
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stoa__(self,s):
@@ -2820,7 +2820,7 @@ class Interface():
 			self.__print__('Read from ',page,',',bytes_to_read,' :',self.__stoa__(ss[:40]),'...')
 			if numbytes%2: return ss[:-1]   #Kill the extra character we read. Don't surprise the user with extra data
 			return ss
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_flash(self,page,location,string_to_write):
@@ -2852,7 +2852,7 @@ class Interface():
 			self.H.fd.write(string_to_write)
 			time.sleep(0.1)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_bulk_flash(self,location,data):
@@ -2886,7 +2886,7 @@ class Interface():
 				self.H.__sendByte__(data[n])
 				#Printer('Bytes written: %d'%(n+1))
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 			#verification by readback
@@ -3010,7 +3010,7 @@ class Interface():
 			if self.sine1freq == None: time.sleep(0.2)
 			self.sine1freq = freq
 			return freq
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_w2(self,freq,waveType=None):
@@ -3064,7 +3064,7 @@ class Interface():
 			self.H.__get_ack__()
 			if self.sine1freq == None: time.sleep(0.2)
 			self.sine2freq = freq
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return freq
@@ -3155,7 +3155,7 @@ class Interface():
 			self.sine2freq = retfreq2
 
 			return retfreq
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def load_equation(self,chan,function,span=None):
@@ -3258,7 +3258,7 @@ class Interface():
 				#time.sleep(0.001)
 			time.sleep(0.01)
 			self.H.__get_ack__()        
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def sqr1(self,freq,duty_cycle=50,onlyPrepare=False):
@@ -3299,7 +3299,7 @@ class Interface():
 			if onlyPrepare: prescaler |= 0x4   # Instruct hardware to prepare the square wave, but do not connect it to the output.
 			self.H.__sendByte__(prescaler)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return 64e6/wavelength/p[prescaler&0x3]
@@ -3329,7 +3329,7 @@ class Interface():
 			self.H.__sendInt__(len(timing_array))
 			time.sleep(sum(timing_array)*1e-6) #Sleep for the whole duration
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return True
 
@@ -3364,7 +3364,7 @@ class Interface():
 			self.H.__sendInt__(int(round(high_time)))
 			self.H.__sendByte__(prescaler)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_sqrs(self,wavelength,phase,high_time1,high_time2,prescaler=1):
@@ -3393,7 +3393,7 @@ class Interface():
 			self.H.__sendInt__(high_time2)
 			self.H.__sendByte__(prescaler)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def sqrPWM(self,freq,h0,p1,h1,p2,h2,p3,h3,**kwargs):
@@ -3455,7 +3455,7 @@ class Interface():
 			self.H.__sendInt__(max(1,B3-1))
 			self.H.__sendByte__(prescaler)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return 64e6/wavelength/p[prescaler&0x3]
@@ -3500,7 +3500,7 @@ class Interface():
 			self.H.__sendByte__(scaler)
 			if 'WAVEGEN' in args: self.DDS_CLOCK = 128e6/(1<<scaler)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
@@ -3599,7 +3599,7 @@ class Interface():
 			time.sleep(0.001)
 			self.H.__get_ack__()
 			return B,R,G    
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def WS2812B(self,cols,output='CS1'):
@@ -3640,7 +3640,7 @@ class Interface():
 				self.H.__sendByte__(G); self.H.__sendByte__(R);self.H.__sendByte__(B)
 				#print(col)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
@@ -3669,7 +3669,7 @@ class Interface():
 			v=self.H.__getInt__()
 			self.H.__get_ack__()
 			return v
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def device_id(self):
@@ -3681,7 +3681,7 @@ class Interface():
 			val = d|(c<<16)|(b<<32)|(a<<48)
 			self.__print__(a,b,c,d,hex(val))
 			return val
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __write_program_address__(self,address,value):
@@ -3703,7 +3703,7 @@ class Interface():
 			self.H.__sendInt__((address>>16)&0xFFFF)
 			self.H.__sendInt__(value)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_data_address(self,address):
@@ -3725,7 +3725,7 @@ class Interface():
 			v=self.H.__getInt__()
 			self.H.__get_ack__()
 			return v
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def write_data_address(self,address,value):
@@ -3746,7 +3746,7 @@ class Interface():
 			self.H.__sendInt__(address&0xFFFF)
 			self.H.__sendInt__(value)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	#-------------------------------------------------------------------------------------------------------------------#
@@ -3777,7 +3777,7 @@ class Interface():
 			self.H.__sendInt__(int(angle*1900/180))
 			self.H.__sendByte__(2)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stepperMotor__(self,steps,delay,direction):
@@ -3786,7 +3786,7 @@ class Interface():
 			self.H.__sendByte__(CP.STEPPER_MOTOR)
 			self.H.__sendInt__((steps<<1)|direction)
 			self.H.__sendInt__(delay)
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		t=time.time()
@@ -3841,7 +3841,7 @@ class Interface():
 			self.H.__sendInt__(750+int(a4*1900/180))
 			self.H.__sendByte__(params)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def enableUartPassthrough(self,baudrate,persist=False):
@@ -3872,7 +3872,7 @@ class Interface():
 			self.__print__('BRGVAL:',int( round(((64e6/baudrate)/4)-1) ))
 			time.sleep(0.1)
 			self.__print__('junk bytes read:',len(self.H.fd.read(100)))
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def estimateDistance(self):
@@ -3910,7 +3910,7 @@ class Interface():
 			if(tmt >= timeout_msb or B==0):return 0
 			rtime = lambda t: t/64e6
 			return 330.*rtime(B-A+20)/2.
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def TemperatureAndHumidity(self):
@@ -3923,7 +3923,7 @@ class Interface():
 			self.H.__sendByte__(CP.AM2302_HEADER)
 
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
 
@@ -3951,7 +3951,7 @@ class Interface():
 			self.channels_in_buffer=1
 			time.sleep(0.005)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def setUARTBAUD(self,BAUD):
@@ -3961,7 +3961,7 @@ class Interface():
 			self.H.__sendInt__(int( round(((64e6/BAUD)/4)-1) ))
 			self.__print__('BRG2VAL:',int( round(((64e6/BAUD)/4)-1) ))
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def writeUART(self,character):
@@ -3970,7 +3970,7 @@ class Interface():
 			self.H.__sendByte__(CP.SEND_BYTE)
 			self.H.__sendByte__(character)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readUART(self):
@@ -3978,7 +3978,7 @@ class Interface():
 			self.H.__sendByte__(CP.UART_2)
 			self.H.__sendByte__(CP.READ_BYTE)
 			return self.H.__getByte__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readUARTStatus(self):
@@ -3989,7 +3989,7 @@ class Interface():
 			self.H.__sendByte__(CP.UART_2)
 			self.H.__sendByte__(CP.READ_UART2_STATUS)
 			return self.H.__getByte__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def readLog(self):
@@ -4002,7 +4002,7 @@ class Interface():
 			log  = self.H.fd.readline().strip()
 			self.H.__get_ack__()
 			return log
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 	
 	def raiseException(self,ex, msg):
