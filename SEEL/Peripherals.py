@@ -46,7 +46,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_INIT)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def enable_smbus(self):
@@ -54,7 +54,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_ENABLE_SMBUS)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def pullSCLLow(self,uS):
@@ -76,7 +76,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_PULLDOWN_SCL)
 			self.H.__sendInt__(uS)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 		 
@@ -102,7 +102,7 @@ class I2C():
 				if verbose:print ('Frequency too low. Setting to :',1/((BRGVAL+1.0)/64e6+1.0/1e7))
 			self.H.__sendInt__(BRGVAL) 
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start(self,address,rw):
@@ -125,7 +125,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_START)
 			self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
 			return self.H.__get_ack__()>>4
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop(self):
@@ -138,7 +138,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_STOP)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def wait(self):
@@ -151,7 +151,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_WAIT)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def send(self,data):
@@ -175,7 +175,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_SEND)
 			self.H.__sendByte__(data)        #data byte
 			return self.H.__get_ack__()>>4
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def send_burst(self,data):
@@ -199,7 +199,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_SEND_BURST)
 			self.H.__sendByte__(data)        #data byte
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		#No handshake. for the sake of speed. e.g. loading a frame buffer onto an I2C display such as ssd1306
 
@@ -223,7 +223,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_HEADER)
 			self.H.__sendByte__(CP.I2C_RESTART)
 			self.H.__sendByte__(((address<<1)|rw)&0xFF) # address
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return self.H.__get_ack__()>>4
 
@@ -268,7 +268,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_READ_END)
 			data.append(self.H.__getByte__())
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return data
 
@@ -278,7 +278,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_READ_MORE)
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
@@ -288,7 +288,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_READ_END)
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
@@ -299,7 +299,7 @@ class I2C():
 			self.H.__sendByte__(CP.I2C_STATUS)
 			val=self.H.__getInt__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
@@ -318,7 +318,7 @@ class I2C():
 			except:
 				print ('Transaction failed')
 				return False
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def writeBulk(self,device_address,bytestream):
@@ -342,7 +342,7 @@ class I2C():
 			for a in bytestream:
 				self.H.__sendByte__(a)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def scan(self,frequency = 100000,verbose=False):
@@ -477,7 +477,7 @@ class I2C():
 						break
 				data=data[:-1]
 				#print ('Final Pass : len=',len(data))
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -493,7 +493,7 @@ class I2C():
 			yield np.linspace(0,tg*(channel_length-1),channel_length)
 			for a in range(int(total_chans)):
 				yield self.buff[a:channel_length*total_chans][::total_chans]
-		except Exception, ex:
+		except Exception as ex:
 			msg = "Incorrect number of bytes received"
 			raise RuntimeError(msg)
 
@@ -527,7 +527,7 @@ class SPI():
 			#0Bhgfedcba - > <g>: modebit CKP,<f>: modebit CKE, <ed>:primary pre,<cba>:secondary pre
 			self.H.__sendByte__(secondary_prescaler|(primary_prescaler<<3)|(CKE<<5)|(CKP<<6)|(SMP<<7)) 
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def start(self,channel):
@@ -551,7 +551,7 @@ class SPI():
 			self.H.__sendByte__(CP.START_SPI)
 			self.H.__sendByte__(channel)    #value byte
 			#self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def set_cs(self,channel,state):
@@ -577,7 +577,7 @@ class SPI():
 				else:self.H.__sendByte__(CP.START_SPI)
 				self.H.__sendByte__(csnum)   
 			else: print('Channel does not exist')
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def stop(self,channel):
@@ -599,7 +599,7 @@ class SPI():
 			self.H.__sendByte__(CP.SPI_HEADER)
 			self.H.__sendByte__(CP.STOP_SPI)
 			self.H.__sendByte__(channel)    #value byte
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		#self.H.__get_ack__()
 
@@ -623,7 +623,7 @@ class SPI():
 			self.H.__sendByte__(value)  #value byte
 			v=self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return v
 
@@ -648,7 +648,7 @@ class SPI():
 			self.H.__sendInt__(value)   #value byte
 			v=self.H.__getInt__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return v
 
@@ -671,7 +671,7 @@ class SPI():
 			self.H.__sendByte__(CP.SPI_HEADER)
 			self.H.__sendByte__(CP.SEND_SPI8_BURST)
 			self.H.__sendByte__(value)  #value byte
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def send16_burst(self,value):
@@ -693,7 +693,7 @@ class SPI():
 			self.H.__sendByte__(CP.SPI_HEADER)
 			self.H.__sendByte__(CP.SEND_SPI16_BURST)
 			self.H.__sendInt__(value)   #value byte
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 class DACCHAN:
@@ -907,7 +907,7 @@ class NRF24L01():
 			time.sleep(0.1)
 			self.flush()
 			return True
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def rxmode(self):
@@ -918,7 +918,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_RXMODE)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def txmode(self):
@@ -929,7 +929,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_TXMODE)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def triggerAll(self,val):
@@ -945,7 +945,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_POWER_DOWN)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def rxchar(self):
@@ -957,7 +957,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_RXCHAR)
 			value = self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return value
 		
@@ -970,7 +970,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_TXCHAR)
 			self.H.__sendByte__(char)
 			return self.H.__get_ack__()>>4
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def hasData(self):
@@ -982,7 +982,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_HASDATA)
 			value = self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return value
 		
@@ -994,7 +994,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_FLUSH)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_register(self,address,value):
@@ -1010,7 +1010,7 @@ class NRF24L01():
 			self.H.__sendByte__(address)
 			self.H.__sendByte__(value)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def read_register(self,address):
@@ -1024,7 +1024,7 @@ class NRF24L01():
 			self.H.__sendByte__(address)
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
@@ -1039,7 +1039,7 @@ class NRF24L01():
 			val=self.H.__getByte__()
 			self.H.__get_ack__()
 			return val
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_command(self,cmd):
@@ -1048,7 +1048,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_WRITECOMMAND)
 			self.H.__sendByte__(cmd)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_address(self,register,address):
@@ -1066,7 +1066,7 @@ class NRF24L01():
 			self.H.__sendByte__(address&0xFF);self.H.__sendByte__((address>>8)&0xFF);
 			self.H.__sendByte__((address>>16)&0xFF);
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def selectAddress(self,address):
@@ -1083,7 +1083,7 @@ class NRF24L01():
 			self.CURRENT_ADDRESS=address
 			if address not in self.sigs:
 				self.sigs[address]=1
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def read_payload(self,numbytes):
@@ -1094,7 +1094,7 @@ class NRF24L01():
 			data=self.H.fd.read(numbytes)
 			self.H.__get_ack__()
 			return [ord(a) for a in data]
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def write_payload(self,data,verbose=False,**args): 
@@ -1113,7 +1113,7 @@ class NRF24L01():
 				elif val&0x1: print (' Node probably dead/out of range. It failed to acknowledge')
 				return
 			return val
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def I2C_scan(self):
@@ -1185,7 +1185,7 @@ class NRF24L01():
 			
 			self.sigs[self.CURRENT_ADDRESS] = (self.sigs[self.CURRENT_ADDRESS]*50+1)/51.
 			return [ord(a) for a in data]
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def transactionWithRetries(self,data,**args):
@@ -1215,7 +1215,7 @@ class NRF24L01():
 			for a in data:
 				self.H.__sendByte__(a)
 			return self.H.__get_ack__()>>4
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -1227,7 +1227,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_START_TOKEN_MANAGER)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def stop_token_manager(self):
@@ -1237,7 +1237,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_STOP_TOKEN_MANAGER)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def total_tokens(self):
@@ -1249,7 +1249,7 @@ class NRF24L01():
 			x = self.H.__getByte__()
 			self.H.__get_ack__()
 			return x
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def fetch_report(self,num):
@@ -1262,7 +1262,7 @@ class NRF24L01():
 			data = [self.H.__getByte__() for a in range(20)]
 			self.H.__get_ack__()
 			return data
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 
@@ -1315,7 +1315,7 @@ class NRF24L01():
 			self.H.__sendByte__(CP.NRF_DELETE_REPORT_ROW)
 			self.H.__sendByte__(num)
 			self.H.__get_ack__()
-		except Exception, ex:
+		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def __delete_all_registered_nodes__(self):
