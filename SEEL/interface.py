@@ -156,6 +156,7 @@ class Interface():
 		self.hexid=''    
 		if self.H.connected:
 			for a in ['CH1','CH2']: self.set_gain(a,0)
+			for a in ['W1','W2']:self.load_equation(a,'sine')
 			self.SPI.set_parameters(1,7,1,0)
 			self.hexid=hex(self.device_id())
 		
@@ -282,7 +283,7 @@ class Interface():
 
 	def get_resistance(self):
 		V = self.get_average_voltage('SEN')
-		if V==3.3:return 'Open'
+		if V>3.295:return 'Open'
 		I = (3.3-V)/5.1e3
 		res = V/I
 		return res*self.resistanceScaling
@@ -859,6 +860,7 @@ class Interface():
 		triggerornot=0x80 if kwargs.get('trigger',True) else 0
 		self.timebase=tg
 		self.timebase = int(self.timebase*8)/8.  # Round off the timescale to 1/8uS units
+		if channel_one_input not in self.analogInputSources:raise RuntimeError('Invalid input %s, not in %s'%(channel_one_input,str(self.analogInputSources.keys() )))
 		CHOSA = self.analogInputSources[channel_one_input].CHOSA
 		try:
 			self.H.__sendByte__(CP.ADC)
@@ -1202,7 +1204,7 @@ class Interface():
 			
 			Note : this function internally calls set_gain with the appropriate gain value
 		
-		>>> I.set_range('CH1',8)  #gain set to 2x on CH1. Voltage range +/-8V
+		>>> I.select_range('CH1',8)  #gain set to 2x on CH1. Voltage range +/-8V
 
 		"""
 		ranges = [16,8,4,3,2,1.5,1,.5,160]
@@ -1230,17 +1232,25 @@ class Interface():
 		return self.get_average_voltage(channel_name,**kwargs)
 
 	def voltmeter_autorange(self,channel_name):
+		if self.analogInputSources[channel_name].gainPGA==None:return None
 		self.set_gain(channel_name,0)
-		V1 = self.get_average_voltage(channel_name)
+		V = self.get_average_voltage(channel_name)
+		return self.__autoSelectRange__(channel_name,V)
+
+	def __autoSelectRange__(self,channel_name,V):
 		keys = [8,4,3,2,1.5,1,.5,0]
 		cutoffs = {8:0,4:1,3:2,2:3,1.5:4,1.:5,.5:6,0:7}
 		for a in keys:
-			if abs(V1)>a:
+			if abs(V)>a:
 				g=cutoffs[a]
 				break
 		self.set_gain(channel_name,g)
 		return g
 
+	def __autoRangeScope__(self,tg):
+		x,y1,y2 = self.capture2(1000,tg)
+		self.__autoSelectRange__('CH1',max(abs(y1)))
+		self.__autoSelectRange__('CH2',max(abs(y2)))
 
 	def get_average_voltage(self,channel_name,**kwargs):
 		""" 
@@ -3158,7 +3168,7 @@ class Interface():
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def load_equation(self,chan,function,span=None):
+	def load_equation(self,chan,function,span=None,**kwargs):
 		'''
 		Load an arbitrary waveform to the waveform generators
 		
@@ -3195,9 +3205,9 @@ class Interface():
 		self.__print__('reloaded wave equation for %s : %s'%( chan, self.WType[chan]) )
 		x1=np.linspace(span[0],span[1],512+1)[:-1]
 		y1=function(x1)
-		self.load_table(chan,y1,self.WType[chan])
+		self.load_table(chan,y1,self.WType[chan],**kwargs)
 
-	def load_table(self,chan,points,mode='arbit'):
+	def load_table(self,chan,points,mode='arbit',**kwargs):
 		'''
 		Load an arbitrary waveform table to the waveform generators
 		
@@ -3230,8 +3240,9 @@ class Interface():
 		# y1 = array with 512 points between 0 and 512
 		# y2 = array with 32 points between 0 and 64
 
-		LARGE_MAX = 511*.95  # A form of amplitude control. This decides the max PWM duty cycle out of 512 clocks
-		SMALL_MAX = 63 *.95  # Max duty cycle out of 64 clocks
+		amp = kwargs.get('amp',0.95)
+		LARGE_MAX = 511*amp  # A form of amplitude control. This decides the max PWM duty cycle out of 512 clocks
+		SMALL_MAX = 63 *amp  # Max duty cycle out of 64 clocks
 		y1=np.array(points)
 		y1-=min(y1)
 		y1=y1/float(max(y1))
@@ -3927,7 +3938,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
 
-	def opticalArray(self,tg,delay,tp,channel = 'CH3'):
+	def opticalArray(self,SS,delay,channel = 'CH3'):
 		'''
 		read from 3648 element optical sensor array TCD3648P from Toshiba. Experimental feature.
 		Neither Sine waves will be available.
@@ -3941,15 +3952,15 @@ class Interface():
 		try:
 			self.H.__sendByte__(CP.NONSTANDARD_IO)
 			self.H.__sendByte__(CP.TCD1304_HEADER)
-			self.H.__sendByte__(self.__calcCHOSA__(channel))
-			self.H.__sendByte__(int(tg*8))
+			self.H.__sendByte__(self.__calcCHOSA__(channel)|0x80) #12-bit
+			self.H.__sendByte__(8) #Firmware changed. This doesn't do anything.
 			self.H.__sendInt__(delay)
-			
-			self.H.__sendInt__(tp)
-			self.achans[0].set_params(channel='CH3',length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources['CH3'])
+			self.H.__sendInt__(int(SS*64))
+			self.timebase = SS
+			self.achans[0].set_params(channel=0,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
 			self.samples=samples
 			self.channels_in_buffer=1
-			time.sleep(0.005)
+			time.sleep(2*SS*1e-6)
 			self.H.__get_ack__()
 		except Exception, ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
