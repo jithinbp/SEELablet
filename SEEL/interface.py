@@ -124,7 +124,7 @@ class Interface():
 		try:
 			self.__runInitSequence__(**kwargs)
 		except Exception as ex:
-			self.errmsg = "failed to run init sequence. Check device connections\n"+ex.message
+			self.errmsg = "failed to run init sequence. Check device connections\n"+str(ex)
 			self.connected = False
 			print(self.errmsg)#raise RuntimeError(msg)
 
@@ -364,7 +364,7 @@ class Interface():
 			self.H.reconnect(**kwargs)
 			self.__runInitSequence__(**kwargs)
 		except Exception as ex:
-			self.errmsg = ex.message
+			self.errmsg = str(ex)
 			self.H.disconnect()
 			print(self.errmsg)
 			raise RuntimeError(self.errmsg)
@@ -1280,7 +1280,7 @@ class Interface():
 		try:
 			poly = self.analogInputSources[channel_name].calPoly12
 		except Exception as ex:
-			msg = "Invalid Channel"+ex
+			msg = "Invalid Channel"+str(ex)
 			raise RuntimeError(msg)
 		vals = [self.__get_raw_average_voltage__(channel_name,**kwargs) for a in range(int(kwargs.get('samples',1)))]
 		#if vals[0]>2052:print (vals)
@@ -4017,7 +4017,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 	
 	def raiseException(self,ex, msg):
-			msg += '\n' + ex.message
+			msg += '\n' + str(ex)
 			self.H.disconnect()
 			raise RuntimeError(msg)
 
