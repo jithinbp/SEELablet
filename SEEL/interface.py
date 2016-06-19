@@ -2975,6 +2975,7 @@ class Interface():
 		**Arguments** 
 		==============  ============================================================================================
 		frequency       Frequency to set on wave generator 1. 
+		waveType		'sine','tria' . Default : Do not reload table. and use last set table
 		==============  ============================================================================================
 		
 		
@@ -3017,7 +3018,7 @@ class Interface():
 			self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
 			self.H.__sendInt__(wavelength-1)        
 			self.H.__get_ack__()
-			if self.sine1freq == None: time.sleep(0.2)
+			#if self.sine1freq == None: time.sleep(0.2)
 			self.sine1freq = freq
 			return freq
 		except Exception as ex:
@@ -3072,7 +3073,7 @@ class Interface():
 			self.H.__sendByte__(HIGHRES|(prescaler<<1))    #use larger table for low frequencies
 			self.H.__sendInt__(wavelength-1)        
 			self.H.__get_ack__()
-			if self.sine1freq == None: time.sleep(0.2)
+			#if self.sine2freq == None: time.sleep(0.2)
 			self.sine2freq = freq
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
@@ -3160,7 +3161,7 @@ class Interface():
 			self.H.__sendByte__((prescaler2<<4)|(prescaler1<<2)|(HIGHRES2<<1)|(HIGHRES))     #use larger table for low frequencies
 			self.H.__get_ack__()
 			#print ( phase_coarse,phase_fine)
-			if self.sine1freq == None or self.sine2freq==None : time.sleep(0.2)
+			#if self.sine1freq == None or self.sine2freq==None : time.sleep(0.2)
 			self.sine1freq = retfreq
 			self.sine2freq = retfreq2
 
@@ -3902,7 +3903,7 @@ class Interface():
 		If the reflecting object is either too far away or absorbs sound, less than 8 pulses may be received, and this
 		can cause a measurement error of 25uS which corresponds to 8mm.
 		
-		Ensure 5V supply.
+		Ensure 5V supply.  You may set SQR2 to HIGH [ I.set_state(SQR2=True) ] , and use that as the power supply.
 		
 		returns 0 upon timeout
 		'''
@@ -4018,7 +4019,7 @@ class Interface():
 	
 	def raiseException(self,ex, msg):
 			msg += '\n' + ex.message
-			self.H.disconnect()
+			#self.H.disconnect()
 			raise RuntimeError(msg)
 
 

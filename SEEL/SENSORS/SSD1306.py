@@ -238,19 +238,10 @@ class SSD1306():
 			self.displayOLED()
 
 	def SSD1306_command(self,cmd):
-		self.I2C.start(self.ADDRESS,0)
-		self.I2C.send(0x00)
-		self.I2C.send(cmd)
-		self.I2C.stop()
+		self.I2C.writeBulk(self.ADDRESS,[0x00,cmd]) 
 
 	def SSD1306_data(self,data):
-		self.I2C.start(self.ADDRESS,0)
-		self.I2C.send(0x40)
-		self.I2C.send(data)
-		self.I2C.stop()
-
-
-
+		self.I2C.writeBulk(self.ADDRESS,[0x40,data]) 
 
 	def clearDisplay(self):
 		self.setCursor(0,0)
@@ -263,13 +254,8 @@ class SSD1306():
 		self.SSD1306_command(self.SSD1306_SETSTARTLINE | 0x0);  # line #0
 		a=0
 		while (a < self.SSD1306_LCDWIDTH*self.SSD1306_LCDHEIGHT/8):
-			self.I2C.start(0x3c,0)
-			self.I2C.send(0x40)
-			for x in range(16): 
-				self.I2C.send(self.buff[a])
-				a+=1
-			self.I2C.stop();
-
+			self.I2C.writeBulk(self.ADDRESS,[0x40]+self.buff[a:a+16]) 
+			a+=16
 
 	def setContrast(self,i):
 		self.SSD1306_command(self.SSD1306_SETCONTRAST)
