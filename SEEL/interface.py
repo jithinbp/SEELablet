@@ -144,6 +144,7 @@ class Interface():
 
 		self.digital_channel_names=digital_channel_names
 		self.allDigitalChannels = self.digital_channel_names
+		self.gains = {'CH1':0,'CH2':0}
 
 		#This array of four instances of digital_channel is used to store data retrieved from the
 		#logic analyzer section of the device.  It also contains methods to generate plottable data
@@ -155,7 +156,7 @@ class Interface():
 		self.SPI = SPI(self.H)
 		self.hexid=''    
 		if self.H.connected:
-			for a in ['CH1','CH2']: self.set_gain(a,0)
+			for a in ['CH1','CH2']: self.set_gain(a,0,True) #Force load gain
 			for a in ['W1','W2']:self.load_equation(a,'sine')
 			self.SPI.set_parameters(1,7,1,0)
 			self.hexid=hex(self.device_id())
@@ -275,11 +276,6 @@ class Interface():
 						OFF=np.array([np.argmin(np.fabs(YDATA[max(B-LOOKBEHIND,0):min(4095,B+LOOKAHEAD)]-DACX[B]) )- (B-max(B-LOOKBEHIND,0)) for B in range(0,4096)])
 						self.aboutArray.append(['Err min:',min(OFF),'Err max:',max(OFF)])
 						self.DAC.CHANS[NAME].load_calibration_table(OFF)
-
-				
-				
-		
-		time.sleep(0.001)
 
 	def get_resistance(self):
 		V = self.get_average_voltage('SEN')
@@ -1140,7 +1136,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def set_gain(self,channel,gain):
+	def set_gain(self,channel,gain,Force=False):
 		"""
 		set the gain of the selected PGA
 		
@@ -1151,6 +1147,7 @@ class Interface():
 		==============  ============================================================================================
 		channel         'CH1','CH2'
 		gain            (0-8) -> (1x,2x,4x,5x,8x,10x,16x,32x,1/11x)
+		Force			If True, the amplifier gain will be set even if it was previously set to the same value.
 		==============  ============================================================================================
 		
 		.. note::
@@ -1170,20 +1167,26 @@ class Interface():
 			return
 		if self.analogInputSources[channel].gainPGA==None:
 			self.__print__('No amplifier exists on this channel :',channel)
-			return
-		try:
-			self.analogInputSources[channel].setGain(self.gain_values[gain])
-			if gain>7: gain = 0   # external attenuator mode. set gain 1x
-				
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.SET_PGA_GAIN)
-			self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel. SPI, not multiplexer
-			self.H.__sendByte__(gain) #send the gain
-			self.H.__get_ack__()
-			return self.gain_values[gain]
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+			return False
+		
+		refresh = False
+		if	self.gains[channel] != gain:
+			self.gains[channel] = gain
+			refresh = True
+		if refresh or Force:
+			try:
+				self.analogInputSources[channel].setGain(self.gain_values[gain])
+				if gain>7: gain = 0   # external attenuator mode. set gain 1x
+				self.H.__sendByte__(CP.ADC)
+				self.H.__sendByte__(CP.SET_PGA_GAIN)
+				self.H.__sendByte__(self.analogInputSources[channel].gainPGA) #send the channel. SPI, not multiplexer
+				self.H.__sendByte__(gain) #send the gain
+				self.H.__get_ack__()
+				return self.gain_values[gain]
+			except Exception as ex:
+				self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
+		return refresh
 
 	def select_range(self,channel,voltage_range):
 		"""
@@ -3444,10 +3447,6 @@ class Interface():
 			return 0
 
 		if not kwargs.get('pulse',False):prescaler|= (1<<5)
-		self.H.__sendByte__(CP.WAVEGEN)
-		self.H.__sendByte__(CP.SQR4)
-		self.H.__sendInt__(wavelength-1)
-		self.H.__sendInt__(int(wavelength*h0)-1)
 
 		A1 = int(p1%1*wavelength)
 		B1 = int((h1+p1)%1*wavelength)
@@ -3455,9 +3454,14 @@ class Interface():
 		B2 = int((h2+p2)%1*wavelength)
 		A3 = int(p3%1*wavelength)
 		B3 = int((h3+p3)%1*wavelength)
-
 		#self.__print__(p1,h1,p2,h2,p3,h3)
 		#print(wavelength,int(wavelength*h0),A1,B1,A2,B2,A3,B3,prescaler)
+
+
+		self.H.__sendByte__(CP.WAVEGEN)
+		self.H.__sendByte__(CP.SQR4)
+		self.H.__sendInt__(wavelength-1)
+		self.H.__sendInt__(int(wavelength*h0)-1)
 		try:
 			self.H.__sendInt__(max(0,A1-1))
 			self.H.__sendInt__(max(1,B1-1))
@@ -3740,7 +3744,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
-	def write_data_address(self,address,value):
+	def __write_data_address__(self,address,value):
 		"""
 		Writes a value to the specified address in RAM
 
@@ -3939,7 +3943,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
 
-	def opticalArray(self,SS,delay,channel = 'CH3'):
+	def opticalArray(self,SS,delay,channel = 'CH3',**kwargs):
 		'''
 		read from 3648 element optical sensor array TCD3648P from Toshiba. Experimental feature.
 		Neither Sine waves will be available.
@@ -3950,18 +3954,22 @@ class Interface():
 
 		'''
 		samples=3694
+		res = kwargs.get('resolution',10)
+		tweak = kwargs.get('tweak',1)
+		
 		try:
 			self.H.__sendByte__(CP.NONSTANDARD_IO)
 			self.H.__sendByte__(CP.TCD1304_HEADER)
-			self.H.__sendByte__(self.__calcCHOSA__(channel)|0x80) #12-bit
-			self.H.__sendByte__(8) #Firmware changed. This doesn't do anything.
+			if res==10:self.H.__sendByte__(self.__calcCHOSA__(channel)) #10-bit
+			else:self.H.__sendByte__(self.__calcCHOSA__(channel)|0x80) #12-bit
+			self.H.__sendByte__(tweak) #Tweak the SH lwo to ICG high space. =tweak*delay
 			self.H.__sendInt__(delay)
 			self.H.__sendInt__(int(SS*64))
 			self.timebase = SS
-			self.achans[0].set_params(channel=0,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[channel])
+			self.achans[0].set_params(channel=0,length=samples,timebase=self.timebase,resolution=12 if res!=10 else 10,source=self.analogInputSources[channel])
 			self.samples=samples
 			self.channels_in_buffer=1
-			time.sleep(2*SS*1e-6)
+			time.sleep(2*delay*1e-6)
 			self.H.__get_ack__()
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
