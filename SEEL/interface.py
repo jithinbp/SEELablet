@@ -3304,7 +3304,7 @@ class Interface():
 			self.__print__('out of range')
 			return 0
 		high_time = wavelength*duty_cycle/100.
-		self.__print__(wavelength,high_time,prescaler)
+		self.__print__(wavelength,':',high_time,':',prescaler)
 		if onlyPrepare: self.set_state(SQR1=False)
 		try:
 			self.H.__sendByte__(CP.WAVEGEN)
@@ -3367,9 +3367,10 @@ class Interface():
 			wavelength = 64e6/freq/p[prescaler]
 			if wavelength<65525: break
 			prescaler+=1
-		if prescaler==4:
+
+		if prescaler==4 or wavelength==0:
 			self.__print__('out of range')
-			return
+			return 0
 		try:
 			high_time = wavelength*duty_cycle/100.
 			self.__print__(wavelength,high_time,prescaler)
@@ -3771,30 +3772,6 @@ class Interface():
 	#|Set servo motor angles via SQ1-4. Control one stepper motor using SQ1-4											|
 	#-------------------------------------------------------------------------------------------------------------------#
 
-	def servo(self,chan,angle):
-		'''
-		Output A PWM waveform on SQR1/SQR2 corresponding to the angle specified in the arguments.
-		This is used to operate servo motors.  Tested with 9G SG-90 Servo motor.
-		
-		.. tabularcolumns:: |p{3cm}|p{11cm}|
-		
-		==============  ============================================================================================
-		**Arguments** 
-		==============  ============================================================================================
-		chan            1 or 2. Whether to use SQ1 or SQ2 to output the PWM waveform used by the servo 
-		angle           0-180. Angle corresponding to which the PWM waveform is generated.
-		==============  ============================================================================================
-		'''
-		try:
-			self.H.__sendByte__(CP.WAVEGEN)
-			if chan==1:self.H.__sendByte__(CP.SET_SQR1)
-			else:self.H.__sendByte__(CP.SET_SQR2)
-			self.H.__sendInt__(10000)
-			self.H.__sendInt__(int(angle*1900/180))
-			self.H.__sendByte__(2)
-			self.H.__get_ack__()
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 	def __stepperMotor__(self,steps,delay,direction):
 		try:
@@ -3825,6 +3802,23 @@ class Interface():
 		
 		"""
 		self.__stepperMotor__(steps,delay,0)
+
+	def servo(self,angle,chan='SQR1'):
+		'''
+		Output A PWM waveform on SQR1/SQR2 corresponding to the angle specified in the arguments.
+		This is used to operate servo motors.  Tested with 9G SG-90 Servo motor.
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		angle           0-180. Angle corresponding to which the PWM waveform is generated.
+		chan            'SQR1' or 'SQR2'. Whether to use SQ1 or SQ2 to output the PWM waveform used by the servo 
+		==============  ============================================================================================
+		'''
+		if chan=='SQR1':self.sqr1(100,7.5+19.*angle/180)#100Hz
+		elif chan=='SQR2':self.sqr2(100,7.5+19.*angle/180)#100Hz
 
 	def servo4(self,a1,a2,a3,a4):
 		"""
@@ -4038,8 +4032,6 @@ if __name__ == "__main__":
 	eg.
 	I.get_average_voltage('CH1')
 	""")
-	#from SEEL import interface
-	#I=interface.connect()
-	#for a in range(10000):I.get_average_voltage('CH1')
+	#I=connect(verbose=True,load_calibration=False)
     
     
