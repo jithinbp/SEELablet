@@ -3,10 +3,12 @@ from numpy import int16
 import time
 
 def connect(route,**args):
+	'''
+	route can either be I.I2C , or a radioLink instance
+	'''
 	return SHT21(route,**args)
 
-class SHT21():
-	
+class SHT21():	
 	RESET = 0xFE
 	TEMP_ADDRESS = 0xF3
 	HUMIDITY_ADDRESS = 0xF5	

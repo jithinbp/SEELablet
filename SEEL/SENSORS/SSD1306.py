@@ -436,10 +436,6 @@ class SSD1306():
 			self.SSD1306_command(0x00)
 			time.sleep(0.1)	
 
-
-
-	def getRaw(self):
-		return []
 		
 
 if __name__ == "__main__":
