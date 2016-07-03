@@ -109,8 +109,8 @@ class Interface():
 		self.analogInputSources={}
 		for a in allAnalogChannels:self.analogInputSources[a]=analogInputSource(a)
 
-		self.sine1freq = None
-		self.sine2freq = None
+		self.sine1freq = None;self.sine2freq = None
+		self.sqrfreq = {'SQR1':None,'SQR2':None,'SQR3':None,'SQR4':None}
 		self.aboutArray=[]
 		self.errmsg = ''
 		#--------------------------Initialize communication handler, and subclasses-----------------
@@ -3083,6 +3083,25 @@ class Interface():
 
 		return freq
 
+	def readbackWaveform(self,chan):
+		"""
+		Set the frequency of wavegen 1
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		chan            Any of W1,W2,SQR1,SQR2,SQR3,SQR4
+		==============  ============================================================================================
+		
+		
+		:return: frequency
+		"""
+		if chan=='W1':return self.sine1freq
+		elif chan=='W2':return self.sine2freq
+		elif chan[:3]=='SQR':return self.sqrfreq.get(chan,None)
+
 	def set_waves(self,freq,phase,f2=None):
 		"""
 		Set the frequency of wavegen
@@ -3317,7 +3336,8 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-		return 64e6/wavelength/p[prescaler&0x3]
+		self.sqrfreq['SQR1']=64e6/wavelength/p[prescaler&0x3]
+		return self.sqrfreq['SQR1']
 
 	def sqr1_pattern(self,timing_array):
 		"""
@@ -3382,6 +3402,9 @@ class Interface():
 			self.H.__get_ack__()
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+		self.sqrfreq['SQR2']=64e6/wavelength/p[prescaler&0x3]
+		return self.sqrfreq['SQR2']
 
 	def set_sqrs(self,wavelength,phase,high_time1,high_time2,prescaler=1):
 		"""
@@ -3475,6 +3498,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
+		for a in ['SQR1','SQR2','SQR3','SQR4']:self.sqrfreq[a]=64e6/wavelength/p[prescaler&0x3]
 		return 64e6/wavelength/p[prescaler&0x3]
 
 	def map_reference_clock(self,scaler,*args):
@@ -3499,7 +3523,7 @@ class Interface():
 		outputs 32 MHz on SQR1, SQR2 pins
 		
 		.. note::
-			if you change the reference clock for 'wavegen' , the waveform generator resolution and range will also change.
+			if you change the reference clock for 'wavegen' , the external waveform generator(AD9833) resolution and range will also change.
 			default frequency for 'wavegen' is 16MHz. Setting to 1MHz will give you 16 times better resolution, but a usable range of
 			0Hz to about 100KHz instead of the original 2MHz.
 		
@@ -3519,7 +3543,6 @@ class Interface():
 			self.H.__get_ack__()
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-
 	#-------------------------------------------------------------------------------------------------------------------#
 
 	#|===============================================ANALOG OUTPUTS ====================================================|   
@@ -3590,6 +3613,21 @@ class Interface():
 		:return: value attempted to set on pcs
 		"""
 		return self.DAC.setCurrent(val)
+
+	def get_pv1(self):
+		"""
+		get the last set voltage on PV1
+		12-bit DAC...  -5V to 5V
+		"""
+		return self.DAC.getVoltage('PV1')
+	def get_pv2(self):
+		return self.DAC.getVoltage('PV2')
+	def get_pv3(self):
+		return self.DAC.getVoltage('PV3')
+	def get_pcs(self):
+		return self.DAC.getVoltage('PCS')
+
+
 		
 	def setOnboardLED(self,R,G,B):
 		"""
