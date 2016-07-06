@@ -540,19 +540,11 @@ class SPI():
 		================    ============================================================================================
 		**Arguments** 
 		================    ============================================================================================
-		channel             1-7 ->[PGA1 connected to CH1,PGA2,PGA3,PGA4,PGA5,external chip select 1,external chip select 2]
-							8 -> sine1
-							9 -> sine2
+		channel             'CS1','CS2'
 		================    ============================================================================================
 		
 		"""
-		try:
-			self.H.__sendByte__(CP.SPI_HEADER)
-			self.H.__sendByte__(CP.START_SPI)
-			self.H.__sendByte__(channel)    #value byte
-			#self.H.__get_ack__()
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		self.set_cs(channel,0)
 
 	def set_cs(self,channel,state):
 		"""
@@ -585,23 +577,17 @@ class SPI():
 		selects SPI channel to disable.
 		Sets the relevant chip select pin to HIGH.
 		
+		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
-
+		
 		================    ============================================================================================
 		**Arguments** 
 		================    ============================================================================================
-		channel             1-7 ->[PGA1 connected to CH1,PGA2,PGA3,PGA4,PGA5,external chip select 1,external chip select 2]
+		channel             'CS1','CS2'
 		================    ============================================================================================
-
-
+		
 		"""
-		try:
-			self.H.__sendByte__(CP.SPI_HEADER)
-			self.H.__sendByte__(CP.STOP_SPI)
-			self.H.__sendByte__(channel)    #value byte
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-		#self.H.__get_ack__()
+		self.set_cs(channel,1)
 
 	def send8(self,value):
 		"""
@@ -695,6 +681,15 @@ class SPI():
 			self.H.__sendInt__(value)   #value byte
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+	def xfer(self,chan,data):
+		self.start(chan)
+		reply=[]
+		for a in data:
+			reply.append(self.send8(a))
+		self.stop(chan)
+		return reply
+
 
 class DACCHAN:
 	def __init__(self,name,span,channum,**kwargs):
