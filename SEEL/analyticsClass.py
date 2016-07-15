@@ -2,6 +2,7 @@ from __future__ import print_function
 import time
 
 import numpy as np
+
 class analyticsClass():
 	"""
 	This class contains methods that allow mathematical analysis such as curve fitting

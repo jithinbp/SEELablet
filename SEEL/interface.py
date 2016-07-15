@@ -279,7 +279,7 @@ class Interface():
 
 	def get_resistance(self):
 		V = self.get_average_voltage('SEN')
-		if V>3.295:return 'Open'
+		if V>3.295:return np.Inf
 		I = (3.3-V)/5.1e3
 		res = V/I
 		return res*self.resistanceScaling
@@ -716,36 +716,6 @@ class Interface():
 
 		return x,self.analogInputSources[chan].calPoly12(y)
 
-	def __charge_cap__(self,state,t):
-		try:
-			self.H.__sendByte__(CP.ADC)
-			self.H.__sendByte__(CP.SET_CAP)
-			self.H.__sendByte__(state)
-			self.H.__sendInt__(t)
-			self.H.__get_ack__()
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-		
-	def __capture_capacitance__(self,samples,tg):
-		from SEEL.analyticsClass import analyticsClass
-		self.AC = analyticsClass()
-		self.__charge_cap__(1,50000)
-		try:
-			x,y=self.capture_fullspeed_hr('CAP',samples,tg,'READ_CAP')
-		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-		try:
-			fitres =  self.AC.fit_exp(x,y)
-			if fitres:
-				cVal,newy = fitres
-				return x,y,newy,cVal
-			else:
-				return None
-		except Exception as ex:
-			raise RuntimeError(" Fit Failed ")
-
-	def capacitance_via_RC_discharge(self,samples,tg):
-		return self.__capture_capacitance__(samples,tg)[3]
 
 	def __retrieveBufferData__(self,chan,samples,tg):
 		'''
@@ -2582,6 +2552,55 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
+
+
+	def __charge_cap__(self,state,t):
+		try:
+			self.H.__sendByte__(CP.ADC)
+			self.H.__sendByte__(CP.SET_CAP)
+			self.H.__sendByte__(state)
+			self.H.__sendInt__(t)
+			self.H.__get_ack__()
+		except Exception as ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		
+	def __capture_capacitance__(self,samples,tg):
+		from SEEL.analyticsClass import analyticsClass
+		self.AC = analyticsClass()
+		self.__charge_cap__(1,50000)
+		try:
+			x,y=self.capture_fullspeed_hr('CAP',samples,tg,'READ_CAP')
+		except Exception as ex:
+			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+		try:
+			fitres =  self.AC.fit_exp(x*1e-6,y)
+			if fitres:
+				cVal,newy = fitres
+				#from pylab import *
+				#plot(x,newy)
+				#show()
+				return x,y,newy,cVal
+			else:
+				return None
+		except Exception as ex:
+			raise RuntimeError(" Fit Failed ")
+
+	def capacitance_via_RC_discharge(self):
+		cap = self.get_capacitor_range()[1]
+		T = 2*cap*20e3*1e6 #uS
+		samples = 500
+		try:
+			if T>5000 and T<10e6:
+				if T>50e3:samples=250
+				RC = self.__capture_capacitance__(samples,int(T/samples))[3][1]
+				return RC/10e3
+			else:
+				return 0
+		except Exception as e:
+			self.__print__(e)
+			return 0
+
+
 	def __get_capacitor_range__(self,ctime):
 		try:
 			self.__charge_cap__(0,30000)
@@ -2643,7 +2662,7 @@ class Interface():
 				#self.__print__('vals',CR,',',CT)
 				if CT>65000:
 					self.__print__('CT too high')
-					return 0
+					return self.capacitance_via_RC_discharge()
 				V,C = self.__get_capacitance__(CR,0,CT)
 				#print(CR,CT,V,C)
 				if CT>30000 and V<0.1:
@@ -2664,10 +2683,12 @@ class Interface():
 				elif V<=0.1 and CR<3:
 					CR+=1
 				elif CR==3:
-					self.__print__('Constant voltage mode ')
-					return self.get_capacitor_range()[1]
+					self.__print__('Capture mode ')
+					return self.capacitance_via_RC_discharge()
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+
+		
 
 	def __calibrate_ctmu__(self,scalers):
 		#self.currents=[0.55e-3/scalers[0],0.55e-6/scalers[1],0.55e-5/scalers[2],0.55e-4/scalers[3]]
@@ -3994,7 +4015,7 @@ class Interface():
 			self.H.__sendByte__(CP.TCD1304_HEADER)
 			if res==10:self.H.__sendByte__(self.__calcCHOSA__(channel)) #10-bit
 			else:self.H.__sendByte__(self.__calcCHOSA__(channel)|0x80) #12-bit
-			self.H.__sendByte__(tweak) #Tweak the SH lwo to ICG high space. =tweak*delay
+			self.H.__sendByte__(tweak) #Tweak the SH low to ICG high space. =tweak*delay
 			self.H.__sendInt__(delay)
 			self.H.__sendInt__(int(SS*64))
 			self.timebase = SS
@@ -4070,6 +4091,8 @@ if __name__ == "__main__":
 	eg.
 	I.get_average_voltage('CH1')
 	""")
+	#I=connect(verbose = True)
+	#print (I.get_capacitance())
 	#I=connect(verbose=True,load_calibration=False)
     
     
