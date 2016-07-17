@@ -762,9 +762,9 @@ class PCSCHAN:
 	def load_calibration_twopoint(self,slope,offset):
 		self.calibration_enabled='twopoint'
 		self.slope = slope
-		print('########################',slope,offset)
+		#print('########################',slope,offset)
 		self.offset = offset
-		print(offset)
+		#print(offset)
 
 
 	def apply_calibration(self,v):
