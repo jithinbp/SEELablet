@@ -725,6 +725,56 @@ class DACCHAN:
 			return int(np.clip(v*self.slope+self.offset,0,4095)	)
 		else:
 			return v
+
+class PCSCHAN:
+	def __init__(self,name,span,channum,**kwargs):
+		self.name = name
+		self.channum=channum
+		self.VREF = kwargs.get('VREF',3.3)
+		self.RES = 1e3 #resistor connected before the transistor
+		self.SwitchedOff = kwargs.get('STATE',0)
+		self.range = span
+		slope = (span[1]-span[0])
+		intercept = span[0]
+		self._VToCode = np.poly1d([4095./slope,-4095.*intercept/slope ])
+		self._CodeToV = np.poly1d([slope/4095.,intercept ])
+		self.calibration_enabled = False
+		self.calibration_table = []
+		self.slope=1
+		self.offset=0
+
+	def VToCode(self,cur):
+		V = (self.VREF - cur*self.RES)
+		#print (V,cur)
+		return self._VToCode(V)
+
+	def CodeToV(self,code):
+		v = self._CodeToV(code)
+		cur = (self.VREF - v)/self.RES
+		#print ('rev ',v,cur)
+		return cur
+
+
+	def load_calibration_table(self,table):
+		self.calibration_enabled='table'
+		self.calibration_table = table
+
+	def load_calibration_twopoint(self,slope,offset):
+		self.calibration_enabled='twopoint'
+		self.slope = slope
+		print('########################',slope,offset)
+		self.offset = offset
+		print(offset)
+
+
+	def apply_calibration(self,v):
+		if self.calibration_enabled=='table':			#Each point is individually calibrated 
+			return int(np.clip(v+self.calibration_table[v]	,0,4095))
+		elif self.calibration_enabled=='twopoint':		#Overall slope and offset correction is applied
+			#print (self.slope,self.offset,v)
+			return int(np.clip(v*self.slope+self.offset,0,4095)	)
+		else:
+			return v
 		
 
 class MCP4728:
@@ -744,10 +794,11 @@ class MCP4728:
 		self.devid = devid
 		self.addr = 0x60|self.devid		#0x60 is the base address
 		self.H=H
+		self.VREF = vref
 		self.I2C = I2C(self.H)
 		self.SWITCHEDOFF=[0,0,0,0]
 		self.VREFS=[0,0,0,0]  #0=Vdd,1=Internal reference
-		self.CHANS = {'PCS':DACCHAN('PCS',[0,3.3e-3],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
+		self.CHANS = {'PCS':PCSCHAN('PCS',[0,3.3],0),'PV3':DACCHAN('PV3',[0,3.3],1),'PV2':DACCHAN('PV2',[-3.3,3.3],2),'PV1':DACCHAN('PV1',[-5.,5.],3)}
 		self.CHANNEL_MAP={0:'PCS',1:'PV3',2:'PV2',3:'PV1'}
 		self.values = {'PV1':0,'PV2':0,'PV3':0,'PCS':0}
 
@@ -767,7 +818,7 @@ class MCP4728:
 	def setCurrent(self,v):
 		chan = self.CHANS['PCS']
 		v = int(round(chan.VToCode(v)))		
-		return  self.__setRawVoltage__('PCS',v)
+		return self.__setRawVoltage__('PCS',v)
 
 	def __setRawVoltage__(self,name,v):
 		v=int(np.clip(v,0,4095))
@@ -793,16 +844,17 @@ class MCP4728:
 
 
 	def __writeall__(self,v1,v2,v3,v4):
-		self.I2C.start(self.addr,0)
-		self.I2C.send((v1>>8)&0xF )
-		self.I2C.send(v1&0xFF)
-		self.I2C.send((v2>>8)&0xF )
-		self.I2C.send(v2&0xFF)
-		self.I2C.send((v3>>8)&0xF )
-		self.I2C.send(v3&0xFF)
-		self.I2C.send((v4>>8)&0xF )
-		self.I2C.send(v4&0xFF)
-		self.I2C.stop()
+		self.I2C.writeBulk(self.addr,[(v1>>8)&0xF,v1&0xFF,(v2>>8)&0xF ,v2&0xFF, (v3>>8)&0xF,v3&0xFF,(v4>>8)&0xF, v4&0xFF ])
+		#self.I2C.start(self.addr,0)
+		#self.I2C.send((v1>>8)&0xF )
+		#self.I2C.send(v1&0xFF)
+		#self.I2C.send((v2>>8)&0xF )
+		#self.I2C.send(v2&0xFF)
+		#self.I2C.send((v3>>8)&0xF )
+		#self.I2C.send(v3&0xFF)
+		#self.I2C.send((v4>>8)&0xF )
+		#self.I2C.send(v4&0xFF)
+		#self.I2C.stop()
 
 	def stat(self):
 		self.I2C.start(self.addr,0)
