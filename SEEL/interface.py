@@ -86,6 +86,7 @@ class Interface():
 	DAC_SHIFTS_PV2B=7
 	DAC_SHIFTS_PV3A=8
 	DAC_SHIFTS_PV3B=9
+	LOC_DICT = {'PV1':[4,5],'PV2':[6,7],'PV3':[8,9]}
 	BAUD = 1000000
 	WType={'W1':'sine','W2':'sine'}
 	def __init__(self,timeout=1.0,**kwargs):
@@ -201,7 +202,7 @@ class Interface():
 				self.aboutArray.append(['ADC INL Correction found',adc_shifts[0],adc_shifts[1],adc_shifts[2],'...'])
 				poly_sections = polynomials.split('STOP')  #The 2K array is split into sections containing data for ADC_INL fit, ADC_CHANNEL fit, DAC_CHANNEL fit, PCS, CAP ...
 
-				adc_slopes_offsets		= poly_sections[0]
+				adc_slopes_offsets	= poly_sections[0]
 				dac_slope_intercept = poly_sections[1]
 				inl_slope_intercept = poly_sections[2]
 				#print('COMMON#########',self.__stoa__(slopes_offsets))
@@ -1142,6 +1143,7 @@ class Interface():
 		refresh = False
 		if	self.gains[channel] != gain:
 			self.gains[channel] = gain
+			time.sleep(0.01)
 			refresh = True
 		if refresh or Force:
 			try:
@@ -1206,9 +1208,12 @@ class Interface():
 
 	def voltmeter_autorange(self,channel_name):
 		if self.analogInputSources[channel_name].gainPGA==None:return None
-		self.set_gain(channel_name,0)
-		V = self.get_average_voltage(channel_name)
-		return self.__autoSelectRange__(channel_name,V)
+		RV = self.__get_raw_average_voltage__(channel_name)
+		if RV>4000 or RV<100: #edge of the region
+			self.set_gain(channel_name,0)
+			V = self.get_average_voltage(channel_name)
+			print ('switch')
+			return self.__autoSelectRange__(channel_name,V)
 
 	def __autoSelectRange__(self,channel_name,V):
 		keys = [8,4,3,2,1.5,1,.5,0]
@@ -1262,7 +1267,7 @@ class Interface():
 
 	def __get_raw_average_voltage__(self,channel_name,**kwargs):
 		""" 
-		Return the average of 16 raw 10-bit ADC values of the voltage on the selected channel
+		Return the average of 16 raw 12-bit ADC values of the voltage on the selected channel
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
