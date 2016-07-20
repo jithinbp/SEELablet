@@ -1208,12 +1208,9 @@ class Interface():
 
 	def voltmeter_autorange(self,channel_name):
 		if self.analogInputSources[channel_name].gainPGA==None:return None
-		RV = self.__get_raw_average_voltage__(channel_name)
-		if RV>4000 or RV<100: #edge of the region
-			self.set_gain(channel_name,0)
-			V = self.get_average_voltage(channel_name)
-			print ('switch')
-			return self.__autoSelectRange__(channel_name,V)
+		self.set_gain(channel_name,0)
+		V = self.get_average_voltage(channel_name)
+		return self.__autoSelectRange__(channel_name,V)
 
 	def __autoSelectRange__(self,channel_name,V):
 		keys = [8,4,3,2,1.5,1,.5,0]
