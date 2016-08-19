@@ -2,7 +2,7 @@ from __future__ import print_function
 import time
 
 import SEEL.commands_proto as CP
-import serial, subprocess
+import serial, os
 
 
 
@@ -12,6 +12,7 @@ class Handler():
 		self.loadBurst=False
 		self.inputQueueSize=0
 		self.BAUD = 1000000
+		self.RPIBAUD = 500000
 		self.timeout=timeout
 		self.version_string=b''
 		self.connected=False
@@ -19,6 +20,7 @@ class Handler():
 		self.expected_version=b'CS'
 		self.occupiedPorts=set()
 		self.blockingSocket = None
+		self.ARM = False
 		if 'port' in kwargs:
 			self.portname=kwargs.get('port',None)
 			try:
@@ -42,6 +44,9 @@ class Handler():
 		
 
 	def listPorts(self):
+		'''
+		Make a list of available serial ports. For auto scanning and connecting
+		'''
 		import platform,glob
 		system_name = platform.system()
 		if system_name == "Windows":
@@ -64,6 +69,9 @@ class Handler():
 
 
 	def connectToPort(self,portname):
+		'''
+		connect to a port, and check for the right version
+		'''
 		try:
 			import socket
 			self.blockingSocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -81,11 +89,33 @@ class Handler():
 			fd.read(1000)
 			fd.flush()
 			fd.setTimeout(1.0)
+		fd = self.switchBaud(fd,portname) # change if raspberrypi detected
+
 		version= self.get_version(fd)
 		if version[:len(self.expected_version)]==self.expected_version:
 			return fd,version,True
-
+		print ('version check failed',len(version),version)
 		return None,'',False
+
+	def switchBaud(self,fd,portname):
+		'''
+		Change the BAUD rate to 500K if a raspberry pi is the base system
+		'''
+
+		brgval = ((64000000/self.RPIBAUD)/4)-1
+		if 'raspberrypi' in os.uname():
+			print ('RPi detected . switching to %d BAUD'%self.RPIBAUD,brgval)
+			self.ARM = True
+			fd.write(CP.SETBAUD)
+			fd.write(chr(brgval))
+			fd = serial.Serial(portname, self.RPIBAUD, stopbits=1, timeout = 0.3)
+			fd.read(20)
+			if(fd.inWaiting()):
+				fd.setTimeout(0.1)
+				fd.read(1000)
+				fd.flush()
+			fd.setTimeout(1.0)
+		return fd
 
 	def disconnect(self):
 		if self.connected:

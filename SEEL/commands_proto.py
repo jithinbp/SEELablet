@@ -177,15 +177,10 @@ FILL_BUFFER           = Byte.pack(27)
 
 #/*---------- BAUDRATE for main comm channel----*/
 SETBAUD     = Byte.pack(12)
-BAUD9600    = Byte.pack(1)
-BAUD14400   = Byte.pack(2)
-BAUD19200   = Byte.pack(3)
-BAUD28800   = Byte.pack(4)
-BAUD38400   = Byte.pack(5)
-BAUD57600   = Byte.pack(6)
-BAUD115200  = Byte.pack(7)
-BAUD230400  = Byte.pack(8)
-BAUD1000000 = Byte.pack(9)
+BAUD115200  = Byte.pack(((64e6/115200)/4)-1)
+BAUD230400  = Byte.pack(((64e6/230400)/4)-1)
+BAUD500000  = Byte.pack(((64e6/500000)/4)-1)
+BAUD1000000 = Byte.pack(((64)/4)-1)
 
 #/*-----------NRFL01 radio module----------*/
 NRFL01                  = Byte.pack(13)

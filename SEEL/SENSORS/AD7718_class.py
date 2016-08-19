@@ -87,7 +87,8 @@ class AD7718:
 		self.caldata={}
 		for a in calibs.keys():
 			self.caldata[a] = np.poly1d(calibs[a])
-		print ('Loaded calibration',self.caldata)
+		#print ('Loaded calibration',self.caldata)
+		print ('ID',self.readRegister(self.ID))
 
 	def start(self):
 		self.I.SPI.start(self.cs)
@@ -200,6 +201,7 @@ class AD7718:
 		return True
 		
 	def __fetchData__(self,chan):
+		ST=time.time()
 		while True:
 			stat=self.readRegister(self.STATUS)
 			if stat&0x80:
@@ -210,6 +212,9 @@ class AD7718:
 			else:
 				time.sleep(0.1)
 				print ('increase delay')
+				if time.time()-ST>0.3:
+					print ('Failed')
+					return False
 		return False
 	
 	def readVoltage(self,chan):
@@ -220,6 +225,7 @@ class AD7718:
 
 
 	def __fetchRawData__(self,chan):
+		ST=time.time()
 		while True:
 			stat=self.readRegister(self.STATUS)
 			if stat&0x80:
@@ -227,11 +233,16 @@ class AD7718:
 				return self.convert_unipolar(data)
 			else:
 				time.sleep(0.01)
-				print ('increase delay')
+				print ('increase delay',hex(stat))
+				if time.time()-ST>0.3:
+					print ('Failed')
+					return False
 		return False
 
 	def readRawVoltage(self,chan):
-		if not self.__startRead__(chan):
+		x= self.__startRead__(chan)
+		print (chan,x)
+		if not x:
 			return False
 		time.sleep(0.15)
 		return self.__fetchRawData__(chan)
@@ -252,8 +263,10 @@ if __name__ == "__main__":
 	'AIN8AINCOM':[8.290843e-07,-7.129532e-07,9.993159e-01,3.307947e-03], 
 	'AIN4AINCOM':[4.135213e-06,-1.973478e-05,1.000277e+00,2.115374e-04], }
 	A = AD7718(I,calibs)
+	A.printstat()
 	for a in range(10):
+		A.printstat()
 		print (A.readRawVoltage('AIN1AINCOM'))
 		time.sleep(0.3)
-
+	print(I.I2C.scan())
 

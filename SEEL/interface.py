@@ -224,7 +224,6 @@ class Interface():
 						self.__print__( b,poly)
 						self.aboutArray.append([b]+['%.3e'%v for v in poly])
 						polyDict[a[:3]].append(poly)
-
 				
 				#Load calibration data (slopes and offsets) for ADC channels
 				inl_slope_intercept=struct.unpack('2f',inl_slope_intercept)
@@ -2597,6 +2596,7 @@ class Interface():
 				RC = self.__capture_capacitance__(samples,int(T/samples))[3][1]
 				return RC/10e3
 			else:
+				self.__print__('cap out of range %f %f'%(T,cap))
 				return 0
 		except Exception as e:
 			self.__print__(e)
@@ -3885,6 +3885,7 @@ class Interface():
 		"""
 		Operate Four servo motors independently using SQR1, SQR2, SQR3, SQR4.
 		tested with SG-90 9G servos.
+		For high current servos, please use a different power source, and a level convertor for the PWm output signals(if needed)
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
@@ -3984,6 +3985,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
+	"""
 	def TemperatureAndHumidity(self):
 		'''
 		init  AM2302.  
@@ -3997,6 +3999,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		self.digital_channels_in_buffer=1
+	"""
 
 	def opticalArray(self,SS,delay,channel = 'CH3',**kwargs):
 		'''
@@ -4094,7 +4097,5 @@ if __name__ == "__main__":
 	I.get_average_voltage('CH1')
 	""")
 	#I=connect(verbose = True)
-	#print (I.get_capacitance())
+	#for a in range(20):print (I.get_capacitance())
 	#I=connect(verbose=True,load_calibration=False)
-    
-    
