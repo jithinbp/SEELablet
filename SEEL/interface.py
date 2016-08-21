@@ -46,7 +46,7 @@ class Interface():
 	"""
 	**Communications library.**
 
-	This class contains methods that can be used to interact with the vLabtool
+	This class contains methods that can be used to interact with the SEELablet
 
 	Initialization does the following
 
@@ -379,7 +379,7 @@ class Interface():
 		tg              Timegap between samples in microseconds
 		==============  ============================================================================================
 
-		.. figure:: ../images/capture1.png
+		.. figure:: images/capture1.png
 			:width: 11cm
 			:align: center
 			:alt: alternate text
@@ -416,7 +416,7 @@ class Interface():
 		TraceOneRemap   Choose the analog input for channel 1. It is connected to CH1 by default. Channel 2 always reads CH2.
 		==============  =======================================================================================================
 
-		.. figure:: ../images/capture2.png
+		.. figure:: images/capture2.png
 			:width: 11cm
 			:align: center
 			:alt: alternate text
@@ -469,7 +469,7 @@ class Interface():
 		TraceOneRemap   Choose the analog input for channel 1. It is connected to CH1 by default. Channel 2 always reads CH2.
 		==============  ======================================================================================================
 
-		.. figure:: ../images/capture4.png
+		.. figure:: images/capture4.png
 			:width: 11cm
 			:align: center
 			:alt: alternate text
@@ -775,7 +775,7 @@ class Interface():
 
 		.. _adc_example:
 
-			.. figure:: ../images/transient.png
+			.. figure:: images/transient.png
 				:width: 11cm
 				:align: center
 				:alt: alternate text

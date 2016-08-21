@@ -7,31 +7,32 @@ import time,inspect
 	
 class I2C():
 	"""
-	Methods to interact with the I2C port. An instance of Labtools.Packet_Handler must be passed to the init function
+	Methods to interact with the I2C port.
 
 
-	Example::  Read Values from an HMC5883L 3-axis Magnetometer(compass) [GY-273 sensor] connected to the I2C port
-		>>> ADDRESS = 0x1E
-		>>> from SEEL import interface
-		>>> I = interface.connect() 
-		#Alternately, you may skip using I2C as a child instance of Interface, 
-		#and instead use I2C=SEEL.Peripherals.I2C(SEEL.packet_handler.Handler())
+
+	.. code-block:: python
+
+		#Code Example : Read Values from an HMC5883L 3-axis Magnetometer(compass) [GY-273 sensor] connected to the I2C port
+		ADDRESS = 0x1E
+		from SEEL import interface
+		I = interface.connect() 
 		
 		# writing to 0x1E, set gain(0x01) to smallest(0 : 1x)
-		>>> I.I2C.bulkWrite(ADDRESS,[0x01,0])
+		I.I2C.bulkWrite(ADDRESS,[0x01,0])
 		
 		# writing to 0x1E, set mode conf(0x02), continuous measurement(0)
-		>>> I.I2C.bulkWrite(ADDRESS,[0x02,0])
+		I.I2C.bulkWrite(ADDRESS,[0x02,0])
 
 		# read 6 bytes from addr register on I2C device located at ADDRESS
-		>>> vals = I.I2C.bulkRead(ADDRESS,addr,6)
+		vals = I.I2C.bulkRead(ADDRESS,addr,6)
 			
-		>>> from numpy import int16
+		from numpy import int16
 		#conversion to signed datatype
-		>>> x=int16((vals[0]<<8)|vals[1])
-		>>> y=int16((vals[2]<<8)|vals[3])
-		>>> z=int16((vals[4]<<8)|vals[5])
-		>>> print (x,y,z)
+		x=int16((vals[0]<<8)|vals[1])
+		y=int16((vals[2]<<8)|vals[3])
+		z=int16((vals[4]<<8)|vals[5])
+		print (x,y,z)
 
 	"""
 
@@ -78,7 +79,6 @@ class I2C():
 			self.H.__get_ack__()
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-		
 		 
 	def config(self,freq,verbose=True):
 		"""
@@ -201,7 +201,6 @@ class I2C():
 			self.H.__sendByte__(data)        #data byte
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-		#No handshake. for the sake of speed. e.g. loading a frame buffer onto an I2C display such as ssd1306
 
 	def restart(self,address,rw):
 		"""
@@ -303,7 +302,6 @@ class I2C():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		return val
 
-
 	def readBulk(self,device_address,register_address,bytes_to_read):
 		try:
 			self.H.__sendByte__(CP.I2C_HEADER)
@@ -375,7 +373,6 @@ class I2C():
 				n+=1
 			self.stop()
 		return addrs
-
 
 	def capture(self,address,location,sample_length,total_samples,tg,*args):
 		"""
@@ -496,6 +493,7 @@ class I2C():
 		except Exception as ex:
 			msg = "Incorrect number of bytes received"
 			raise RuntimeError(msg)
+
 
 class SPI():
 	"""
@@ -690,7 +688,6 @@ class SPI():
 		self.stop(chan)
 		return reply
 
-
 class DACCHAN:
 	def __init__(self,name,span,channum,**kwargs):
 		self.name = name
@@ -776,7 +773,6 @@ class PCSCHAN:
 		else:
 			return v
 		
-
 class MCP4728:
 	defaultVDD =3300
 	RESET =6
@@ -865,6 +861,26 @@ class MCP4728:
 		print (vals)
 
 class NRF24L01():
+	"""
+	Access the onboard wireless transceiver
+	
+	.. code-block:: python
+
+		from SEEL import interface
+		I = interface.connect()
+
+		I.NRF.get_status()  #Returns a byte containing the value of the STATUS register of the transceiver
+		I.NRF.start_token_manager() # Start listening to any IoT nodes broadcasting their presence. Whenever a node is switched on, it transmits its address on a common address to anyone who may be listening
+		while I.NRF.total_tokens()<2:  #Switch on a minimum of 2 of nodes now
+			time.sleep(0.1)   
+		I.NRF.stop_token_manager()  #stop listening. we've received information about two ready nodes.
+		list = I.NRF.get_nodelist() #returns a dict object wherein the keys are node addresses, and values are lists of I2C sensors connected on the respective nodes
+		print list
+		>>> {0x01010A:[58],0x01010B:[96,58]}  #two nodes detected . One has 1 sensor attached, and another has 2
+		
+	"""
+
+
 	#Commands
 	R_REG = 0x00
 	W_REG = 0x20
@@ -936,9 +952,6 @@ class NRF24L01():
 		if self.H.connected:
 				self.connected=self.init()
 
-	"""
-	routines for the NRFL01 radio
-	"""
 	def init(self):
 		try:
 			self.H.__sendByte__(CP.NRFL01)
@@ -1268,8 +1281,6 @@ class NRF24L01():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-
-
 	def start_token_manager(self):
 		'''
 		'''
@@ -1314,8 +1325,6 @@ class NRF24L01():
 			return data
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-
-
 
 	def __decode_I2C_list__(self,data):
 		lst=[]
@@ -1434,6 +1443,31 @@ class NRF24L01():
 		self.flush()
 
 class RadioLink():
+	'''
+	A simplified wrapper for interacting with IoT Nodes.
+	
+	Example for connecting to a wireless node, and setting the color of its on-board neopixel. Also scan the I2C bus
+	
+	.. code-block:: python
+	
+		link = I.newRadioLink(address = 0x01010A)   #This address is unique for each IoT node, and is printed on it
+		link.WS2812B([[0,255,255]])  #Set the colour of the onboard RGB LED to cyan
+		print link.I2C_scan()        #Scan the I2C bus of the IoT node, and return detected addresses
+		>>> [58]
+		
+	Example for connecting to a wireless node, and reading the values from a magnetometer connected to its I2C port
+	
+	.. code-block:: python
+	
+		link = I.newRadioLink(address = 0x01010A)   #This address is unique for each IoT node, and is printed on it
+		from SEEL.SENSORS import HMC5883L
+		mag = HMC5883L.connect(link)  # Tell the magnetometer's class to use the IoT node with address 0x01010A as the link to the magnetometer
+		print mag.getRaw()
+		>>> [0.01,126.3,24.0]  # magnetic fields along the x,y, and z axes of the sensor
+
+
+		
+	'''
 	ADC_COMMANDS =1
 	READ_ADC =0<<4
 

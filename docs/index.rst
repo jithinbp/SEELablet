@@ -3,21 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SEEL's documentation!
-================================
+SEELablet Programmer's Manual
+*****************************
 
-Contents:
 
 .. toctree::
-   :maxdepth: 4
 
-   SEEL.interface
-   SEEL.Peripherals.I2C_class
-   SEEL.Peripherals.SPI_class
-   SEEL.Peripherals.MCP4728_class
-   SEEL.Peripherals.NRF24L01_class
-   SEEL.Peripherals.NRF_NODE
-
+	interface
+	peripherals
+	wireless
+	SEEL.SENSORS
 
 Indices and tables
 ==================

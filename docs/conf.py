@@ -277,8 +277,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'SEEL', u'SEEL Documentation',
-     author, 'SEEL', 'One line description of project.',
+    (master_doc, 'SEEL', u'SEELablet Documentation',
+     author, 'SEEL', "Programmer's manual for the SEELablet instrument cluster",
      'Miscellaneous'),
 ]
 
@@ -363,3 +363,5 @@ epub_exclude_files = ['search.html']
 
 # If false, no index is generated.
 #epub_use_index = True
+
+html_style = 'custom.css'
