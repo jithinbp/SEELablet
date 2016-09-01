@@ -64,13 +64,13 @@ class BMP180:
 
 	def readTemperature(self):
 		vals =  self.I2C.readBulk(self.ADDRESS,self.REG_RESULT,2)
-		if len(vals)==2:
-			T = (vals[0] <<8 ) + vals[1]
-			a = self.c5 * (T - self.c6)
-			self.T = a + (self.mc / (a + self.md))
-			return self.T
-		else:
-			return False
+		if vals:
+			if len(vals)==2:
+				T = (vals[0] <<8 ) + vals[1]
+				a = self.c5 * (T - self.c6)
+				self.T = a + (self.mc / (a + self.md))
+				return self.T
+		return False
 
 	def setOversampling(self,num):
 		self.oversampling=num

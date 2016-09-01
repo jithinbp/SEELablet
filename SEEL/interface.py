@@ -631,22 +631,22 @@ class Interface():
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
 		
-		==============  ============================================================================================
+		===============  ============================================================================================
 		**Arguments** 
-		==============  ============================================================================================
-		chan                channel name 'CH1' / 'CH2' ... 'SEN'
-		samples             Number of samples to fetch. Maximum 10000/(total specified channels)
-		tg                  Timegap between samples in microseconds. minimum 0.5uS
-		\*args              specify if SQR1 must be toggled right before capturing.
-		 'SET_LOW' 			will set SQR1 to 0V
-		 'SET_HIGH'			will set it to 5V.  
-		 'FIRE_PULSES' 		will output a preset frequency on SQR1 for a given interval (keyword arg 'interval' 
-							must be specified or it will default to 1000uS) before acquiring data. This is
-							used for measuring speed of sound using piezos
-							if no arguments are specified, a regular capture will be executed.
-		\*\*kwargs			
-			interval		units:uS . Necessary if 'FIRE_PULSES' argument was supplied. default 1000uS
-		==============  ============================================================================================
+		===============  ============================================================================================
+		chan             channel name 'CH1' / 'CH2' ... 'SEN'
+		samples          Number of samples to fetch. Maximum 10000/(total specified channels)
+		tg               Timegap between samples in microseconds. minimum 0.5uS
+		\*args           specify if SQR1 must be toggled right before capturing.
+		 'SET_LOW' 		 will set SQR1 to 0V
+		 'SET_HIGH'		 will set it to 5V.  
+		 'FIRE_PULSES' 	 will output a preset frequency on SQR1 for a given interval (keyword arg 'interval' 
+						 must be specified or it will default to 1000uS) before acquiring data. This is
+						 used for measuring speed of sound using piezos
+						 if no arguments are specified, a regular capture will be executed.
+		\*\*kwargs		 
+		   interval      units:uS . Necessary if 'FIRE_PULSES' argument was supplied. default 1000uS
+		===============  ============================================================================================
 
 		.. code-block:: python
 
@@ -715,7 +715,6 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		return x,self.analogInputSources[chan].calPoly12(y)
-
 
 	def __retrieveBufferData__(self,chan,samples,tg):
 		'''
@@ -871,7 +870,6 @@ class Interface():
 			self.channels_in_buffer=num
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
-
 
 	def capture_highres_traces(self,channel,samples,tg,**kwargs):
 		"""
@@ -1405,9 +1403,6 @@ class Interface():
 		The input frequency is fed to a 32 bit counter for a period of 100mS.
 		The value of the counter at the end of 100mS is used to calculate the frequency.
 		
-		see :ref:`freq_video`
-
-
 		.. seealso:: :func:`get_freq`
 		
 		.. tabularcolumns:: |p{3cm}|p{11cm}|
@@ -3377,6 +3372,7 @@ class Interface():
 		==============  ============================================================================================
 
 		.. code-block:: python
+			
 			I.sqr1(38e3 , 50, True )   # Prepare a 38KHz, 50% square wave. Do not output it yet
 			I.sqr1_pattern([1000,1000,1000,1000,1000])  #On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off:1mS, On:1mS (38KHz packet), Off: indefinitely..
 		"""

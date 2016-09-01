@@ -56,6 +56,7 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	#cp -R ~/SEELablet_Experiments/seel_res/HTML _build/html/
 
 .PHONY: dirhtml
 dirhtml:

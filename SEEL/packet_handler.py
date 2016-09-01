@@ -227,7 +227,6 @@ class Handler():
 	def waitForData(self,timeout=0.2):
 		start_time = time.time()
 		while time.time()-start_time<timeout:
-			time.sleep(0.02)
 			if self.fd.inWaiting():return True
 		return False
 

@@ -6,9 +6,8 @@
 SEELablet Programmer's Manual
 *****************************
 
-
 .. toctree::
-
+	
 	interface
 	peripherals
 	wireless

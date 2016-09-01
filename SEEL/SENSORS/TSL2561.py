@@ -66,11 +66,10 @@ class TSL2561:
 		return ID
 	
 	def getRaw(self):
-		infra = self.I2C.readBulk(self.ADDRESS,0x80 | 0x20 | 0x0E ,2)
-		full = self.I2C.readBulk(self.ADDRESS,0x80 | 0x20 | 0x0C ,2)
-		if infra and full:
-			full = (full[1]<<8)|full[0]
-			infra = (infra[1]<<8)|infra[0]
+		vals = self.I2C.readBulk(self.ADDRESS,0x80 | 0x20 | 0x0C ,4)  # Byte 1, 2 (full range ) . Byte (3,4) Infrared .
+		if vals:
+			full = (vals[1]<<8)|vals[0]
+			infra = (vals[3]<<8)|vals[2]
 			return [full,infra,full-infra]
 		else:
 			return False

@@ -494,7 +494,6 @@ class I2C():
 			msg = "Incorrect number of bytes received"
 			raise RuntimeError(msg)
 
-
 class SPI():
 	"""
 	Methods to interact with the SPI port. An instance of Packet_Handler must be passed to the init function
@@ -922,23 +921,11 @@ class NRF24L01():
 	FEATURE = 0x1D
 	PAYLOAD_SIZE = 0
 	ACK_PAYLOAD_SIZE =0
-	READ_PAYLOAD_SIZE =0	
-
-	ADC_COMMANDS =1
-	READ_ADC =0<<4
-
-	I2C_COMMANDS =2
-	I2C_TRANSACTION =0<<4
-	I2C_WRITE =1<<4
-	SCAN_I2C =2<<4
-	PULL_SCL_LOW = 3<<4
-	I2C_CONFIG = 4<<4
-	I2C_READ = 5<<4
+	READ_PAYLOAD_SIZE =0
 
 	NRF_COMMANDS = 3
 	NRF_READ_REGISTER =0
 	NRF_WRITE_REGISTER =1<<4
-
 
 	CURRENT_ADDRESS=0xAAAA01
 	nodelist={}
@@ -1001,7 +988,6 @@ class NRF24L01():
 		self.write_register(self.EN_AA,0x00)
 		self.write_payload([val],True)
 		self.write_register(self.EN_AA,0x01)
-
 		
 	def power_down(self):
 		try:
@@ -1179,77 +1165,42 @@ class NRF24L01():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def I2C_scan(self):
-		'''
-		Scans the I2C bus and returns a list of live addresses
-		'''
-		x = self.transaction([self.I2C_COMMANDS|self.I2C_SCAN|0x80],timeout=500)
-		if not x:return []
-		if not sum(x):return []
-		addrs=[]
-		for a in range(16):
-			if(x[a]^255):
-				for b in range(8):
-					if x[a]&(0x80>>b)==0:
-						addr = 8*a+b
-						addrs.append(addr)
-		return addrs
-
-	def GuessingScan(self):
-		'''
-		Scans the I2C bus and also prints the possible devices associated with each found address
-		'''
-		import sensorlist
-		print ('Scanning addresses 0-127...')
-		x = self.transaction([self.I2C_COMMANDS|self.I2C_SCAN|0x80],timeout=500)
-		if not x:return []
-		if not sum(x):return []
-		addrs=[]
-		print ('Address','\t','Possible Devices')
-
-		for a in range(16):
-			if(x[a]^255):
-				for b in range(8):
-					if x[a]&(0x80>>b)==0:
-						addr = 8*a+b
-						addrs.append(addr)
-						print (hex(addr),'\t\t',sensorlist.sensors.get(addr,'None'))
-						
-		return addrs
-
 	def transaction(self,data,**args): 
 		st = time.time()
 		try:
+			timeout = args.get('timeout',30)
+			verbose = args.get('verbose',False)
+
+			#print ('#################',args)
+			if args.get('listen',True):data[0]|=0x80  # You need this if hardware must wait for a reply
+
 			self.H.__sendByte__(CP.NRFL01)
 			self.H.__sendByte__(CP.NRF_TRANSACTION)
 			self.H.__sendByte__(len(data)) #total Data bytes coming through
-			if 'listen' not in args:args['listen']=True
-			if args.get('listen',False):data[0]|=0x80  # You need this if hardware must wait for a reply
-			timeout = args.get('timeout',200)
-			verbose = args.get('verbose',False)
 			self.H.__sendInt__(timeout) #timeout.  		
 			for a in data:
 				self.H.__sendByte__(a)
-
-			#print ('dt send',time.time()-st,timeout,data[0]&0x80,data)
+			self.H.waitForData(timeout/1e4) #convert to mS
 			numbytes=self.H.__getByte__()
-			#print ('byte 1 in',time.time()-st)
-			if numbytes: data = self.H.fd.read(numbytes)
+			if numbytes: data = [ord(a) for a in self.H.fd.read(numbytes)]
 			else: data=[]
 			val=self.H.__get_ack__()>>4
+			
+			#print ('dt send',time.time()-st,timeout,data,str(bin(val)))
+			
 			if(verbose):
 				if val&0x1: print (time.time(),'%s Err. Node not found'%(hex(self.CURRENT_ADDRESS)))
 				if val&0x2: print (time.time(),'%s Err. NRF on-board transmitter not found'%(hex(self.CURRENT_ADDRESS)))
-				if val&0x4 and args['listen']: print (time.time(),'%s Err. Node received command but did not reply'%(hex(self.CURRENT_ADDRESS)))
+				if val&0x4 and args.get('listen',True): print (time.time(),'%s Err. Node received command but did not reply'%(hex(self.CURRENT_ADDRESS)))
 			if val&0x7:	#Something didn't go right.
 				self.flush()
 				self.sigs[self.CURRENT_ADDRESS] = self.sigs[self.CURRENT_ADDRESS]*50/51.
 				return False
 			
 			self.sigs[self.CURRENT_ADDRESS] = (self.sigs[self.CURRENT_ADDRESS]*50+1)/51.
-			return [ord(a) for a in data]
+			return data
 		except Exception as ex:
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+			print('Exception:',ex)
 
 	def transactionWithRetries(self,data,**args):
 		retries = args.get('retries',5)
@@ -1344,28 +1295,35 @@ class NRF24L01():
 		running , or were loaded from the firmware buffer(max 15 entries)
 
 		If you plan to use more than 15 nodes, and wish to register their addresses without having to feed them manually,
-		then this function must be called each time before the buffer resets.
+		then this function must be called each time before the buffer resets (every fifteen nodes).
 		
-		The dictionary object returned by this function [addresses paired with arrays containing their registered sensors]
-		is filtered by checking with each node if they are alive.
+		The dictionary object returned by this function is filtered by checking with each node if they are alive first.
+		
+		:return: {address_Node1:[[registered sensors(I2C Addresses 0-8 are not auto detected)],battery%],address_Node2:[[registered sensors],battery%] ... }
 		
 		'''
-
 		total = self.total_tokens()
+		total+=1
+		if total==self.NODELIST_MAXLENGTH:total=0
+		
 		if self.nodepos!=total:
-			for nm in range(self.NODELIST_MAXLENGTH):
+			#print ('pos = ',self.nodepos)
+			for nm in range(self.nodepos,self.NODELIST_MAXLENGTH)+range(0,self.nodepos):
 				dat = self.fetch_report(nm)
+				#print (nm,dat)
 				txrx=(dat[0])|(dat[1]<<8)|(dat[2]<<16)
-				if not txrx:continue
-				self.nodelist[txrx]=self.__decode_I2C_list__(dat[3:19])
-				self.nodepos=total
-				#else:
-				#	self.__delete_registered_node__(nm)
+				if not txrx:
+					continue
+				self.nodelist[txrx]=[self.__decode_I2C_list__(dat[3:19]),dat[19]]
+			self.nodepos=total
+			#else:
+			#	self.__delete_registered_node__(nm)
 
 		filtered_lst={}
 		for a in self.nodelist:
-			if self.isAlive(a): filtered_lst[a]=self.nodelist[a]
-			
+			if self.isAlive(a):
+				filtered_lst[a]=self.nodelist[a]
+				#print (self.nodelist[a][1])			
 		return filtered_lst
 
 	def __delete_registered_node__(self,num):
@@ -1384,7 +1342,7 @@ class NRF24L01():
 
 	def isAlive(self,addr):
 		self.selectAddress(addr)
-		return self.transaction([self.NRF_COMMANDS|self.NRF_READ_REGISTER]+[self.R_STATUS],timeout=100,verbose=False)
+		return self.transaction([self.NRF_COMMANDS,self.NRF_READ_REGISTER]+[self.R_STATUS],timeout=500,verbose=False)
 
 	def init_shockburst_transmitter(self,**args):
 		'''
@@ -1442,6 +1400,12 @@ class NRF24L01():
 		time.sleep(0.1)
 		self.flush()
 
+	def raiseException(self,ex, msg):
+			msg += '\n' + ex.message
+			#self.H.disconnect()
+			raise RuntimeError(msg)
+
+
 class RadioLink():
 	'''
 	A simplified wrapper for interacting with IoT Nodes.
@@ -1469,23 +1433,33 @@ class RadioLink():
 		
 	'''
 	ADC_COMMANDS =1
-	READ_ADC =0<<4
+	CAPTURE_ADC =0
+	READ_ADC =1
 
 	I2C_COMMANDS =2
-	I2C_TRANSACTION =0<<4
-	I2C_WRITE =1<<4
-	SCAN_I2C =2<<4
-	PULL_SCL_LOW = 3<<4
-	I2C_CONFIG = 4<<4
-	I2C_READ = 5<<4
+	I2C_TRANSACTION =0
+	I2C_WRITE =1
+	SCAN_I2C =2
+	PULL_SCL_LOW = 3
+	I2C_CONFIG = 4
+	I2C_READ = 5
 
 	NRF_COMMANDS = 3
-	NRF_READ_REGISTER =0<<4
-	NRF_WRITE_REGISTER =1<<4
+	NRF_READ_REGISTER =0
+	NRF_WRITE_REGISTER =1
 
 	MISC_COMMANDS = 4
-	WS2812B_CMD = 0<<4
-
+	WS2812B_CMD  = 0
+	EEPROM_WRITE = 1
+	EEPROM_READ  = 2
+	RESET_DEVICE = 3
+	SET_DAC = 4
+	
+	PWM_COMMANDS = 5
+	SET_PWM      = 0
+	GET_FREQ     = 1
+	
+	
 	def __init__(self,NRF,**args):
 		self.NRF = NRF
 		if 'address' in args:
@@ -1493,18 +1467,84 @@ class RadioLink():
 		else:
 			print ('Address not specified. Add "address=0x....." argument while instantiating')
 			self.ADDRESS=0x010101
-		
+		self.adc_map = {
+			'BAT':self.adc_chan(0b100,0,6.6),
+			'CS3':self.adc_chan(0b10111,0,3.3),
+			'FVR':self.adc_chan(0b111111,0,3.3),
+			'DAC':self.adc_chan(0b111110,0,3.3),
+			'TEMP':self.adc_chan(0b111101,0,3.3),
+			'AVss':self.adc_chan(0b111100,0,3.3),
+		}
 
 	def __selectMe__(self):
 		if self.NRF.CURRENT_ADDRESS!=self.ADDRESS:
 			self.NRF.selectAddress(self.ADDRESS)
+
+	#ADC Commands
+	class adc_chan:
+		def __init__(self,AN,minV,maxV):
+			self.AN = AN
+			self.minV = minV
+			self.maxV = maxV
+			self.poly = np.poly1d([0,(maxV-minV)/1023.,minV])
+		def applyCal(self,code):
+			return self.poly(code)
+
+	def captureADC(self,channel):
+		'''
+		fetch 16 samples from channel
+		channel in ['BAT', 'CS3']
+		'''
+		self.__selectMe__()
+		chan = self.adc_map.get(channel,None)
+		if not chan:
+			print ('channel not available')
+			return False
 		
-		
+		vals = self.NRF.transactionWithRetries([self.ADC_COMMANDS,self.CAPTURE_ADC]+[chan.AN],timeout=400)
+		if vals:
+			if len(vals)==32:
+				intvals = []
+				for a in range(16): intvals.append ( (vals[a*2]<<8)|vals[a*2+1]  )
+				return chan.applyCal(intvals)
+			else:
+				print ('packet dropped')
+				return False
+		else:
+			print ('packet dropped')
+			return False
+
+	def readADC(self,channel,verbose=False):
+		'''
+		fetch 1 sample from channel
+		channel in ['BAT', 'CS3']
+		'''
+		self.__selectMe__()
+		chan = self.adc_map.get(channel,None)
+		if not chan:
+			print ('channel not available')
+			return False		
+		vals = self.NRF.transactionWithRetries([self.ADC_COMMANDS,self.READ_ADC]+[chan.AN],timeout=400)
+		if vals:
+			if len(vals)==2:
+				if verbose: print (vals)
+				return chan.applyCal((vals[0]<<8)|vals[1])
+			else:
+				print ('packet dropped')
+				return False
+		else:
+			print ('packet dropped')
+			return False
+
+	#I2C Commands
 	def I2C_scan(self):
+		'''
+		Scans the I2C bus and returns a list of live addresses. 
+		'''
 		self.__selectMe__()
 		import sensorlist
 		print ('Scanning addresses 0-127...')
-		x = self.NRF.transaction([self.I2C_COMMANDS|self.SCAN_I2C|0x80],timeout=500)
+		x = self.NRF.transaction([self.I2C_COMMANDS,self.SCAN_I2C],timeout=500)
 		if not x:return []
 		if not sum(x):return []
 		addrs=[]
@@ -1520,7 +1560,6 @@ class RadioLink():
 						
 		return addrs
 
-
 	def __decode_I2C_list__(self,data):
 		lst=[]
 		if sum(data)==0:
@@ -1535,32 +1574,27 @@ class RadioLink():
 
 	def writeI2C(self,I2C_addr,regaddress,bytes):
 		self.__selectMe__()
-		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_WRITE]+[I2C_addr]+[regaddress]+bytes)
+		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_WRITE]+[I2C_addr]+[regaddress]+bytes)
 		
 	def readI2C(self,I2C_addr,regaddress,numbytes):
 		self.__selectMe__()
-		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
+		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
 
 	def writeBulk(self,I2C_addr,bytes):
 		self.__selectMe__()
-		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_WRITE]+[I2C_addr]+bytes)
+		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_WRITE]+[I2C_addr]+bytes)
 		
 	def readBulk(self,I2C_addr,regaddress,numbytes):
 		self.__selectMe__()
-		return self.NRF.transactionWithRetries([self.I2C_COMMANDS|self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
+		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
 
 	def simpleRead(self,I2C_addr,numbytes):
 		self.__selectMe__()
-		return self.NRF.transactionWithRetries([self.I2C_COMMANDS|self.I2C_READ]+[I2C_addr]+[numbytes])
-
-
-	def readADC(self,channel):
-		self.__selectMe__()
-		return self.NRF.transaction([self.ADC_COMMANDS|self.READ_ADC]+[channel])
+		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_READ]+[I2C_addr]+[numbytes])
 
 	def pullSCLLow(self,t_ms):
 		self.__selectMe__()
-		dat=self.NRF.transaction([self.I2C_COMMANDS|self.PULL_SCL_LOW]+[t_ms])
+		dat=self.NRF.transaction([self.I2C_COMMANDS,self.PULL_SCL_LOW]+[t_ms])
 		if dat:
 			return self.__decode_I2C_list__(dat)
 		else:
@@ -1570,15 +1604,23 @@ class RadioLink():
 		self.__selectMe__()
 		brgval=int(32e6/freq/4 - 1)
 		print (brgval)
-		return self.NRF.transaction([self.I2C_COMMANDS|self.I2C_CONFIG]+[brgval],listen=False)
+		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_CONFIG]+[brgval],listen=False)
 
+	#NRF Commands
 	def write_register(self,reg,val):
 		self.__selectMe__()
 		#print ('writing to ',reg,val)
-		return self.NRF.transaction([self.NRF_COMMANDS|self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
+		return self.NRF.transaction([self.NRF_COMMANDS,self.NRF_WRITE_REGISTER]+[reg,val],listen=False)
 
-
-
+	def read_register(self,reg):
+		self.__selectMe__()
+		x=self.NRF.transaction([self.NRF_COMMANDS,self.NRF_READ_REGISTER]+[reg])
+		if x:
+			return x[0]
+		else:
+			return False
+			
+	#Miscellaneous features
 	def WS2812B(self,cols):
 		"""
 		set shade of WS2182 LED on CS1/RC0
@@ -1605,17 +1647,151 @@ class RadioLink():
 			colarray.append(int('{:08b}'.format(int(a[0]))[::-1], 2))
 			colarray.append(int('{:08b}'.format(int(a[2]))[::-1], 2))
 
-
-		res = self.NRF.transaction([self.MISC_COMMANDS|self.WS2812B_CMD]+colarray,listen=False)
+		res = self.NRF.transaction([self.MISC_COMMANDS,self.WS2812B_CMD]+colarray,listen=False)
 		return res
 
+	def reset(self):
+		"""
+		Reset the wireless node.
+		If EEPROM locations 0,1,2 were updated, the node will restart at the new address
+		"""
 
-	def read_register(self,reg):
 		self.__selectMe__()
-		x=self.NRF.transaction([self.NRF_COMMANDS|self.NRF_READ_REGISTER]+[reg])
-		if x:
-			return x[0]
+		res = self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.RESET_DEVICE],listen=False)
+		return res
+
+	def batteryLevel(self):
+		"""
+		Read the battery status, and return a percentage value.
+		Do not operate at very low levels if running on a Lithium battery. It reduces their lifetime
+		"""
+		return max(min((self.readADC('BAT')-3.7)*200,100),0)
+
+	def setDAC(self,val):
+		"""
+		Write to 5 bit DAC 
+		0 < val < 3.3
+		"""
+		code = int(val*31/3.3)
+		self.__selectMe__()
+		res = self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.SET_DAC,code],timeout=100)
+		if res:return 3.3*res[0]/31
+		else : return False
+
+	def readFrequency(self,prescaler = 6):
+		'''
+		Read frequency of input TTL signal on CS3 (0-3.3V)
+		
+		Select a prescaler value that obtains maximum resolution for your measurement range.
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		Range = 250/(2**prescaler) - 8e6/(2**prescaler)
+		
+		==============  ============================================================================================
+		**Prescaler**   **Frequency Range**
+		==============  ============================================================================================
+		2               62.5Hz to 2MHz
+		3               31.25Hz to 1MHz
+		4               16Hz  to 500KHz
+		5               8Hz  to 250KHz
+		6               4Hz  to 125KHz
+		7               2Hz  to 62.5KHz
+		==============  ============================================================================================		
+		
+		'''
+		prescaler = min(7,max(2,prescaler)) # fix prescaler between 2 and 7
+		self.__selectMe__()
+		vals = self.NRF.transactionWithRetries([self.PWM_COMMANDS,self.GET_FREQ]+[(0b110<<4)|prescaler],timeout=int(min(max(30,40*2**prescaler),65000)) ) #0b110 = 4 edges . 0b111 = every 16 edges
+		if vals:
+			dcode = ((vals[2]<<8)|vals[3] ) - ((vals[0]<<8)|vals[1])
+			dt = (2**prescaler)*( dcode )/8e6/4.  # prescale * counts /8e6/4
+			if dcode<2:
+				if prescaler<8 and dcode<0:print ('frequency too low . increase prescaler')			
+				elif prescaler>0 and dcode<2:print ('frequency too high . decrease prescaler')			
+				else: print ('frequency out of range')
+				return False
+			return 1./dt
 		else:
 			return False
-			
+
+	def readHighFrequency(self):
+		'''
+		Read frequencies between 10KHz and 8MHz from input TTL signal on CS3 (0-3.3V)
+		'''
+		self.__selectMe__()
+		vals = self.NRF.transactionWithRetries([self.PWM_COMMANDS,self.GET_FREQ]+[(0b111<<4)],timeout=3000 ) # 0b111 = every 16 edges
+		if vals:
+			dcode = ((vals[2]<<8)|vals[3] ) - ((vals[0]<<8)|vals[1])
+			dt = ( dcode )/8e6/16.  # prescale * counts /8e6/4
+			if dcode<2:
+				print ('frequency out of range')
+				return False
+			return 1./dt
+		else:
+			return False
+
+
+	def write_eeprom(self,locations,values):
+		"""
+		Write to EEPROM Locations
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		locations       Array of positions between 0 and 255 e.g. : [4,5,6]
+		values          Array of values to write to those locations
+ 		==============  ============================================================================================
+
+		Caution : Positions 0,1,2 are used for storing the address of the wireless node. If you change these, you
+		will have to reconnect to the new address once the wireless node is reset/power cycled.
+		
+		example::
+		
+			>>> write_eeprom([3,4,5],[3,3,3])
+			write the value 3 to locations 3,4,5
+
+		"""
+		self.__selectMe__()
+		mixarray=[]
+		if len(locations) != len(values):
+			print ('mismatch in number of locations and values')
+			return False
+
+		for a,b in zip(locations,values):
+			mixarray+=[a,b]
+
+		res = self.NRF.transaction([self.MISC_COMMANDS,self.EEPROM_WRITE]+mixarray,timeout=100)
+		print (res)
+
+	def read_eeprom(self,locations):
+		"""
+		read from EEPROM Locations
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		locations       Array of positions between 0 and 255 e.g. : [4,5,6]
+ 		==============  ============================================================================================
+
+		Positions 0,1,2 are used for storing the address of the wireless node.
+		
+		example::
+		
+			>>> read_eeprom([3,4,5])
+			read from locations 3,4,5
+
+		"""
+		self.__selectMe__()
+		res = self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.EEPROM_READ]+locations)
+		return res
+
+	def raiseException(self,ex, msg):
+			msg += '\n' + ex.message
+			#self.H.disconnect()
+			raise RuntimeError(msg)
 

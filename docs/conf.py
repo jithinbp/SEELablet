@@ -53,6 +53,7 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+
 # General information about the project.
 project = u'SEEL'
 copyright = u'2016, Jithin BP'
@@ -365,3 +366,16 @@ epub_exclude_files = ['search.html']
 #epub_use_index = True
 
 html_style = 'custom.css'
+
+autodoc_member_order = 'groupwise'
+
+def skips(app, what, name, obj, skip, options):
+	skips = (str(obj).find("Handler") != -1) or (str(obj).find("bin") != -1) or (str(obj).find("hex") != -1)or (str(obj).find("oct") != -1)
+	return skip or skips
+
+
+def setup(app):
+	app.connect('autodoc-skip-member', skips)
+	#app.config.values['autodoc_member_order'] = ('bysource', False, ())
+	app.add_directive('member-order','source')
+
