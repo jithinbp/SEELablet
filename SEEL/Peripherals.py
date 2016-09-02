@@ -1165,10 +1165,10 @@ class NRF24L01():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def transaction(self,data,**args): 
+	def transaction(self,data,**args):
 		st = time.time()
 		try:
-			timeout = args.get('timeout',30)
+			timeout = args.get('timeout',50)
 			verbose = args.get('verbose',False)
 
 			#print ('#################',args)
@@ -1410,6 +1410,17 @@ class RadioLink():
 	'''
 	A simplified wrapper for interacting with IoT Nodes.
 	
+	.. tabularcolumns:: |p{3cm}|p{11cm}|
+	
+	
+	==============  ============================================================================================
+	**Arguments**   Description
+	==============  ============================================================================================
+	NRF             ~interface.NRF instance 
+	*\*\args
+	address         3-byte address of the node. e.g 0x01010A
+	==============  ============================================================================================		
+	
 	Example for connecting to a wireless node, and setting the color of its on-board neopixel. Also scan the I2C bus
 	
 	.. code-block:: python
@@ -1436,6 +1447,10 @@ class RadioLink():
 	CAPTURE_ADC =0
 	READ_ADC =1
 
+
+	SPI_COMMANDS =6
+	SPI_TRANSACTION =0
+
 	I2C_COMMANDS =2
 	I2C_TRANSACTION =0
 	I2C_WRITE =1
@@ -1454,6 +1469,8 @@ class RadioLink():
 	EEPROM_READ  = 2
 	RESET_DEVICE = 3
 	SET_DAC = 4
+	SET_DOZE = 5
+	SET_IO = 6
 	
 	PWM_COMMANDS = 5
 	SET_PWM      = 0
@@ -1492,8 +1509,17 @@ class RadioLink():
 
 	def captureADC(self,channel):
 		'''
-		fetch 16 samples from channel
-		channel in ['BAT', 'CS3']
+		Read 16 bytes from the ADC
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		channel         'BAT' , 'CS3'
+		==============  ============================================================================================		
+		
 		'''
 		self.__selectMe__()
 		chan = self.adc_map.get(channel,None)
@@ -1516,8 +1542,17 @@ class RadioLink():
 
 	def readADC(self,channel,verbose=False):
 		'''
-		fetch 1 sample from channel
-		channel in ['BAT', 'CS3']
+		Read bytes from the ADC
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		channel         'BAT' , 'CS3'
+		==============  ============================================================================================		
+		
 		'''
 		self.__selectMe__()
 		chan = self.adc_map.get(channel,None)
@@ -1539,7 +1574,7 @@ class RadioLink():
 	#I2C Commands
 	def I2C_scan(self):
 		'''
-		Scans the I2C bus and returns a list of live addresses. 
+		Scans the I2C bus and returns a list of active addresses. 
 		'''
 		self.__selectMe__()
 		import sensorlist
@@ -1581,10 +1616,39 @@ class RadioLink():
 		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
 
 	def writeBulk(self,I2C_addr,bytes):
+		'''
+		Write bytes to an I2C sensor
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		I2C_addr        address of the I2C sensor
+		bytes           an array of bytes to be written
+		==============  ============================================================================================		
+		
+		'''
 		self.__selectMe__()
 		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_WRITE]+[I2C_addr]+bytes)
 		
 	def readBulk(self,I2C_addr,regaddress,numbytes):
+		'''
+		Read bytes from an I2C sensor
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		I2C_addr        address of the I2C sensor
+		regaddress      address of the register to read from
+		numbytes        number of bytes to read
+		==============  ============================================================================================		
+		
+		'''
 		self.__selectMe__()
 		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
 
@@ -1593,6 +1657,11 @@ class RadioLink():
 		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_READ]+[I2C_addr]+[numbytes])
 
 	def pullSCLLow(self,t_ms):
+		'''
+		hold the SCL line low for a defined period. Used by sensors such as MLX90316
+		
+		
+		'''
 		self.__selectMe__()
 		dat=self.NRF.transaction([self.I2C_COMMANDS,self.PULL_SCL_LOW]+[t_ms])
 		if dat:
@@ -1601,10 +1670,48 @@ class RadioLink():
 			return []
 
 	def configI2C(self,freq):
+		'''
+		Set the frequency of the I2C port on the wireless node.
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		freq            Frequency
+		==============  ============================================================================================		
+		
+		'''
 		self.__selectMe__()
 		brgval=int(32e6/freq/4 - 1)
 		print (brgval)
 		return self.NRF.transaction([self.I2C_COMMANDS,self.I2C_CONFIG]+[brgval],listen=False)
+
+	#SPI commands
+	def readSPI(self,chip_select,data):
+		'''
+		Accepts an array
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		
+		==============  ============================================================================================
+		**Arguments**   Description
+		==============  ============================================================================================
+		chip_select     'CS1' or 'CS2'
+		data            array of elements to write to SDO while data is simultaneously clocked in via SDI
+		==============  ============================================================================================		
+		
+		'''
+		self.__selectMe__()
+		if chip_select=='CS1':cs=1
+		elif chip_select=='CS2':cs=2
+		else:
+			print ('invalid chip select')
+			return
+		return self.NRF.transactionWithRetries([self.SPI_COMMANDS,self.SPI_TRANSACTION,cs]+data)
+
 
 	#NRF Commands
 	def write_register(self,reg,val):
@@ -1678,6 +1785,44 @@ class RadioLink():
 		if res:return 3.3*res[0]/31
 		else : return False
 
+	def lowPowerMode(self,level = False):
+		"""
+		Reduce the CPU frequency of the node's processor
+		Level  in [False, 1 ... 7 ] 
+		"""
+		self.__selectMe__()
+		if level : self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.SET_DOZE,(1<<6)|(level)],listen = False) #111 = 1/256 scaling
+		else : self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.SET_DOZE,0],listen = False)  #disable low power mode
+
+	def setIO(self,**kwargs):
+		"""
+		Toggle CS1 or CS2 digital output. up to 5mA sink/source capacity
+		These pins also serve as chip selects for SPI devices. If any of the
+		chip selects are connected to an SPI device, toggling them can cause an SPI clash and
+		will result in the node becoming unresponsive until a power reset.
+
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		*\*\kwargs      CS1 = 1/0
+						CS2 = 1/0
+		==============  ============================================================================================
+
+		example::
+		
+			>>> link.setIO(CS1 = False, CS2 = True)  #Set CS1 to 0V , CS2 to 3.3V
+			#sets red, cyan, magenta to three daisy chained LEDs
+		"""
+		io=0
+		if 'CS1' in kwargs: io |= 1|(kwargs.get('CS1')<<4)
+		if 'CS2' in kwargs: io |= 2|(kwargs.get('CS2')<<5)
+		print(bin(io))
+		self.__selectMe__()
+		if io: return self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.SET_IO,io],listen = False)  #disable low power mode
+		else: return False
+
+
+
 	def readFrequency(self,prescaler = 6):
 		'''
 		Read frequency of input TTL signal on CS3 (0-3.3V)
@@ -1730,7 +1875,6 @@ class RadioLink():
 			return 1./dt
 		else:
 			return False
-
 
 	def write_eeprom(self,locations,values):
 		"""
