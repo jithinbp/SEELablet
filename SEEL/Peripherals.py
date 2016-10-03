@@ -1,6 +1,5 @@
 from __future__ import print_function
-#from SEEL.commands_proto import *
-import SEEL.commands_proto as CP
+import commands_proto as CP
 import numpy as np 
 import time,inspect
 
@@ -38,7 +37,7 @@ class I2C():
 
 	def __init__(self,H):
 		self.H = H
-		from SEEL import sensorlist
+		import sensorlist
 		self.SENSORS=sensorlist.sensors
 		self.buff=np.zeros(10000)
 
@@ -927,7 +926,19 @@ class NRF24L01():
 	NRF_READ_REGISTER =0
 	NRF_WRITE_REGISTER =1<<4
 
+	#Valid for broadcast mode
+	ALL_BLINK = 1
+	ALL_BLINKY = 0
+	ALL_BROADCAST = 1
+
+	MISC_COMMANDS = 4  
+	WS2812B_CMD  = 0
+	SET_DAC = 4
+	SET_IO = 6
+
+
 	CURRENT_ADDRESS=0xAAAA01
+	BROADCAST_ADDRESS = 0x111111
 	nodelist={}
 	nodepos=0
 	NODELIST_MAXLENGTH=15
@@ -952,9 +963,9 @@ class NRF24L01():
 			else:
 				self.ready=True
 			self.selectAddress(self.CURRENT_ADDRESS)
-			#self.write_register(self.RF_SETUP,0x06)
+			#self.write_register(self.SETUP_RETR,0x15)
 			self.rxmode()
-			time.sleep(0.1)
+			time.sleep(0.01)
 			self.flush()
 			return True
 		except Exception as ex:
@@ -1168,7 +1179,7 @@ class NRF24L01():
 	def transaction(self,data,**args):
 		st = time.time()
 		try:
-			timeout = args.get('timeout',50)
+			timeout = args.get('timeout',200)
 			verbose = args.get('verbose',False)
 
 			#print ('#################',args)
@@ -1180,7 +1191,7 @@ class NRF24L01():
 			self.H.__sendInt__(timeout) #timeout.  		
 			for a in data:
 				self.H.__sendByte__(a)
-			self.H.waitForData(timeout/1e4) #convert to mS
+			self.H.waitForData(timeout/1.e4+0.2) #convert to mS
 			numbytes=self.H.__getByte__()
 			if numbytes: data = [ord(a) for a in self.H.fd.read(numbytes)]
 			else: data=[]
@@ -1289,7 +1300,7 @@ class NRF24L01():
 						lst.append(addr)
 		return lst
 		
-	def get_nodelist(self):
+	def get_nodelist(self,check_alive = False):
 		'''
 		Refer to the variable 'nodelist' if you simply want a list of nodes that either registered while your code was
 		running , or were loaded from the firmware buffer(max 15 entries)
@@ -1314,16 +1325,19 @@ class NRF24L01():
 				txrx=(dat[0])|(dat[1]<<8)|(dat[2]<<16)
 				if not txrx:
 					continue
-				self.nodelist[txrx]=[self.__decode_I2C_list__(dat[3:19]),dat[19]]
+				self.nodelist[txrx]=[self.__decode_I2C_list__(dat[3:19]),min(100,int(dat[19]*100./93))]
 			self.nodepos=total
 			#else:
 			#	self.__delete_registered_node__(nm)
 
 		filtered_lst={}
 		for a in self.nodelist:
-			if self.isAlive(a):
+			if check_alive:
+				if self.isAlive(a):
+					filtered_lst[a]=self.nodelist[a]
+					#print (self.nodelist[a][1])			
+			else:
 				filtered_lst[a]=self.nodelist[a]
-				#print (self.nodelist[a][1])			
 		return filtered_lst
 
 	def __delete_registered_node__(self,num):
@@ -1400,6 +1414,57 @@ class NRF24L01():
 		time.sleep(0.1)
 		self.flush()
 
+	def __selectBroadcast__(self):
+		if self.CURRENT_ADDRESS!=self.BROADCAST_ADDRESS:
+			self.selectAddress(self.BROADCAST_ADDRESS)
+
+	def broadcastBlink(self,number_of_blinks):
+		'''
+		initiates a blink sequence on all nearby nodes
+		'''
+		self.__selectBroadcast__()
+		return self.transaction([self.ALL_BLINK,self.ALL_BLINKY,number_of_blinks],listen = False)
+
+	def broadcastPing(self):
+		'''
+		Ping all nodes in the vicinity. All powered up nodes will respond with sensor and battery data
+		'''
+		self.__selectBroadcast__()
+		val = self.transaction([self.ALL_BLINK,self.ALL_BROADCAST],listen = False)
+		time.sleep(0.1)
+
+	#Miscellaneous features
+	def WS2812B(self,cols):
+		"""
+		set shade of WS2182 LED on CS1/RC0 for all devices in the vicinity
+		
+		.. tabularcolumns:: |p{3cm}|p{11cm}|
+		
+		==============  ============================================================================================
+		**Arguments** 
+		==============  ============================================================================================
+		cols                2Darray [[R,G,B],[R2,G2,B2],[R3,G3,B3]...]
+							brightness of R,G,B ( 0-255  )
+		==============  ============================================================================================
+
+		example::
+		
+			>>> WS2812B([[10,0,0],[0,10,10],[10,0,10]])
+			#sets red, cyan, magenta to three daisy chained LEDs
+
+		"""
+		self.__selectBroadcast__()
+		colarray=[]
+		for a in cols:
+			colarray.append(int('{:08b}'.format(int(a[1]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[0]))[::-1], 2))
+			colarray.append(int('{:08b}'.format(int(a[2]))[::-1], 2))
+
+		res = self.transaction([self.MISC_COMMANDS,self.WS2812B_CMD]+colarray,listen=False)
+		return res
+
+
+
 	def raiseException(self,ex, msg):
 			msg += '\n' + ex.message
 			#self.H.disconnect()
@@ -1462,6 +1527,7 @@ class RadioLink():
 	NRF_COMMANDS = 3
 	NRF_READ_REGISTER =0
 	NRF_WRITE_REGISTER =1
+	NRF_BLE = 2
 
 	MISC_COMMANDS = 4
 	WS2812B_CMD  = 0
@@ -1492,6 +1558,7 @@ class RadioLink():
 			'TEMP':self.adc_chan(0b111101,0,3.3),
 			'AVss':self.adc_chan(0b111100,0,3.3),
 		}
+		#self.write_register(self.NRF.SETUP_RETR,0x12)
 
 	def __selectMe__(self):
 		if self.NRF.CURRENT_ADDRESS!=self.ADDRESS:
@@ -1650,7 +1717,7 @@ class RadioLink():
 		
 		'''
 		self.__selectMe__()
-		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes])
+		return self.NRF.transactionWithRetries([self.I2C_COMMANDS,self.I2C_TRANSACTION]+[I2C_addr]+[regaddress]+[numbytes],timeout = 30)
 
 	def simpleRead(self,I2C_addr,numbytes):
 		self.__selectMe__()
@@ -1816,12 +1883,9 @@ class RadioLink():
 		io=0
 		if 'CS1' in kwargs: io |= 1|(kwargs.get('CS1')<<4)
 		if 'CS2' in kwargs: io |= 2|(kwargs.get('CS2')<<5)
-		print(bin(io))
 		self.__selectMe__()
-		if io: return self.NRF.transactionWithRetries([self.MISC_COMMANDS,self.SET_IO,io],listen = False)  #disable low power mode
+		if io: return self.NRF.transaction([self.MISC_COMMANDS,self.SET_IO,io],listen = False)  #disable low power mode
 		else: return False
-
-
 
 	def readFrequency(self,prescaler = 6):
 		'''
@@ -1938,4 +2002,8 @@ class RadioLink():
 			msg += '\n' + ex.message
 			#self.H.disconnect()
 			raise RuntimeError(msg)
-
+	def __ble__(self):
+		self.__selectMe__()
+		#print ('writing to ',reg,val)
+		return self.NRF.transaction([self.NRF_COMMANDS,self.NRF_BLE],listen=False)
+		

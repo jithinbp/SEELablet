@@ -38,7 +38,7 @@ class analyticsClass():
 			self.signal = signal
 
 		try:
-			from SEEL.commands_proto import applySIPrefix as applySIPrefix
+			from commands_proto import applySIPrefix as applySIPrefix
 		except ImportError:
 			self.applySIPrefix = None
 		else:

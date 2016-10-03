@@ -43,6 +43,11 @@ class TSL2561:
 		self.ADDRESS = args.get('address',0x39)
 		self.I2C = I2C  
 		# set timing 101ms & 16x gain
+		self.initialize(None)
+
+		self.params={'setGain':['1x','16x'],'setTiming':[0,1,2],'initialize':['Init']}
+
+	def initialize(self,v):
 		self.enable()
 		self.wait()
 		self.I2C.writeBulk(self.ADDRESS,[0x80 | 0x01, 0x01 | 0x10 ])
@@ -57,9 +62,7 @@ class TSL2561:
 		print("Visible:  %04x" % (full - infra) )
 
 		#self.I2C.writeBulk(self.ADDRESS,[0x80,0x00])
-
-		self.params={'setGain':['1x','16x'],'setTiming':[0,1,2]}
-
+		
 	def getID(self):
 		ID=self.I2C.readBulk(self.ADDRESS,self.REGISTER_ID ,1)
 		print (hex(ID))

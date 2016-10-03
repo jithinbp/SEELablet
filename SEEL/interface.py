@@ -19,11 +19,11 @@
 from __future__ import print_function
 import os,time
 
-import SEEL.commands_proto as CP
-import SEEL.packet_handler as packet_handler
+import commands_proto as CP
+import packet_handler as packet_handler
 
-from SEEL.achan import *
-from SEEL.digital_channel import *
+from achan import *
+from digital_channel import *
 import serial,string,inspect
 import time
 import sys
@@ -131,7 +131,7 @@ class Interface():
 
 	def __runInitSequence__(self,**kwargs):
 		self.aboutArray=[]
-		from SEEL.Peripherals import I2C,SPI,NRF24L01,MCP4728,RadioLink
+		from Peripherals import I2C,SPI,NRF24L01,MCP4728,RadioLink
 		self.connected = self.H.connected
 		if not self.H.connected:
 			self.__print__('Check hardware connections. Not connected')
@@ -339,7 +339,7 @@ class Interface():
 
 		
 		'''
-		from SEEL.Peripherals import RadioLink
+		from Peripherals import RadioLink
 		try:
 			return RadioLink(self.NRF,**args)
 		except Exception as ex:
@@ -2561,7 +2561,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 		
 	def __capture_capacitance__(self,samples,tg):
-		from SEEL.analyticsClass import analyticsClass
+		from analyticsClass import analyticsClass
 		self.AC = analyticsClass()
 		self.__charge_cap__(1,50000)
 		try:
@@ -4092,6 +4092,7 @@ if __name__ == "__main__":
 	eg.
 	I.get_average_voltage('CH1')
 	""")
-	#I=connect(verbose = True)
+	I=connect(verbose = True)
+	print (I.get_voltage('CH1'))
 	#for a in range(20):print (I.get_capacitance())
 	#I=connect(verbose=True,load_calibration=False)

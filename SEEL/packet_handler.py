@@ -1,8 +1,8 @@
 from __future__ import print_function
 import time
 
-import SEEL.commands_proto as CP
-import serial, os
+import commands_proto as CP
+import serial, os, inspect,platform
 
 
 
@@ -47,7 +47,7 @@ class Handler():
 		'''
 		Make a list of available serial ports. For auto scanning and connecting
 		'''
-		import platform,glob
+		import glob
 		system_name = platform.system()
 		if system_name == "Windows":
 			# Scan for available ports.
@@ -72,14 +72,15 @@ class Handler():
 		'''
 		connect to a port, and check for the right version
 		'''
-		try:
-			import socket
-			self.blockingSocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-			self.blockingSocket.bind('\0SEELablet%s'%portname) 
-			self.blockingSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		except socket.error as e:
-			self.occupiedPorts.add(portname)
-			raise RuntimeError("Another program is using %s (%d)" % (portname) )
+		if platform.system()!="Windows":   #Do this check only on Unix
+			try:
+				import socket
+				self.blockingSocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+				self.blockingSocket.bind('\0SEELablet%s'%portname) 
+				self.blockingSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			except socket.error as e:
+				self.occupiedPorts.add(portname)
+				raise RuntimeError("Another program is using %s (%d)" % (portname) )
 
 		fd = serial.Serial(portname, 9600, stopbits=1, timeout = 0.02)
 		fd.read(100);fd.close()
@@ -90,7 +91,6 @@ class Handler():
 			fd.flush()
 			fd.setTimeout(1.0)
 		fd = self.switchBaud(fd,portname) # change if raspberrypi detected
-
 		version= self.get_version(fd)
 		if version[:len(self.expected_version)]==self.expected_version:
 			return fd,version,True
@@ -102,19 +102,20 @@ class Handler():
 		Change the BAUD rate to 500K if a raspberry pi is the base system
 		'''
 
-		brgval = ((64000000/self.RPIBAUD)/4)-1
-		if 'raspberrypi' in os.uname():
-			print ('RPi detected . switching to %d BAUD'%self.RPIBAUD,brgval)
-			self.ARM = True
-			fd.write(CP.SETBAUD)
-			fd.write(chr(brgval))
-			fd = serial.Serial(portname, self.RPIBAUD, stopbits=1, timeout = 0.3)
-			fd.read(20)
-			if(fd.inWaiting()):
-				fd.setTimeout(0.1)
-				fd.read(1000)
-				fd.flush()
-			fd.setTimeout(1.0)
+		if platform.system()!="Windows":   #Do this check only on Unix
+			brgval = ((64000000/self.RPIBAUD)/4)-1
+			if 'raspberrypi' in os.uname():
+				print ('RPi detected . switching to %d BAUD'%self.RPIBAUD,brgval)
+				self.ARM = True
+				fd.write(CP.SETBAUD)
+				fd.write(chr(brgval))
+				fd = serial.Serial(portname, self.RPIBAUD, stopbits=1, timeout = 0.3)
+				fd.read(20)
+				if(fd.inWaiting()):
+					fd.setTimeout(0.1)
+					fd.read(1000)
+					fd.flush()
+				fd.setTimeout(1.0)
 		return fd
 
 	def disconnect(self):
@@ -198,7 +199,7 @@ class Handler():
 		if len(ss): return CP.Byte.unpack(ss)[0]
 		else:
 			print('byte communication error.',time.ctime())
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+			self.raiseException("Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 			#sys.exit(1)
 
 	def __getInt__(self):
@@ -210,7 +211,7 @@ class Handler():
 		if len(ss)==2: return CP.ShortInt.unpack(ss)[0]
 		else:
 			print('int communication error.',time.ctime())
-			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
+			self.raiseException("Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 			#sys.exit(1)
 
 	def __getLong__(self):
@@ -246,9 +247,8 @@ class Handler():
 		>>> I.capture_traces(4,800,2)
 		>>> I.set_state(I.OD1,I.HIGH)
 		>>> I.sendBurst()
-		
-		
 		"""
+
 		#print([Byte.unpack(a)[0] for a in self.burstBuffer],self.inputQueueSize)
 		self.fd.write(self.burstBuffer)
 		self.burstBuffer=''
@@ -256,5 +256,8 @@ class Handler():
 		acks=self.fd.read(self.inputQueueSize)
 		self.inputQueueSize=0
 		return [Byte.unpack(a)[0] for a in acks]
+
+	def raiseException(self,ex):
+			raise RuntimeError(ex)
 
 				
