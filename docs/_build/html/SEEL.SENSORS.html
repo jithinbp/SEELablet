@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plug n Play Sensors &mdash; SEELablet ProgMan 1.0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="file:///usr/share/javascript/mathjax/MathJax.js"></script>
+    <link rel="top" title="SEELablet ProgMan 1.0.5 documentation" href="index.html" />
+    <link rel="prev" title="IoT Nodes: Wireless data bridges" href="wireless.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wireless.html" title="IoT Nodes: Wireless data bridges"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="plug-n-play-sensors">
+<h1>Plug n Play Sensors<a class="headerlink" href="#plug-n-play-sensors" title="Permalink to this headline">¶</a></h1>
+<p>The SEELablet library package supports a variety of commonly available add-ons
+to measure a wide range of parameters, as well as generate complex signals.</p>
+<p>e.g. , for an HMC5883L 3-axis magnetometer connected to the I2C port on the device</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
+<span class="n">I</span><span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">SEEL.SENSORS</span> <span class="kn">import</span> <span class="n">HMC5883L</span>
+<span class="n">magnetometer</span> <span class="o">=</span> <span class="n">HMC5883L</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="p">)</span> <span class="c">#Specify that it is connected to the I2C port</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">magnetometer</span><span class="o">.</span><span class="n">getRaw</span><span class="p">())</span> <span class="c"># read all values, and print an array of 3 elements : 1 reading per axis</span>
+</pre></div>
+</div>
+<div class="section" id="ad9833-28-bit-dds-generator">
+<h2>AD9833 28-bit DDS generator<a class="headerlink" href="#ad9833-28-bit-dds-generator" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-SEEL.SENSORS.BH1750">
+<span id="bh1750-luminosity-sensor"></span><h2>BH1750 Luminosity Sensor<a class="headerlink" href="#module-SEEL.SENSORS.BH1750" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-SEEL.SENSORS.BMP180">
+<span id="bmp180-pressure-and-altitude-sensor"></span><h2>BMP180 Pressure and Altitude sensor<a class="headerlink" href="#module-SEEL.SENSORS.BMP180" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-SEEL.SENSORS.HMC5883L">
+<span id="hmc5883l-3-axis-magnetometer"></span><h2>HMC5883L 3-axis magnetometer<a class="headerlink" href="#module-SEEL.SENSORS.HMC5883L" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-SEEL.SENSORS.MLX90614">
+<span id="mlx90614-pir-temperature-sensor"></span><h2>MLX90614 PIR temperature sensor<a class="headerlink" href="#module-SEEL.SENSORS.MLX90614" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-SEEL.SENSORS.MPU6050">
+<span id="mpu6050-3-axis-accelerometer-3-axis-gyroscope"></span><h2>MPU6050 3-Axis Accelerometer &amp; 3-Axis gyroscope<a class="headerlink" href="#module-SEEL.SENSORS.MPU6050" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SEEL.SENSORS.MPU6050.MPU6050">
+<em class="property">class </em><tt class="descclassname">SEEL.SENSORS.MPU6050.</tt><tt class="descname">MPU6050</tt><big>(</big><em>I2C</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/SEEL/SENSORS/MPU6050.html#MPU6050"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.SENSORS.MPU6050.MPU6050" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mandatory members:
+GetRaw : Function called by Graphical apps. Must return values stored in a list
+NUMPLOTS : length of list returned by GetRaw. Even single datapoints need to be stored in a list before returning
+PLOTNAMES : a list of strings describing each element in the list returned by GetRaw. len(PLOTNAMES) = NUMPLOTS
+name : the name of the sensor shown to the user
+params:</p>
+<blockquote>
+<div>A dictionary of function calls(single arguments only) paired with list of valid argument values. (Primitive. I know.)
+These calls can be used for one time configuration settings</div></blockquote>
+<dl class="method">
+<dt id="SEEL.SENSORS.MPU6050.MPU6050.getRaw">
+<tt class="descname">getRaw</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/SENSORS/MPU6050.html#MPU6050.getRaw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.SENSORS.MPU6050.MPU6050.getRaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method must be defined if you want GUIs to use this class to generate 
+plots on the fly.
+It must return a set of different values read from the sensor. such as X,Y,Z acceleration.
+The length of this list must not change, and must be defined in the variable NUMPLOTS.</p>
+<p>GUIs will generate as many plots, and the data returned from this method will be appended appropriately</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-SEEL.SENSORS.SHT21">
+<span id="sht21-humidity-and-temperature-sensor"></span><h2>SHT21 Humidity and Temperature sensor<a class="headerlink" href="#module-SEEL.SENSORS.SHT21" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="SEEL.SENSORS.SHT21.connect">
+<tt class="descclassname">SEEL.SENSORS.SHT21.</tt><tt class="descname">connect</tt><big>(</big><em>route</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/SEEL/SENSORS/SHT21.html#connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.SENSORS.SHT21.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>route can either be I.I2C , or a radioLink instance</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-SEEL.SENSORS.SSD1306">
+<span id="ssd1306-128-64-oled-display"></span><h2>SSD1306 128*64 OLED Display<a class="headerlink" href="#module-SEEL.SENSORS.SSD1306" title="Permalink to this headline">¶</a></h2>
+<p>Adapted into Python from Adafruit&#8217;s oled.cpp
+Original license text:</p>
+<p>Software License Agreement (BSD License)</p>
+<p>Copyright (c) 2012, Adafruit Industries
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holders nor the
+names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS &#8216;&#8217;AS IS&#8217;&#8217; AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</div>
+<div class="section" id="module-SEEL.SENSORS.TSL2561">
+<span id="tsl2561-luminosity-sensor"></span><h2>TSL2561  Luminosity Sensor<a class="headerlink" href="#module-SEEL.SENSORS.TSL2561" title="Permalink to this headline">¶</a></h2>
+<p>Adapted from <a class="reference external" href="https://github.com/janheise/TSL2561">https://github.com/janheise/TSL2561</a></p>
+</div>
+<div class="section" id="module-SEEL.SENSORS.MF522">
+<span id="mf522-rfid-reader-writer"></span><h2>MF522 RFID Reader &amp; Writer<a class="headerlink" href="#module-SEEL.SENSORS.MF522" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Plug n Play Sensors</a><ul>
+<li><a class="reference internal" href="#ad9833-28-bit-dds-generator">AD9833 28-bit DDS generator</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.BH1750">BH1750 Luminosity Sensor</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.BMP180">BMP180 Pressure and Altitude sensor</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.HMC5883L">HMC5883L 3-axis magnetometer</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.MLX90614">MLX90614 PIR temperature sensor</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.MPU6050">MPU6050 3-Axis Accelerometer &amp; 3-Axis gyroscope</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.SHT21">SHT21 Humidity and Temperature sensor</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.SSD1306">SSD1306 128*64 OLED Display</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.TSL2561">TSL2561  Luminosity Sensor</a></li>
+<li><a class="reference internal" href="#module-SEEL.SENSORS.MF522">MF522 RFID Reader &amp; Writer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wireless.html"
+                        title="previous chapter">IoT Nodes: Wireless data bridges</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/SEEL.SENSORS.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wireless.html" title="IoT Nodes: Wireless data bridges"
+             >previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Jithin BP.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

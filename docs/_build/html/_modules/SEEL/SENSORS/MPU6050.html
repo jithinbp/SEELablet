@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SEEL.SENSORS.MPU6050 &mdash; SEELablet ProgMan 1.0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="file:///usr/share/javascript/mathjax/MathJax.js"></script>
+    <link rel="top" title="SEELablet ProgMan 1.0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for SEEL.SENSORS.MPU6050</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">int16</span><span class="p">,</span><span class="n">std</span>
+<span class="kn">from</span> <span class="nn">SEEL.SENSORS.Kalman</span> <span class="kn">import</span> <span class="n">KalmanFilter</span>
+
+<span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">route</span><span class="p">,</span><span class="o">**</span><span class="n">args</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">MPU6050</span><span class="p">(</span><span class="n">route</span><span class="p">,</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MPU6050"><a class="viewcode-back" href="../../../SEEL.SENSORS.html#SEEL.SENSORS.MPU6050.MPU6050">[docs]</a><span class="k">class</span> <span class="nc">MPU6050</span><span class="p">():</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Mandatory members:</span>
+<span class="sd">	GetRaw : Function called by Graphical apps. Must return values stored in a list</span>
+<span class="sd">	NUMPLOTS : length of list returned by GetRaw. Even single datapoints need to be stored in a list before returning</span>
+<span class="sd">	PLOTNAMES : a list of strings describing each element in the list returned by GetRaw. len(PLOTNAMES) = NUMPLOTS</span>
+<span class="sd">	name : the name of the sensor shown to the user</span>
+<span class="sd">	params:</span>
+<span class="sd">		A dictionary of function calls(single arguments only) paired with list of valid argument values. (Primitive. I know.)</span>
+<span class="sd">		These calls can be used for one time configuration settings</span>
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">GYRO_CONFIG</span> <span class="o">=</span> <span class="mh">0x1B</span>
+	<span class="n">ACCEL_CONFIG</span> <span class="o">=</span> <span class="mh">0x1C</span>
+	<span class="n">GYRO_SCALING</span><span class="o">=</span> <span class="p">[</span><span class="mi">131</span><span class="p">,</span><span class="mf">65.5</span><span class="p">,</span><span class="mf">32.8</span><span class="p">,</span><span class="mf">16.4</span><span class="p">]</span>
+	<span class="n">ACCEL_SCALING</span><span class="o">=</span><span class="p">[</span><span class="mi">16384</span><span class="p">,</span><span class="mi">8192</span><span class="p">,</span><span class="mi">4096</span><span class="p">,</span><span class="mi">2048</span><span class="p">]</span>
+	<span class="n">AR</span><span class="o">=</span><span class="mi">3</span>
+	<span class="n">GR</span><span class="o">=</span><span class="mi">3</span>
+	<span class="n">NUMPLOTS</span><span class="o">=</span><span class="mi">7</span>
+	<span class="n">PLOTNAMES</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ax&#39;</span><span class="p">,</span><span class="s">&#39;Ay&#39;</span><span class="p">,</span><span class="s">&#39;Az&#39;</span><span class="p">,</span><span class="s">&#39;Temp&#39;</span><span class="p">,</span><span class="s">&#39;Gx&#39;</span><span class="p">,</span><span class="s">&#39;Gy&#39;</span><span class="p">,</span><span class="s">&#39;Gz&#39;</span><span class="p">]</span>
+	<span class="n">ADDRESS</span> <span class="o">=</span> <span class="mh">0x68</span>
+	<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Accel/gyro&#39;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">I2C</span><span class="p">,</span><span class="o">**</span><span class="n">args</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">I2C</span><span class="o">=</span><span class="n">I2C</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;address&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;Accel/gyro&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;powerUp&#39;</span><span class="p">:[</span><span class="s">&#39;Go&#39;</span><span class="p">],</span><span class="s">&#39;setGyroRange&#39;</span><span class="p">:[</span><span class="mi">250</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">2000</span><span class="p">],</span><span class="s">&#39;setAccelRange&#39;</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span><span class="s">&#39;KalmanFilter&#39;</span><span class="p">:[</span><span class="o">.</span><span class="mo">01</span><span class="p">,</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">10000</span><span class="p">,</span><span class="s">&#39;OFF&#39;</span><span class="p">]}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setGyroRange</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setAccelRange</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		try:</span>
+<span class="sd">			self.I2C.configI2C(400e3)</span>
+<span class="sd">		except:</span>
+<span class="sd">			pass</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">powerUp</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">=</span><span class="bp">None</span>
+
+
+
+	<span class="k">def</span> <span class="nf">KalmanFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">opt</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">opt</span><span class="o">==</span><span class="s">&#39;OFF&#39;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">=</span><span class="bp">None</span>
+			<span class="k">return</span>
+		<span class="n">noise</span><span class="o">=</span><span class="p">[[]]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">NUMPLOTS</span>
+		<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+			<span class="n">vals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getRaw</span><span class="p">()</span>
+			<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUMPLOTS</span><span class="p">):</span><span class="n">noise</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="mi">7</span>
+		<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUMPLOTS</span><span class="p">):</span>
+			<span class="n">sd</span> <span class="o">=</span> <span class="n">std</span><span class="p">(</span><span class="n">noise</span><span class="p">[</span><span class="n">a</span><span class="p">])</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">KalmanFilter</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">opt</span><span class="p">,</span> <span class="n">sd</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">getVals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="nb">bytes</span><span class="p">):</span>
+		<span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">readBulk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="nb">bytes</span><span class="p">)</span> 
+		<span class="k">return</span> <span class="n">vals</span>
+
+	<span class="k">def</span> <span class="nf">powerUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">writeBulk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">,[</span><span class="mh">0x6B</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+	<span class="k">def</span> <span class="nf">setGyroRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">GR</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;setGyroRange&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">writeBulk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">,[</span><span class="bp">self</span><span class="o">.</span><span class="n">GYRO_CONFIG</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">GR</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">])</span>
+		
+	<span class="k">def</span> <span class="nf">setAccelRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rs</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">AR</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;setAccelRange&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">writeBulk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">,[</span><span class="bp">self</span><span class="o">.</span><span class="n">ACCEL_CONFIG</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">AR</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MPU6050.getRaw"><a class="viewcode-back" href="../../../SEEL.SENSORS.html#SEEL.SENSORS.MPU6050.MPU6050.getRaw">[docs]</a>	<span class="k">def</span> <span class="nf">getRaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		This method must be defined if you want GUIs to use this class to generate </span>
+<span class="sd">		plots on the fly.</span>
+<span class="sd">		It must return a set of different values read from the sensor. such as X,Y,Z acceleration.</span>
+<span class="sd">		The length of this list must not change, and must be defined in the variable NUMPLOTS.</span>
+<span class="sd">		</span>
+<span class="sd">		GUIs will generate as many plots, and the data returned from this method will be appended appropriately</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">vals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getVals</span><span class="p">(</span><span class="mh">0x3B</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">vals</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="o">==</span><span class="mi">14</span><span class="p">:</span>
+				<span class="n">raw</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">7</span>
+				<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span><span class="n">raw</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">ACCEL_SCALING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">AR</span><span class="p">]</span>
+				<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">):</span><span class="n">raw</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">GYRO_SCALING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">GR</span><span class="p">]</span>
+				<span class="n">raw</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span><span class="o">/</span><span class="mf">340.</span> <span class="o">+</span> <span class="mf">36.53</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
+					<span class="k">return</span> <span class="n">raw</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUMPLOTS</span><span class="p">):</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">input_latest_noisy_measurement</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+						<span class="n">raw</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">get_latest_estimated_measurement</span><span class="p">()</span>
+					<span class="k">return</span> <span class="n">raw</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">return</span> <span class="bp">False</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">False</span>
+</div>
+	<span class="k">def</span> <span class="nf">getAccel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">vals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getVals</span><span class="p">(</span><span class="mh">0x3B</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">ay</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+		<span class="n">az</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">ax</span><span class="o">/</span><span class="mf">65535.</span><span class="p">,</span><span class="n">ay</span><span class="o">/</span><span class="mf">65535.</span><span class="p">,</span><span class="n">az</span><span class="o">/</span><span class="mf">65535.</span><span class="p">]</span>
+
+	<span class="k">def</span> <span class="nf">getTemp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">vals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getVals</span><span class="p">(</span><span class="mh">0x41</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+		<span class="n">t</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="k">return</span> <span class="n">t</span><span class="o">/</span><span class="mf">65535.</span>
+
+	<span class="k">def</span> <span class="nf">getGyro</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">vals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getVals</span><span class="p">(</span><span class="mh">0x43</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">ay</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+		<span class="n">az</span><span class="o">=</span><span class="n">int16</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">ax</span><span class="o">/</span><span class="mf">65535.</span><span class="p">,</span><span class="n">ay</span><span class="o">/</span><span class="mf">65535.</span><span class="p">,</span><span class="n">az</span><span class="o">/</span><span class="mf">65535.</span><span class="p">]</span>
+		</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+ <span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
+ <span class="n">I</span><span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+ <span class="n">A</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="p">)</span> 
+ <span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">capture</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">ADDRESS</span><span class="p">,</span><span class="mh">0x43</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">5000</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s">&#39;int&#39;</span><span class="p">)</span> 
+ <span class="c">#print (t,x,y,z)</span>
+ <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+ <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+ <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+ <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+ <span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Jithin BP.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

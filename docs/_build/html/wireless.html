@@ -1,0 +1,718 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>IoT Nodes: Wireless data bridges &mdash; SEELablet ProgMan 1.0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="file:///usr/share/javascript/mathjax/MathJax.js"></script>
+    <link rel="top" title="SEELablet ProgMan 1.0.5 documentation" href="index.html" />
+    <link rel="next" title="Plug n Play Sensors" href="SEEL.SENSORS.html" />
+    <link rel="prev" title="Data Bridges : I2C, SPI" href="peripherals.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="SEEL.SENSORS.html" title="Plug n Play Sensors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="peripherals.html" title="Data Bridges : I2C, SPI"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="iot-nodes-wireless-data-bridges">
+<h1>IoT Nodes: Wireless data bridges<a class="headerlink" href="#iot-nodes-wireless-data-bridges" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="peripherals-radiolink">
+<h2>Peripherals.RadioLink<a class="headerlink" href="#peripherals-radiolink" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SEEL.Peripherals.RadioLink">
+<em class="property">class </em><tt class="descclassname">SEEL.Peripherals.</tt><tt class="descname">RadioLink</tt><big>(</big><em>NRF</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simplified wrapper for interacting with IoT Nodes.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>NRF</td>
+<td>~interface.NRF instance</td>
+</tr>
+<tr class="row-odd"><td><a href="#id1"><span class="problematic" id="id2">*</span></a>*rgs</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>address</td>
+<td>3-byte address of the node. e.g 0x01010A</td>
+</tr>
+</tbody>
+</table>
+<p>Example for connecting to a wireless node, and setting the color of its on-board neopixel. Also scan the I2C bus</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">link</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">newRadioLink</span><span class="p">(</span><span class="n">address</span> <span class="o">=</span> <span class="mh">0x01010A</span><span class="p">)</span>   <span class="c">#This address is unique for each IoT node, and is printed on it</span>
+<span class="n">link</span><span class="o">.</span><span class="n">WS2812B</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">]])</span>  <span class="c">#Set the colour of the onboard RGB LED to cyan</span>
+<span class="k">print</span> <span class="n">link</span><span class="o">.</span><span class="n">I2C_scan</span><span class="p">()</span>        <span class="c">#Scan the I2C bus of the IoT node, and return detected addresses</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="mi">58</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Example for connecting to a wireless node, and reading the values from a magnetometer connected to its I2C port</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">link</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">newRadioLink</span><span class="p">(</span><span class="n">address</span> <span class="o">=</span> <span class="mh">0x01010A</span><span class="p">)</span>   <span class="c">#This address is unique for each IoT node, and is printed on it</span>
+<span class="kn">from</span> <span class="nn">SEEL.SENSORS</span> <span class="kn">import</span> <span class="n">HMC5883L</span>
+<span class="n">mag</span> <span class="o">=</span> <span class="n">HMC5883L</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>  <span class="c"># Tell the magnetometer&#39;s class to use the IoT node with address 0x01010A as the link to the magnetometer</span>
+<span class="k">print</span> <span class="n">mag</span><span class="o">.</span><span class="n">getRaw</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">126.3</span><span class="p">,</span><span class="mf">24.0</span><span class="p">]</span>  <span class="c"># magnetic fields along the x,y, and z axes of the sensor</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.I2C_scan">
+<tt class="descname">I2C_scan</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.I2C_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.I2C_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scans the I2C bus and returns a list of active addresses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.WS2812B">
+<tt class="descname">WS2812B</tt><big>(</big><em>cols</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.WS2812B"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.WS2812B" title="Permalink to this definition">¶</a></dt>
+<dd><p>set shade of WS2182 LED on CS1/RC0</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>cols</td>
+<td><dl class="first last docutils">
+<dt>2Darray [[R,G,B],[R2,G2,B2],[R3,G3,B3]...]</dt>
+<dd>brightness of R,G,B ( 0-255  )</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">WS2812B</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]])</span>
+<span class="go">#sets red, cyan, magenta to three daisy chained LEDs</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.batteryLevel">
+<tt class="descname">batteryLevel</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.batteryLevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.batteryLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the battery status, and return a percentage value.
+Do not operate at very low levels if running on a Lithium battery. It reduces their lifetime</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.captureADC">
+<tt class="descname">captureADC</tt><big>(</big><em>channel</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.captureADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.captureADC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read 16 bytes from the ADC</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>channel</td>
+<td>&#8216;BAT&#8217; , &#8216;CS3&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.configI2C">
+<tt class="descname">configI2C</tt><big>(</big><em>freq</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.configI2C"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.configI2C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the frequency of the I2C port on the wireless node.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>freq</td>
+<td>Frequency</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.lowPowerMode">
+<tt class="descname">lowPowerMode</tt><big>(</big><em>level=False</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.lowPowerMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.lowPowerMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the CPU frequency of the node&#8217;s processor
+Level  in [False, 1 ... 7 ]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.pullSCLLow">
+<tt class="descname">pullSCLLow</tt><big>(</big><em>t_ms</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.pullSCLLow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.pullSCLLow" title="Permalink to this definition">¶</a></dt>
+<dd><p>hold the SCL line low for a defined period. Used by sensors such as MLX90316</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.readADC">
+<tt class="descname">readADC</tt><big>(</big><em>channel</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.readADC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.readADC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read bytes from the ADC</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>channel</td>
+<td>&#8216;BAT&#8217; , &#8216;CS3&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.readBulk">
+<tt class="descname">readBulk</tt><big>(</big><em>I2C_addr</em>, <em>regaddress</em>, <em>numbytes</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.readBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.readBulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read bytes from an I2C sensor</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>I2C_addr</td>
+<td>address of the I2C sensor</td>
+</tr>
+<tr class="row-odd"><td>regaddress</td>
+<td>address of the register to read from</td>
+</tr>
+<tr class="row-even"><td>numbytes</td>
+<td>number of bytes to read</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.readFrequency">
+<tt class="descname">readFrequency</tt><big>(</big><em>prescaler=6</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.readFrequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.readFrequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read frequency of input TTL signal on CS3 (0-3.3V)</p>
+<p>Select a prescaler value that obtains maximum resolution for your measurement range.</p>
+<p>Range = 250/(2**prescaler) - 8e6/(2**prescaler)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Prescaler</strong></th>
+<th class="head"><strong>Frequency Range</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2</td>
+<td>62.5Hz to 2MHz</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>31.25Hz to 1MHz</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>16Hz  to 500KHz</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>8Hz  to 250KHz</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>4Hz  to 125KHz</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>2Hz  to 62.5KHz</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.readHighFrequency">
+<tt class="descname">readHighFrequency</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.readHighFrequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.readHighFrequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read frequencies between 10KHz and 8MHz from input TTL signal on CS3 (0-3.3V)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.readSPI">
+<tt class="descname">readSPI</tt><big>(</big><em>chip_select</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.readSPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.readSPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accepts an array</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>chip_select</td>
+<td>&#8216;CS1&#8217; or &#8216;CS2&#8217;</td>
+</tr>
+<tr class="row-odd"><td>data</td>
+<td>array of elements to write to SDO while data is simultaneously clocked in via SDI</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.read_eeprom">
+<tt class="descname">read_eeprom</tt><big>(</big><em>locations</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.read_eeprom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.read_eeprom" title="Permalink to this definition">¶</a></dt>
+<dd><p>read from EEPROM Locations</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>locations</td>
+<td>Array of positions between 0 and 255 e.g. : [4,5,6]</td>
+</tr>
+</tbody>
+</table>
+<p>Positions 0,1,2 are used for storing the address of the wireless node.</p>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">read_eeprom</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="go">read from locations 3,4,5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the wireless node.
+If EEPROM locations 0,1,2 were updated, the node will restart at the new address</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.setDAC">
+<tt class="descname">setDAC</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.setDAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.setDAC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to 5 bit DAC 
+0 &lt; val &lt; 3.3</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.setIO">
+<tt class="descname">setIO</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.setIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.setIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle CS1 or CS2 digital output. up to 5mA sink/source capacity
+These pins also serve as chip selects for SPI devices. If any of the
+chip selects are connected to an SPI device, toggling them can cause an SPI clash and
+will result in the node becoming unresponsive until a power reset.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a href="#id3"><span class="problematic" id="id4">*</span></a>*kwargs</td>
+<td><dl class="first last docutils">
+<dt>CS1 = 1/0</dt>
+<dd>CS2 = 1/0</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">link</span><span class="o">.</span><span class="n">setIO</span><span class="p">(</span><span class="n">CS1</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">CS2</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>  <span class="c">#Set CS1 to 0V , CS2 to 3.3V</span>
+<span class="go">#sets red, cyan, magenta to three daisy chained LEDs</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.writeBulk">
+<tt class="descname">writeBulk</tt><big>(</big><em>I2C_addr</em>, <em>bytes</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.writeBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.writeBulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write bytes to an I2C sensor</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>I2C_addr</td>
+<td>address of the I2C sensor</td>
+</tr>
+<tr class="row-odd"><td>bytes</td>
+<td>an array of bytes to be written</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.RadioLink.write_eeprom">
+<tt class="descname">write_eeprom</tt><big>(</big><em>locations</em>, <em>values</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#RadioLink.write_eeprom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.RadioLink.write_eeprom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to EEPROM Locations</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>locations</td>
+<td>Array of positions between 0 and 255 e.g. : [4,5,6]</td>
+</tr>
+<tr class="row-odd"><td>values</td>
+<td>Array of values to write to those locations</td>
+</tr>
+</tbody>
+</table>
+<p>Caution : Positions 0,1,2 are used for storing the address of the wireless node. If you change these, you
+will have to reconnect to the new address once the wireless node is reset/power cycled.</p>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">write_eeprom</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">write the value 3 to locations 3,4,5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="interface-nrf">
+<h2>interface.NRF<a class="headerlink" href="#interface-nrf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SEEL.Peripherals.NRF24L01">
+<em class="property">class </em><tt class="descclassname">SEEL.Peripherals.</tt><tt class="descname">NRF24L01</tt><big>(</big><em>H</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the onboard wireless transceiver</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
+<span class="n">I</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="n">I</span><span class="o">.</span><span class="n">NRF</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>  <span class="c">#Returns a byte containing the value of the STATUS register of the transceiver</span>
+<span class="n">I</span><span class="o">.</span><span class="n">NRF</span><span class="o">.</span><span class="n">start_token_manager</span><span class="p">()</span> <span class="c"># Start listening to any IoT nodes broadcasting their presence. Whenever a node is switched on, it transmits its address on a common address to anyone who may be listening</span>
+<span class="k">while</span> <span class="n">I</span><span class="o">.</span><span class="n">NRF</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">()</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">:</span>  <span class="c">#Switch on a minimum of 2 of nodes now</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>   
+<span class="n">I</span><span class="o">.</span><span class="n">NRF</span><span class="o">.</span><span class="n">stop_token_manager</span><span class="p">()</span>  <span class="c">#stop listening. we&#39;ve received information about two ready nodes.</span>
+<span class="nb">list</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">NRF</span><span class="o">.</span><span class="n">get_nodelist</span><span class="p">()</span> <span class="c">#returns a dict object wherein the keys are node addresses, and values are lists of I2C sensors connected on the respective nodes</span>
+<span class="k">print</span> <span class="nb">list</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="mh">0x01010A</span><span class="p">:[</span><span class="mi">58</span><span class="p">],</span><span class="mh">0x01010B</span><span class="p">:[</span><span class="mi">96</span><span class="p">,</span><span class="mi">58</span><span class="p">]}</span>  <span class="c">#two nodes detected . One has 1 sensor attached, and another has 2</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.WS2812B">
+<tt class="descname">WS2812B</tt><big>(</big><em>cols</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.WS2812B"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.WS2812B" title="Permalink to this definition">¶</a></dt>
+<dd><p>set shade of WS2182 LED on CS1/RC0 for all devices in the vicinity</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>cols</td>
+<td><dl class="first last docutils">
+<dt>2Darray [[R,G,B],[R2,G2,B2],[R3,G3,B3]...]</dt>
+<dd>brightness of R,G,B ( 0-255  )</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">WS2812B</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]])</span>
+<span class="go">#sets red, cyan, magenta to three daisy chained LEDs</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.broadcastBlink">
+<tt class="descname">broadcastBlink</tt><big>(</big><em>number_of_blinks</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.broadcastBlink"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.broadcastBlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>initiates a blink sequence on all nearby nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.broadcastPing">
+<tt class="descname">broadcastPing</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.broadcastPing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.broadcastPing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ping all nodes in the vicinity. All powered up nodes will respond with sensor and battery data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.fetch_report">
+<tt class="descname">fetch_report</tt><big>(</big><em>num</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.fetch_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.fetch_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.flush">
+<tt class="descname">flush</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flushes the TX and RX FIFOs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.get_nodelist">
+<tt class="descname">get_nodelist</tt><big>(</big><em>check_alive=False</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.get_nodelist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.get_nodelist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refer to the variable &#8216;nodelist&#8217; if you simply want a list of nodes that either registered while your code was
+running , or were loaded from the firmware buffer(max 15 entries)</p>
+<p>If you plan to use more than 15 nodes, and wish to register their addresses without having to feed them manually,
+then this function must be called each time before the buffer resets (every fifteen nodes).</p>
+<p>The dictionary object returned by this function is filtered by checking with each node if they are alive first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{address_Node1:[[registered sensors(I2C Addresses 0-8 are not auto detected)],battery%],address_Node2:[[registered sensors],battery%] ... }</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.get_status">
+<tt class="descname">get_status</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.get_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a byte representing the STATUS register on the radio.
+Refer to NRF24L01+ documentation for further details</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.hasData">
+<tt class="descname">hasData</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.hasData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.hasData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the RX FIFO contains data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.init_shockburst_receiver">
+<tt class="descname">init_shockburst_receiver</tt><big>(</big><em>**args</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.init_shockburst_receiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.init_shockburst_receiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the radio into receive mode.
+Dynamic Payload with auto acknowledge is enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.init_shockburst_transmitter">
+<tt class="descname">init_shockburst_transmitter</tt><big>(</big><em>**args</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.init_shockburst_transmitter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.init_shockburst_transmitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the radio into transmit mode.
+Dynamic Payload with auto acknowledge is enabled.
+upto 5 retransmits with 1ms delay between each in case a node doesn&#8217;t respond in time
+Receivers must acknowledge payloads</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.read_register">
+<tt class="descname">read_register</tt><big>(</big><em>address</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.read_register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.read_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the value of any of the configuration registers on the radio module.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.rxchar">
+<tt class="descname">rxchar</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.rxchar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.rxchar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a 1 Byte payload</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.rxmode">
+<tt class="descname">rxmode</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.rxmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.rxmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the radio into listening mode.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.selectAddress">
+<tt class="descname">selectAddress</tt><big>(</big><em>address</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.selectAddress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.selectAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets RX_ADDR_P0 and TX_ADDR to the specified address.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.start_token_manager">
+<tt class="descname">start_token_manager</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.start_token_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.start_token_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.stop_token_manager">
+<tt class="descname">stop_token_manager</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.stop_token_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.stop_token_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.total_tokens">
+<tt class="descname">total_tokens</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.total_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.total_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.txchar">
+<tt class="descname">txchar</tt><big>(</big><em>char</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.txchar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.txchar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transmits a single character</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.txmode">
+<tt class="descname">txmode</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.txmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.txmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the radio into transmit mode.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.write_address">
+<tt class="descname">write_address</tt><big>(</big><em>register</em>, <em>address</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.write_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.write_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>register can be TX_ADDR, RX_ADDR_P0 -&gt; RX_ADDR_P5
+3 byte address.  eg 0xFFABXX . XX cannot be FF
+if RX_ADDR_P1 needs to be used along with any of the pipes
+from P2 to P5, then RX_ADDR_P1 must be updated last.
+Addresses from P1-P5 must share the first two bytes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.NRF24L01.write_register">
+<tt class="descname">write_register</tt><big>(</big><em>address</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#NRF24L01.write_register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.NRF24L01.write_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>write a  byte to any of the configuration registers on the Radio.
+address byte can either be located in the NRF24L01+ manual, or chosen
+from some of the constants defined in this module.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">IoT Nodes: Wireless data bridges</a><ul>
+<li><a class="reference internal" href="#peripherals-radiolink">Peripherals.RadioLink</a></li>
+<li><a class="reference internal" href="#interface-nrf">interface.NRF</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="peripherals.html"
+                        title="previous chapter">Data Bridges : I2C, SPI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="SEEL.SENSORS.html"
+                        title="next chapter">Plug n Play Sensors</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/wireless.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="SEEL.SENSORS.html" title="Plug n Play Sensors"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="peripherals.html" title="Data Bridges : I2C, SPI"
+             >previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Jithin BP.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

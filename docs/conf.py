@@ -55,7 +55,7 @@ master_doc = 'index'
 
 
 # General information about the project.
-project = u'SEEL'
+project = u'SEELablet ProgMan'
 copyright = u'2016, Jithin BP'
 author = u'Jithin BP'
 
@@ -264,7 +264,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'seel', u'SEEL Documentation',
+    (master_doc, 'seel', u"SEELablet Programmer's manual ",
      [author], 1)
 ]
 

@@ -1,0 +1,752 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data Bridges : I2C, SPI &mdash; SEELablet ProgMan 1.0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="file:///usr/share/javascript/mathjax/MathJax.js"></script>
+    <link rel="top" title="SEELablet ProgMan 1.0.5 documentation" href="index.html" />
+    <link rel="next" title="IoT Nodes: Wireless data bridges" href="wireless.html" />
+    <link rel="prev" title="The Communications Library : interface" href="interface.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wireless.html" title="IoT Nodes: Wireless data bridges"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="interface.html" title="The Communications Library : interface"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data-bridges-i2c-spi">
+<h1>Data Bridges : I2C, SPI<a class="headerlink" href="#data-bridges-i2c-spi" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="data-bus-interface-i2c">
+<h2>Data Bus : interface.I2C<a class="headerlink" href="#data-bus-interface-i2c" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SEEL.Peripherals.I2C">
+<em class="property">class </em><tt class="descclassname">SEEL.Peripherals.</tt><tt class="descname">I2C</tt><big>(</big><em>H</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Methods to interact with the I2C port.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#Code Example : Read Values from an HMC5883L 3-axis Magnetometer(compass) [GY-273 sensor] connected to the I2C port</span>
+<span class="n">ADDRESS</span> <span class="o">=</span> <span class="mh">0x1E</span>
+<span class="kn">from</span> <span class="nn">SEEL</span> <span class="kn">import</span> <span class="n">interface</span>
+<span class="n">I</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> 
+
+<span class="c"># writing to 0x1E, set gain(0x01) to smallest(0 : 1x)</span>
+<span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">bulkWrite</span><span class="p">(</span><span class="n">ADDRESS</span><span class="p">,[</span><span class="mh">0x01</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c"># writing to 0x1E, set mode conf(0x02), continuous measurement(0)</span>
+<span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">bulkWrite</span><span class="p">(</span><span class="n">ADDRESS</span><span class="p">,[</span><span class="mh">0x02</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c"># read 6 bytes from addr register on I2C device located at ADDRESS</span>
+<span class="n">vals</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">I2C</span><span class="o">.</span><span class="n">bulkRead</span><span class="p">(</span><span class="n">ADDRESS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+        
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">int16</span>
+<span class="c">#conversion to signed datatype</span>
+<span class="n">x</span><span class="o">=</span><span class="n">int16</span><span class="p">((</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">y</span><span class="o">=</span><span class="n">int16</span><span class="p">((</span><span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">z</span><span class="o">=</span><span class="n">int16</span><span class="p">((</span><span class="n">vals</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">|</span><span class="n">vals</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.capture">
+<tt class="descname">capture</tt><big>(</big><em>address</em>, <em>location</em>, <em>sample_length</em>, <em>total_samples</em>, <em>tg</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.capture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.capture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocking call that fetches data from I2C sensors like an oscilloscope fetches voltage readings</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>address</td>
+<td>Address of the I2C sensor</td>
+</tr>
+<tr class="row-odd"><td>location</td>
+<td>Address of the register to read from</td>
+</tr>
+<tr class="row-even"><td>sample_length</td>
+<td>Each sample can be made up of multiple bytes startng from &lt;location&gt; . such as 3-axis data</td>
+</tr>
+<tr class="row-odd"><td>total_samples</td>
+<td>Total samples to acquire. Total bytes fetched = total_samples*sample_length</td>
+</tr>
+<tr class="row-even"><td>tg</td>
+<td>timegap between samples (in uS)</td>
+</tr>
+</tbody>
+</table>
+<p>Example</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="n">Interface</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">,</span><span class="n">y3</span><span class="p">,</span><span class="n">y4</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">capture_multiple</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="mf">1.75</span><span class="p">,</span><span class="s">&#39;CH1&#39;</span><span class="p">,</span><span class="s">&#39;CH2&#39;</span><span class="p">,</span><span class="s">&#39;MIC&#39;</span><span class="p">,</span><span class="s">&#39;SEN&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y1</span><span class="p">)</span>              
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y2</span><span class="p">)</span>              
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y3</span><span class="p">)</span>              
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y4</span><span class="p">)</span>              
+<span class="gp">&gt;&gt;&gt; </span><span class="n">show</span><span class="p">()</span>              
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Arrays X(timestamps),Y1,Y2 ...</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.config">
+<tt class="descname">config</tt><big>(</big><em>freq</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets frequency for I2C transactions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>freq</td>
+<td>I2C frequency</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.pullSCLLow">
+<tt class="descname">pullSCLLow</tt><big>(</big><em>uS</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.pullSCLLow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.pullSCLLow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hold SCL pin at 0V for a specified time period. Used by certain sensors such
+as MLX90316 PIR for initializing.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>uS</td>
+<td>Time(in uS) to hold SCL output at 0 Volts</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.read">
+<tt class="descname">read</tt><big>(</big><em>length</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a fixed number of data bytes from I2C device. Fetches length-1 bytes with acknowledge bits for each, +1 byte
+with Nack.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>length</td>
+<td>number of bytes to read from I2C bus</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.restart">
+<tt class="descname">restart</tt><big>(</big><em>address</em>, <em>rw</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiates I2C transfer to address</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>address</td>
+<td>I2C slave address</td>
+</tr>
+<tr class="row-odd"><td>rw</td>
+<td><dl class="first last docutils">
+<dt>Read/write.</dt>
+<dd><ul class="first last simple">
+<li>0 for writing</li>
+<li>1 for reading.</li>
+</ul>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.scan">
+<tt class="descname">scan</tt><big>(</big><em>frequency=100000</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan I2C port for connected devices</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Frequency</td>
+<td>I2C clock frequency</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array of addresses of connected I2C slave devices</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.send">
+<tt class="descname">send</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS data over I2C.
+The I2C bus needs to be initialized and set to the correct slave address first.
+Use I2C.start(address) for this.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>data</td>
+<td>Sends data byte over I2C bus</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.send_burst">
+<tt class="descname">send_burst</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.send_burst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.send_burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS data over I2C. The function does not wait for the I2C to finish before returning.
+It is used for sending large packets quickly.
+The I2C bus needs to be initialized and set to the correct slave address first.
+Use start(address) for this.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>data</td>
+<td>Sends data byte over I2C bus</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.simpleRead">
+<tt class="descname">simpleRead</tt><big>(</big><em>addr</em>, <em>numbytes</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.simpleRead"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.simpleRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read bytes from I2C slave without first transmitting the read location.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>addr</td>
+<td>Address of I2C slave</td>
+</tr>
+<tr class="row-odd"><td>numbytes</td>
+<td>Total Bytes to read</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.start">
+<tt class="descname">start</tt><big>(</big><em>address</em>, <em>rw</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiates I2C transfer to address via the I2C port</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>address</td>
+<td>I2C slave address</td>
+</tr>
+<tr class="row-odd"><td>rw</td>
+<td><dl class="first last docutils">
+<dt>Read/write.</dt>
+<dd><ul class="first last simple">
+<li>0 for writing</li>
+<li>1 for reading.</li>
+</ul>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>stops I2C transfer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.wait">
+<tt class="descname">wait</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>wait for I2C</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.I2C.writeBulk">
+<tt class="descname">writeBulk</tt><big>(</big><em>device_address</em>, <em>bytestream</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#I2C.writeBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.I2C.writeBulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>write bytes to I2C slave</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>device_address</td>
+<td>Address of I2C slave</td>
+</tr>
+<tr class="row-odd"><td>bytestream</td>
+<td>List of bytes to write</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="data-bus-interface-spi">
+<h2>Data Bus : interface.SPI<a class="headerlink" href="#data-bus-interface-spi" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SEEL.Peripherals.SPI">
+<em class="property">class </em><tt class="descclassname">SEEL.Peripherals.</tt><tt class="descname">SPI</tt><big>(</big><em>H</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Methods to interact with the SPI port. An instance of Packet_Handler must be passed to the init function</p>
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.send16">
+<tt class="descname">send16</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.send16"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.send16" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS 16-bit data over SPI</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>value</td>
+<td>value to transmit</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">value returned by slave device</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.send16_burst">
+<tt class="descname">send16_burst</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.send16_burst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.send16_burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS 16-bit data over SPI
+no acknowledge/return value</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>value</td>
+<td>value to transmit</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.send8">
+<tt class="descname">send8</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.send8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.send8" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS 8-bit data over SPI</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>value</td>
+<td>value to transmit</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">value returned by slave device</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.send8_burst">
+<tt class="descname">send8_burst</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.send8_burst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.send8_burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>SENDS 8-bit data over SPI
+No acknowledge/return value</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>value</td>
+<td>value to transmit</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.set_cs">
+<tt class="descname">set_cs</tt><big>(</big><em>channel</em>, <em>state</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.set_cs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.set_cs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable or disable a chip select</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>channel</td>
+<td>&#8216;CS1&#8217;,&#8217;CS2&#8217;</td>
+</tr>
+<tr class="row-odd"><td>state</td>
+<td>1 for HIGH, 0 for LOW</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.set_parameters">
+<tt class="descname">set_parameters</tt><big>(</big><em>primary_prescaler=0</em>, <em>secondary_prescaler=2</em>, <em>CKE=1</em>, <em>CKP=0</em>, <em>SMP=1</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.set_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets SPI parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>primary_pres</td>
+<td>Primary Prescaler(0,1,2,3) for 64MHz clock-&gt;(64:1,16:1,4:1,1:1)</td>
+</tr>
+<tr class="row-odd"><td>secondary_pres</td>
+<td>Secondary prescaler(0,1,..7)-&gt;(8:1,7:1,..1:1)</td>
+</tr>
+<tr class="row-even"><td>CKE</td>
+<td>CKE 0 or 1.</td>
+</tr>
+<tr class="row-odd"><td>CKP</td>
+<td>CKP 0 or 1.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.start">
+<tt class="descname">start</tt><big>(</big><em>channel</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>selects SPI channel to enable.
+Basically lowers the relevant chip select pin .</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>channel</td>
+<td>&#8216;CS1&#8217;,&#8217;CS2&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="SEEL.Peripherals.SPI.stop">
+<tt class="descname">stop</tt><big>(</big><em>channel</em><big>)</big><a class="reference internal" href="_modules/SEEL/Peripherals.html#SPI.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#SEEL.Peripherals.SPI.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>selects SPI channel to disable.
+Sets the relevant chip select pin to HIGH.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Arguments</strong></th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>channel</td>
+<td>&#8216;CS1&#8217;,&#8217;CS2&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Bridges : I2C, SPI</a><ul>
+<li><a class="reference internal" href="#data-bus-interface-i2c">Data Bus : interface.I2C</a></li>
+<li><a class="reference internal" href="#data-bus-interface-spi">Data Bus : interface.SPI</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="interface.html"
+                        title="previous chapter">The Communications Library : interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wireless.html"
+                        title="next chapter">IoT Nodes: Wireless data bridges</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/peripherals.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wireless.html" title="IoT Nodes: Wireless data bridges"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="interface.html" title="The Communications Library : interface"
+             >previous</a> |</li>
+        <li><a href="index.html">SEELablet ProgMan 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Jithin BP.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
