@@ -112,6 +112,7 @@ class Interface():
 
 		self.sine1freq = None;self.sine2freq = None
 		self.sqrfreq = {'SQR1':None,'SQR2':None,'SQR3':None,'SQR4':None}
+		self.sqrduty = {'SQR1':0.5,'SQR2':0.5,'SQR3':0.5,'SQR4':0.5}
 		self.aboutArray=[]
 		self.errmsg = ''
 		#--------------------------Initialize communication handler, and subclasses-----------------
@@ -3313,7 +3314,7 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-	def sqr1(self,freq,duty_cycle=50,onlyPrepare=False):
+	def sqr1(self,freq,duty_cycle=0.5,onlyPrepare=False):
 		"""
 		Set the frequency of sqr1
 
@@ -3323,10 +3324,10 @@ class Interface():
 		**Arguments** 
 		==============  ============================================================================================
 		frequency       Frequency
-		duty_cycle      Percentage of high time
+		duty_cycle      high time (0-1)
 		==============  ============================================================================================
 		"""
-		if freq==0 or duty_cycle==0 : return None
+		if freq==0 or duty_cycle<=0 or duty_cycle>1 : return None
 		if freq>10e6:
 			print ('Frequency is greater than 10MHz. Please use map_reference_clock for 16 & 32MHz outputs')
 			return 0
@@ -3340,7 +3341,7 @@ class Interface():
 		if prescaler==4 or wavelength==0:
 			self.__print__('out of range')
 			return 0
-		high_time = wavelength*duty_cycle/100.
+		high_time = 1.*wavelength*duty_cycle
 		self.__print__(wavelength,':',high_time,':',prescaler)
 		if onlyPrepare: self.set_state(SQR1=False)
 		try:
@@ -3355,6 +3356,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		self.sqrfreq['SQR1']=64e6/wavelength/p[prescaler&0x3]
+		self.sqrduty['SQR1']=duty_cycle
 		return self.sqrfreq['SQR1']
 
 	def sqr1_pattern(self,timing_array):
@@ -3397,9 +3399,17 @@ class Interface():
 		**Arguments** 
 		==============  ============================================================================================
 		frequency       Frequency
-		duty_cycle      Percentage of high time
+		duty_cycle      high time (0-1)
 		==============  ============================================================================================
+
+		* Disables W2
 		"""
+		if freq==0 or duty_cycle<=0 or duty_cycle>1 : return None
+		if freq>10e6:
+			print ('Frequency is greater than 10MHz. Please use map_reference_clock for 16 & 32MHz outputs')
+			return 0
+
+
 		p=[1,8,64,256]
 		prescaler=0
 		while prescaler<=3:
@@ -3411,7 +3421,7 @@ class Interface():
 			self.__print__('out of range')
 			return 0
 		try:
-			high_time = wavelength*duty_cycle/100.
+			high_time = 1.*wavelength*duty_cycle
 			self.__print__(wavelength,high_time,prescaler)
 			self.H.__sendByte__(CP.WAVEGEN)
 			self.H.__sendByte__(CP.SET_SQR2)
@@ -3423,6 +3433,7 @@ class Interface():
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
 		self.sqrfreq['SQR2']=64e6/wavelength/p[prescaler&0x3]
+		self.sqrduty['SQR2']=duty_cycle
 		return self.sqrfreq['SQR2']
 
 	def set_sqrs(self,wavelength,phase,high_time1,high_time2,prescaler=1):
@@ -3517,7 +3528,11 @@ class Interface():
 		except Exception as ex:
 			self.raiseException(ex, "Communication Error , Function : "+inspect.currentframe().f_code.co_name)
 
-		for a in ['SQR1','SQR2','SQR3','SQR4']:self.sqrfreq[a]=64e6/wavelength/p[prescaler&0x3]
+		for a in ['SQR1','SQR2','SQR3','SQR4']:
+			self.sqrfreq[a]=64e6/wavelength/p[prescaler&0x3]
+		for a,b in zip(range(4),[h0,h1,h2,h3]):
+			self.sqrduty[a]=b
+			
 		return 64e6/wavelength/p[prescaler&0x3]
 
 	def map_reference_clock(self,scaler,*args):
