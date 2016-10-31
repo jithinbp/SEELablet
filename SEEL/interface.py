@@ -559,8 +559,8 @@ class Interface():
 			self.H.__sendByte__(CP.CAPTURE_MULTIPLE)       
 			self.H.__sendInt__(CHANNEL_SELECTION|((total_chans-1)<<12) )
 
-			self.H.__sendInt__(total_samples)           #total number of samples to record
-			self.H.__sendInt__(int(self.timebase*8))        #Timegap between samples.  8MHz timer clock
+			self.H.__sendInt__(total_samples)           				#total number of samples to record
+			self.H.__sendInt__(int(self.timebase*8))        			#Timegap between samples.  8MHz timer clock
 			self.H.__get_ack__()
 			self.__print__( 'wait')
 			time.sleep(1e-6*total_samples*tg+.01)
@@ -569,10 +569,10 @@ class Interface():
 			for i in range(int(total_samples/self.data_splitting)):
 				self.H.__sendByte__(CP.ADC)
 				self.H.__sendByte__(CP.GET_CAPTURE_CHANNEL)
-				self.H.__sendByte__(0)  #channel number . starts with A0 on PIC
+				self.H.__sendByte__(0)  								#channel number . starts with A0 on PIC
 				self.H.__sendInt__(self.data_splitting)
 				self.H.__sendInt__(i*self.data_splitting)
-				data+= self.H.fd.read(int(self.data_splitting*2))        #reading int by int sometimes causes a communication error. this works better.
+				data+= self.H.fd.read(int(self.data_splitting*2))       #reading int by int sometimes causes a communication error. this works better.
 				self.H.__get_ack__()
 
 			if total_samples%self.data_splitting:
@@ -602,6 +602,8 @@ class Interface():
 		self.timebase = int(tg*8)/8.
 		self.samples = samples
 		CHOSA=self.analogInputSources[chan].CHOSA
+		self.achans[0].set_params(channel=chan,length=samples,timebase=self.timebase,resolution=10,source=self.analogInputSources[chan])
+		self.channels_in_buffer = 1
 
 		try:
 			self.H.__sendByte__(CP.ADC)
@@ -676,9 +678,10 @@ class Interface():
 		"""
 		self.__capture_fullspeed__(chan,samples,tg,*args,**kwargs)
 		time.sleep(1e-6*self.samples*self.timebase+kwargs.get('interval',0)*1e-6+0.1)
-		x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
-
-		return x,self.analogInputSources[chan].calPoly10(y)
+		#x,y =  self.__retrieveBufferData__(chan,self.samples,self.timebase)
+		self.__fetch_channel__(1)
+		#return x,self.analogInputSources[chan].calPoly10(y)
+		return self.achans[0].get_xaxis(),self.achans[0].get_yaxis()
 
 	def __capture_fullspeed_hr__(self,chan,samples,tg,*args):
 		tg = int(tg*8)/8.  # Round off the timescale to 1/8uS units
@@ -690,6 +693,9 @@ class Interface():
 		self.timebase = int(tg*8)/8.
 		self.samples = samples
 		CHOSA=self.analogInputSources[chan].CHOSA
+		self.achans[0].set_params(channel=chan,length=samples,timebase=self.timebase,resolution=12,source=self.analogInputSources[chan])
+		self.channels_in_buffer = 1
+
 		try:
 			self.H.__sendByte__(CP.ADC)
 			if 'SET_LOW' in args:

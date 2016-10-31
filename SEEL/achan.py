@@ -138,42 +138,98 @@ for a in ['CH1']:
 
 class analogAcquisitionChannel:
 	'''
-	This class takes care of oscilloscope data fetched from the device.
-	Each instance may be linked to a particular input.
-	Since only up to two channels may be captured at a time with the vLabtool, only two instances will be required
+	This class takes care of oscilloscope trace data fetched from the device.
 	
-	Each instance will be linked to a particular inputSource instance by the capture routines.
-	When data is requested , it will return after applying calibration and gain details
-	stored in the selected inputSource
+	Each instance may be linked to a particular input.
+	
+	Since only up to four channels may be captured at a time with the SEELablet, four instances are required to be maintained by the communications library.
+	they are located at interface.achans[4] .
+	
+	Each instance will be linked to a particular inputSource (achan.analogInputSource) instance by the capture routines.
+	When data is requested , it will return after applying calibration and gain details depending on the selected analog input.
+	
+	e.g. , calling interface.capture1('CH1') automatically sets interface.achans[0].source as achan.analogInputSource('CH1') . to find the Voltage range, you can use interface.achans[0].get_Y_range()
 	'''
 	def __init__(self,a):
 		self.name=''
 		self.gain=0
 		self.channel=a
+		'''
+		List of available channel names CH1, CH2, ... AN8
+		'''
 		self.channel_names=allAnalogChannels
 		#REFERENCE VOLTAGE = 3.3 V
+		
+		'''
+		For tweaking the reference voltage. Users may measure the voltage reference using a much more precise voltmeter, and set this scale factor
+		'''
 		self.calibration_ref196=1.#measured reference voltage/3.3
+		'''
+		ADC resolution . 10/12
+		'''
 		self.resolution=10
+		'''
+		buffer for storing the X-axis
+		'''
 		self.xaxis=np.zeros(10000)
+		'''
+		buffer for storing the Y-axis (voltage readings)
+		'''
 		self.yaxis=np.zeros(10000)
 		self.length=100
 		self.timebase = 1.
 		self.source = analogInputSource('CH1') #use CH1 for initialization. It will be overwritten by set_params
 
 	def fix_value(self,val):
+		'''
+		Convert a code/np.array(codes) into corresponding voltage value(s) based on the calibration polynomials, gain settings, and input source
+		
+		'''
 		#val[val>1020]=np.NaN
 		#val[val<2]=np.NaN
 		if self.resolution==12:
 			return self.calibration_ref196*self.source.calPoly12(val)
 		else:return self.calibration_ref196*self.source.calPoly10(val)
 
+	def get_Y_range(self):
+		'''
+		return an array specifying the voltage range
+		[V_min,V_max]
+		
+		'''
+		if self.resolution==12:
+			return np.sort( self.source.calPoly12(np.array([5.,4090.])))
+		else:
+			return np.sort( self.source.calPoly10(np.array([5.,1018.])) )
+
 	def set_yval(self,pos,val):
+		'''
+		modify a certain element in the Y axis of the trace array. Internally calls `fix_value` on val, and writes to `yaxis`[pos]
+		'''
 		self.yaxis[pos] = self.fix_value(val)
 
 	def set_xval(self,pos,val):
+		'''
+		modify a certain element in the x-axis of the trace array. writes val to `xaxis`[pos]
+		'''
 		self.xaxis[pos] = val
 
 	def set_params(self,**keys):
+		'''
+		Set the parameters of this channel. Called by capture routines such as capture_fullspeed, and capture1 .
+		This function allows storing the parameters passed to the capture routine running in the hardware.
+		These parameters will be required to generate accurate X and Y data from the raw ADC codes read from the hardware after acquisition is complete
+		
+		Keyword arguments
+		
+		name : Human readable name . CH1 , CH2 ...
+		source : `analogInputSource` instance. It holds all calibration data, and gain information.
+		resolution : 10 or 12
+		length : number of samples
+		timebase : time between consecutive samples
+		
+		
+		'''
 		self.gain = keys.get('gain',self.gain)	
 		self.name = keys.get('channel',self.channel)	
 		self.source = keys.get('source',self.source)
@@ -189,7 +245,13 @@ class analogAcquisitionChannel:
 		for a in range(int(self.length)): self.xaxis[a] = self.timebase*a
 
 	def get_xaxis(self):
+		'''
+		Return a list of values for the X axis
+		'''
 		return self.xaxis[:self.length]
 	def get_yaxis(self):
+		'''
+		Return a list of voltage values for plotting the Y axis
+		'''
 		return self.yaxis[:self.length]
 
